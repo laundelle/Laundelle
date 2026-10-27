@@ -13,6 +13,7 @@ import {
   encryptOrderPin,
 } from '@/lib/orderPin';
 import { PricingChargeService } from '@/services/PricingChargeService';
+import { sendOrderConfirmedEmail } from '@/emails';
 
 export class PaymentService {
     private static getStripe(): Stripe {
@@ -490,8 +491,8 @@ export class PaymentService {
             }
         }
 
-        const status = assignedDriverId ? 'collection_scheduled' : 'waiting_for_driver';
-        const statusLabel = assignedDriverId ? 'Collection Scheduled' : 'Waiting for Driver';
+        const status = 'booking_confirmed';
+        const statusLabel = 'Booking Confirmed';
 
         let pickupPin = order.pickup_pin || order.pickup_otp;
         let deliveryPin = order.delivery_pin || order.delivery_otp;
@@ -509,6 +510,14 @@ export class PaymentService {
                 statusLabel: statusLabel,
                 updated_at: now
             },
+            $push: {
+                timeline_events: {
+                    event: 'booking_confirmed',
+                    label: 'Booking Confirmed',
+                    actor: 'system',
+                    timestamp: now
+                }
+            }
         };
 
         if (!pickupPin) {
@@ -665,6 +674,53 @@ export class PaymentService {
                 orderId,
             });
         }
+
+        // Send Order Confirmed Email (with Pickup OTP ONLY)
+        (async () => {
+            try {
+                let customerEmail = order.customer_email || order.contactDetails?.email || session?.customer_email || (session?.customer_details as any)?.email || order.email;
+                let customerName = order.customer_name || order.customerName || (order.contactDetails ? `${order.contactDetails.firstName || ''} ${order.contactDetails.lastName || ''}`.trim() : '');
+                if (!customerEmail && userId && userId !== 'guest') {
+                    const custUser = await db.collection('users').findOne(buildEntityLookupQuery(userId, 'user') as any);
+                    if (custUser) {
+                        customerEmail = custUser.email;
+                        customerName = customerName || custUser.full_name || custUser.name;
+                    }
+                }
+
+                if (customerEmail && !order.confirmation_email_sent) {
+                    await sendOrderConfirmedEmail({
+                        to: customerEmail,
+                        orderId,
+                        customerName: customerName || 'Valued Customer',
+                        pickupOtp: pickupPin,
+                        pickupDate: order.collectionDate || order.pickupDate || 'Tomorrow',
+                        pickupSlot: order.collectionTimeSlot || order.pickupSlot || '10:00 AM - 12:00 PM',
+                        deliveryDate: order.deliveryDate || 'In 2 Days',
+                        deliverySlot: order.deliveryTimeSlot || order.deliverySlot || '10:00 AM - 12:00 PM',
+                        pickupAddress: order.address || order.postcode || 'Customer Address',
+                        items: Array.isArray(order.items) ? order.items.map((i: any) => ({
+                            name: i.name || i.title || 'Garment Item',
+                            quantity: i.quantity || 1,
+                            price: i.price || i.unitPrice || 0,
+                            unit: i.unit,
+                            selectedOption: i.selectedOption || i.category,
+                        })) : [],
+                        subtotal: order.subtotal || amountGBP,
+                        discount: order.discount || 0,
+                        total: amountGBP,
+                        paymentMethod: 'Card (Stripe Confirmed)',
+                    });
+
+                    await db.collection('orders').updateOne(
+                        { _id: order._id },
+                        { $set: { confirmation_email_sent: true } }
+                    );
+                }
+            } catch (emailErr: any) {
+                console.error('[PaymentService] Error sending Order Confirmed email:', emailErr?.message || emailErr);
+            }
+        })();
 
         // 4. Audit Log
         await AuditService.recordOrderEvent({

@@ -1084,11 +1084,30 @@ export async function dbFetchManagerStaff(): Promise<any[]> {
         const json = await res.json();
         if (!res.ok || json.error) return [];
         const raw = json.data ?? json.staff ?? json;
-        if (Array.isArray(raw)) return raw;
-        if (Array.isArray(raw?.staff)) return raw.staff;
-        return [];
+        const arr = Array.isArray(raw) ? raw : (Array.isArray(raw?.staff) ? raw.staff : []);
+        (arr as any).plantPincodes = json.plantPincodes || [];
+        return arr;
     } catch {
         return [];
+    }
+}
+
+export async function dbFetchManagerStaffData(): Promise<{ staff: any[]; plantPincodes: string[] }> {
+    try {
+        const res = await apiFetch('/api/v1/manager/staff', {
+            method: 'GET',
+            headers: authHeaders(),
+        });
+        const json = await res.json();
+        if (!res.ok || json.error) return { staff: [], plantPincodes: [] };
+        const raw = json.data ?? json.staff ?? json;
+        const staff = Array.isArray(raw) ? raw : (Array.isArray(raw?.staff) ? raw.staff : []);
+        return {
+            staff,
+            plantPincodes: Array.isArray(json.plantPincodes) ? json.plantPincodes : []
+        };
+    } catch {
+        return { staff: [], plantPincodes: [] };
     }
 }
 
@@ -1774,6 +1793,28 @@ export async function dbAdminFetchCustomers(search?: string, status?: string): P
     }
 }
 
+export async function dbFetchManagerCustomers(search?: string, status?: string): Promise<{ customers: any[]; flags: any[]; notes: any[] }> {
+    try {
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (status && status !== 'all') params.append('status', status);
+        const qs = params.toString();
+        const res = await apiFetch(qs ? `/api/v1/manager/customers?${qs}` : '/api/v1/manager/customers', {
+            headers: authHeaders(),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) return { customers: [], flags: [], notes: [] };
+        return {
+            customers: data.customers || data.data || [],
+            flags: data.flags || [],
+            notes: data.notes || []
+        };
+    } catch {
+        return { customers: [], flags: [], notes: [] };
+    }
+}
+
+
 export async function dbAdminAddCustomerFlag(flagData: any): Promise<{ success: boolean; flag?: any; error?: string }> {
     try {
         const res = await apiFetch('/api/v1/admin/customers', {
@@ -2037,5 +2078,54 @@ export async function dbValidateCoupon(code: string, subtotal: number): Promise<
         return { valid: false, message: e.message || 'Network error validating promo code' };
     }
 }
+
+export async function dbSubmitOrderRating(
+    orderId: string,
+    rating?: number | null,
+    feedback?: string
+): Promise<{ success: boolean; error?: string; order?: Order; rating?: any }> {
+    const local = getLocal<Order[]>(LOCAL_ORDERS_KEY, []);
+    const now = new Date().toISOString();
+    const ratingObj = {
+        rating: rating !== undefined && rating !== null ? Number(rating) : null,
+        feedback: feedback ? String(feedback).trim() : '',
+        createdAt: now
+    };
+
+    setLocal(
+        LOCAL_ORDERS_KEY,
+        local.map((o) =>
+            o.id === orderId || (o as any)._id === orderId
+                ? {
+                    ...o,
+                    rating: ratingObj.rating ?? undefined,
+                    ratingFeedback: ratingObj.feedback,
+                    ratingSubmittedAt: now,
+                    customerRating: ratingObj
+                }
+                : o
+        )
+    );
+
+    try {
+        const res = await apiFetch(`/api/v1/orders/${orderId}/rating`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ rating, feedback }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+            return { success: false, error: data.error?.message || data.error || 'Failed to submit rating' };
+        }
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('l2u_orders_change'));
+        }
+        return { success: true, order: data.data?.order, rating: data.data?.rating || ratingObj };
+    } catch (e: any) {
+        console.error('[db] dbSubmitOrderRating:', e);
+        return { success: false, error: e.message || 'Network error' };
+    }
+}
+
 
 

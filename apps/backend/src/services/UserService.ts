@@ -34,9 +34,33 @@ export class UserService {
         }
 
         let plantName = '';
-        if (user.plant_id) {
-            const plant = await db.collection('plants').findOne({ _id: user.plant_id } as any);
-            if (plant) plantName = plant.name;
+        let plantId = user.plant_id || user.plantId || null;
+        if (plantId) {
+            const plant = await db.collection('plants').findOne({
+                $or: [
+                    { _id: plantId as any },
+                    { id: plantId },
+                    { publicId: plantId },
+                    { code: plantId },
+                    ...(ObjectId.isValid(plantId) ? [{ _id: new ObjectId(plantId) }] : [])
+                ]
+            } as any);
+            if (plant) {
+                plantName = plant.name;
+                plantId = plant.publicId || plant.id || String(plant._id);
+            }
+        } else if (user.manager_id || user.plantManagerId) {
+            const mgrId = user.manager_id || user.plantManagerId;
+            const plant = await db.collection('plants').findOne({
+                $or: [
+                    { manager_id: mgrId },
+                    ...(ObjectId.isValid(mgrId) ? [{ manager_id: new ObjectId(mgrId) }] : [])
+                ]
+            });
+            if (plant) {
+                plantName = plant.name;
+                plantId = plant.publicId || plant.id || String(plant._id);
+            }
         }
 
         // Never expose password or internal secrets
@@ -57,9 +81,12 @@ export class UserService {
             activeSubscription: user.activeSubscription || null,
             recurringSchedules: user.recurringSchedules || [],
             role: user.role,
-            plant_id: user.plant_id || null,
-            plantId: user.plant_id || null,
-            plantName: plantName || user.plant_name || '',
+            plant_id: plantId,
+            plantId: plantId,
+            plantName: plantName || user.plant_name || user.plantName || '',
+            plant_name: plantName || user.plant_name || user.plantName || '',
+            manager_id: user.manager_id || user.plantManagerId || null,
+            plantManagerId: user.plantManagerId || user.manager_id || null,
             vehicle: user.vehicle || '',
             vehicle_type: user.vehicle_type || '',
             vehicle_reg: user.vehicle_reg || '',

@@ -1340,9 +1340,48 @@ export class AdminService {
         return StaffProvisioningService.updateUser(actorContext, staffId, staffData);
     }
 
-    static async getPlants() {
+    static async getPlants(actor?: any) {
         const db = await getDb();
-        const plants = await db.collection('plants').find().toArray();
+        let query: any = {};
+        if (actor && (actor.role === 'manager' || actor.role === 'plant_manager')) {
+            const managerIdStr = String(actor._id || actor.id || '');
+            const managerPublicId = actor.publicId ? String(actor.publicId) : null;
+            const managerEmail = actor.email ? String(actor.email).toLowerCase() : null;
+            const plantId = actor.plant_id || actor.plantId;
+            
+            const conditions: any[] = [];
+            if (plantId) {
+                conditions.push({ _id: plantId });
+                conditions.push({ _id: String(plantId) });
+                conditions.push({ id: plantId });
+                conditions.push({ publicId: plantId });
+                conditions.push({ code: plantId });
+                if (ObjectId.isValid(plantId)) {
+                    conditions.push({ _id: new ObjectId(plantId) });
+                }
+            }
+            if (managerIdStr) {
+                conditions.push({ manager_id: managerIdStr });
+                conditions.push({ manager_ids: managerIdStr });
+                if (ObjectId.isValid(managerIdStr)) {
+                    conditions.push({ manager_id: new ObjectId(managerIdStr) });
+                }
+            }
+            if (managerPublicId) {
+                conditions.push({ manager_public_id: managerPublicId });
+                conditions.push({ manager_id: managerPublicId });
+            }
+            if (managerEmail) {
+                conditions.push({ manager_email: managerEmail });
+            }
+
+            if (conditions.length > 0) {
+                query = { $or: conditions };
+            } else {
+                return { plants: [] };
+            }
+        }
+        const plants = await db.collection('plants').find(query).toArray();
         return { plants };
     }
 
@@ -1515,19 +1554,43 @@ export class AdminService {
             const plantKeys = [plantId, String(plant._id), plant.publicId, plant.id].filter(Boolean);
             const managerKeys = [cascadeManagerId, plant.manager_id, plant.manager_public_id].filter(Boolean);
 
+            // Update manager(s)
             await db.collection('users').updateMany(
                 {
                     $or: [
-                        { plant_id: { $in: plantKeys } },
-                        { plantId: { $in: plantKeys } },
+                        { _id: { $in: managerKeys } },
                         { manager_id: { $in: managerKeys } },
                         { plantManagerId: { $in: managerKeys } },
-                        { _id: { $in: managerKeys } }
+                        { plant_id: { $in: plantKeys } },
+                        { plantId: { $in: plantKeys } }
                     ],
-                    role: { $in: ['driver', 'processor', 'manager', 'plant_manager'] }
+                    role: { $in: ['manager', 'plant_manager'] }
                 },
                 { $set: { assigned_postcodes: updateFields.service_pincodes, assignedSectors: updateFields.service_pincodes } }
             );
+
+            // Filter subordinate driver postcodes so they don't exceed the new plant coverage
+            const subordinateStaff = await db.collection('users').find({
+                $or: [
+                    { plant_id: { $in: plantKeys } },
+                    { plantId: { $in: plantKeys } },
+                    { manager_id: { $in: managerKeys } },
+                    { plantManagerId: { $in: managerKeys } }
+                ],
+                role: { $in: ['driver', 'processor'] }
+            }).toArray();
+
+            const newPlantPostcodeSet = new Set(updateFields.service_pincodes.map((p: string) => p.trim().toUpperCase()));
+            for (const s of subordinateStaff) {
+                const existing = s.assigned_postcodes || s.assignedSectors;
+                if (Array.isArray(existing) && existing.length > 0) {
+                    const retained = existing.filter((p: string) => newPlantPostcodeSet.has(p.trim().toUpperCase()));
+                    await db.collection('users').updateOne(
+                        { _id: s._id },
+                        { $set: { assigned_postcodes: retained, assignedSectors: retained } }
+                    );
+                }
+            }
         }
         
         await AuditService.recordEvent({

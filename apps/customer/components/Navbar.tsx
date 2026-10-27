@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { ShoppingBag, Sparkles, Bell } from 'lucide-react';
 import { ActiveTab } from '@laundelle/types';
 
@@ -88,10 +89,16 @@ export const Navbar: React.FC<NavbarProps> = ({
       <button
         onClick={() => onNavigate('home')}
         className="shrink-0 text-left cursor-pointer group pr-4 lg:pr-8 flex items-center"
+        aria-label="Laundelle Home"
       >
-        <span className="font-serif text-[26px] sm:text-[30px] lg:text-[34px] tracking-[1.5px] text-navy font-bold transition-opacity group-hover:opacity-90">
-          LAUNDELLE
-        </span>
+        <Image
+          src="/Laundelle-Logo-top.svg"
+          alt="LAUNDELLE"
+          width={220}
+          height={32}
+          priority
+          className="h-7 sm:h-8 lg:h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+        />
       </button>
 
       {/* Desktop Navigation Links (Centered - hidden when bottom nav is active) */}

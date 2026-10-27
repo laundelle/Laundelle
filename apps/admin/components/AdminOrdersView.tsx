@@ -15,7 +15,9 @@ import {
   PackageCheck,
   AlertCircle,
   Image as ImageIcon,
-  RefreshCw
+  RefreshCw,
+  Star,
+  MessageSquare
 } from 'lucide-react';
 import { Order } from '@laundelle/types';
 import { GenerateQRModal } from '@laundelle/ui';
@@ -462,6 +464,7 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
                       <th className="py-3 px-4">Order ID</th>
                       <th className="py-3 px-4">Customer Name</th>
                       <th className="py-3 px-4">Operational Status</th>
+                      <th className="py-3 px-4">Customer Rating</th>
                       <th className="py-3 px-4">Payment</th>
                       <th className="py-3 px-4">Total</th>
                     </tr>
@@ -472,6 +475,7 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
                       <th className="py-3 px-4">Slot</th>
                       <th className="py-3 px-4">Items</th>
                       <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4">Customer Rating</th>
                       <th className="py-3 px-4">Payment</th>
                       <th className="py-3 px-4">Total</th>
                       <th className="py-3 px-4 text-right">Actions</th>
@@ -481,6 +485,9 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
                 <tbody className="divide-y divide-slate-100">
                   {filteredOrders.map((ord) => {
                     const custName = getCustomerName(ord);
+                    const ratingScore = ord.rating || ord.customerRating?.rating;
+                    const ratingComment = ord.ratingFeedback || ord.customerRating?.feedback;
+
                     return (
                       <tr
                         key={ord.id}
@@ -503,6 +510,25 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
                               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-100/60">
                                 {ord.statusLabel || ord.status}
                               </span>
+                            </td>
+                            <td className="py-3 px-4">
+                              {ratingScore ? (
+                                <div className="flex items-center gap-1.5" title={ratingComment || `${ratingScore} Stars`}>
+                                  <div className="flex items-center text-amber-500 font-bold text-xs bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 shadow-2xs">
+                                    <Star className="w-3 h-3 fill-current mr-1 text-amber-500" />
+                                    <span>{ratingScore}.0</span>
+                                  </div>
+                                  {ratingComment && (
+                                    <span className="text-[10px] text-slate-500 truncate max-w-[120px]" title={ratingComment}>
+                                      "{ratingComment}"
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (ord.status === 'delivered' || ord.status === 'completed') ? (
+                                <span className="text-slate-400 text-[10px] italic">Awaiting Rating</span>
+                              ) : (
+                                <span className="text-slate-300 text-xs">-</span>
+                              )}
                             </td>
                             <td className="py-3 px-4">
                               <span
@@ -540,6 +566,25 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
                               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-100/60">
                                 {ord.statusLabel || ord.status}
                               </span>
+                            </td>
+                            <td className="py-3 px-4">
+                              {ratingScore ? (
+                                <div className="flex items-center gap-1.5" title={ratingComment || `${ratingScore} Stars`}>
+                                  <div className="flex items-center text-amber-500 font-bold text-xs bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 shadow-2xs">
+                                    <Star className="w-3 h-3 fill-current mr-1 text-amber-500" />
+                                    <span>{ratingScore}.0</span>
+                                  </div>
+                                  {ratingComment && (
+                                    <span className="text-[10px] text-slate-500 truncate max-w-[120px]" title={ratingComment}>
+                                      "{ratingComment}"
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (ord.status === 'delivered' || ord.status === 'completed') ? (
+                                <span className="text-slate-400 text-[10px] italic">Awaiting Rating</span>
+                              ) : (
+                                <span className="text-slate-300 text-xs">-</span>
+                              )}
                             </td>
                             <td className="py-3 px-4">
                               <span
@@ -606,6 +651,12 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
                   >
                     {selectedOrder.paymentStatus}
                   </span>
+                  {(selectedOrder.rating || selectedOrder.customerRating?.rating) && (
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200 flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                      <span>{(selectedOrder.rating || selectedOrder.customerRating?.rating)}.0 / 5.0</span>
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -643,6 +694,62 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
                 </button>
               </div>
             </div>
+
+            {/* Customer Rating & Feedback Highlight Card */}
+            {(selectedOrder.rating || selectedOrder.customerRating?.rating) ? (
+              <div className="p-4 bg-gradient-to-r from-amber-50/90 via-amber-100/40 to-amber-50/90 rounded-2xl border border-amber-200/90 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5">
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-amber-400 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <Star className="w-5 h-5 fill-current" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-amber-950 uppercase tracking-wider">
+                        Customer Rating:
+                      </span>
+                      <div className="flex items-center text-amber-500">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-3.5 h-3.5 ${
+                              i < (selectedOrder.rating || selectedOrder.customerRating?.rating || 0)
+                                ? 'fill-amber-400 text-amber-400'
+                                : 'text-slate-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs font-extrabold text-amber-900">
+                        {(selectedOrder.rating || selectedOrder.customerRating?.rating)}.0 / 5.0
+                      </span>
+                    </div>
+                    {(selectedOrder.ratingFeedback || selectedOrder.customerRating?.feedback) ? (
+                      <p className="text-xs text-amber-950 italic mt-1 font-medium bg-white/80 px-3 py-1.5 rounded-lg border border-amber-200/60">
+                        "{selectedOrder.ratingFeedback || selectedOrder.customerRating?.feedback}"
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-amber-800/80 mt-0.5">Rating submitted without written comments.</p>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right text-[11px] text-amber-900/80 shrink-0">
+                  <span className="font-bold block">Verified Customer Rating</span>
+                  {selectedOrder.ratingSubmittedAt && (
+                    <span className="text-[10px] text-slate-500">
+                      {new Date(selectedOrder.ratingSubmittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : (selectedOrder.status === 'delivered' || selectedOrder.status === 'completed') ? (
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500 flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-slate-400" />
+                  <span>Customer Rating: <strong>Pending (Customer has not submitted a review yet)</strong></span>
+                </span>
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Awaiting Customer Rating</span>
+              </div>
+            ) : null}
 
             {/* Inspector Navigation Tabs */}
             <div className="grid grid-cols-4 gap-2 bg-gray-100 p-1.5 rounded-2xl text-xs font-bold">

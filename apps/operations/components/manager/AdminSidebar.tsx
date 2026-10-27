@@ -69,9 +69,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
   if (currentRole === 'manager') {
     navItems = rawNavItems
-      .filter(item => ['dashboard', 'orders', 'drivers', 'processors', 'staff', 'areas', 'settings', 'user_guide'].includes(item.id))
+      .filter(item => ['dashboard', 'orders', 'customers', 'drivers', 'processors', 'staff', 'areas', 'settings', 'user_guide'].includes(item.id))
       .map(item => {
-        if (item.id === 'staff') return { ...item, label: 'Staff Team', icon: Users };
+        if (item.id === 'customers') return { ...item, label: 'Customers', icon: Users };
+        if (item.id === 'staff') return { ...item, label: 'Staff Team', icon: UserCheck };
         if (item.id === 'areas') return { ...item, label: 'Plant Slots & Areas', icon: Map };
         return item;
       });

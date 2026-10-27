@@ -16,6 +16,7 @@ import { AdminAreasView } from './AdminAreasView';
 import { AdminComplaintsView } from './AdminComplaintsView';
 import { ManagerSettingsView } from './ManagerSettingsView';
 import { LogoutConfirmModal } from './LogoutConfirmModal';
+import { ManagerCustomersView } from './ManagerCustomersView';
 import { ManagerStaffWarningBanner } from './ManagerStaffWarningBanner';
 import { dbFetchManagerOrders, dbFetchManagerStaff } from '@laundelle/api-client';
 import { UserGuideView } from '@laundelle/ui';
@@ -33,7 +34,7 @@ export const ManagerPortalContainer: React.FC<ManagerPortalContainerProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<AdminViewTab>(initialTab || 'dashboard');
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
-  const [dateFilter, setDateFilter] = useState('Today');
+  const [dateFilter, setDateFilter] = useState('All Time');
   const [customStartDate, setCustomStartDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - 7);
@@ -148,6 +149,7 @@ export const ManagerPortalContainer: React.FC<ManagerPortalContainerProps> = ({
             />
           )}
           {activeTab === 'orders' && <AdminOrdersView orders={orders} onRefresh={() => fetchOrders(dateFilter, customStartDate, customEndDate)} />}
+          {activeTab === 'customers' && <ManagerCustomersView />}
           {activeTab === 'drivers' && <ManagerDriversView />}
           {activeTab === 'processors' && <ManagerProcessorsView />}
           {activeTab === 'staff' && (

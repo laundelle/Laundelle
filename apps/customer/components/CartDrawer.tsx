@@ -31,6 +31,7 @@ import { CartItem, UserAddress, Order } from '@laundelle/types';
 import { generateOrderId } from '@laundelle/ids';
 import { dbCreateOrder, dbCreateAddress, dbFetchSlots, getStoredSession, apiFetch, authHeaders, dbFetchPricingCharges, dbValidateCoupon } from '@laundelle/api-client';
 import { AddAddressModal } from './AddAddressModal';
+import { PostcodeSplitInput } from './PostcodeSplitInput';
 import {
   ScheduleConfig,
   isPickupDateValid,
@@ -64,6 +65,45 @@ interface CartDrawerProps {
   onAddressAdded?: (address: UserAddress) => void;
 }
 
+const CHECKOUT_PROGRESS_KEY = 'laundelle_checkout_progress';
+
+interface SavedCheckoutProgress {
+  currentStep: CheckoutStep;
+  selectedAddressId?: string;
+  pickupDate?: string;
+  pickupSlot?: string;
+  pickupInstruction?: string;
+  deliveryDate?: string;
+  deliverySlot?: string;
+  deliveryInstruction?: string;
+  declaredItemCount?: string;
+  updatedAt: number;
+}
+
+const loadSavedCheckoutProgress = (): SavedCheckoutProgress | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(CHECKOUT_PROGRESS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.updatedAt && Date.now() - parsed.updatedAt > 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(CHECKOUT_PROGRESS_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
+const clearSavedCheckoutProgress = () => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(CHECKOUT_PROGRESS_KEY);
+    localStorage.removeItem('laundelle_open_cart');
+  } catch {}
+};
+
 export const CartDrawer: React.FC<CartDrawerProps> = ({
   isOpen,
   onClose,
@@ -80,20 +120,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onAddressAdded
 }) => {
   // Step Navigation: 'cart' | 'slots' | 'contact' | 'review' | 'payment'
-  const [currentStep, setCurrentStep] = useState<CheckoutStep>('cart');
+  const [currentStep, setCurrentStep] = useState<CheckoutStep>(() => {
+    const saved = loadSavedCheckoutProgress();
+    return saved?.currentStep || 'cart';
+  });
 
-  // Reset to cart or slots when opened
-  useEffect(() => {
-    if (isOpen) {
-      if (cart.length > 0 && currentStep === 'cart') {
-        // stay on cart or allow review
-      }
-    } else {
-      setCurrentStep('cart');
-      setSubmitError(null);
-      setDeclaredItemCountError(null);
-    }
-  }, [isOpen]);
+  // Declared Item Count (Mandatory)
+  const [declaredItemCount, setDeclaredItemCount] = useState<string>(() => {
+    const saved = loadSavedCheckoutProgress();
+    return saved?.declaredItemCount || '';
+  });
+  const [declaredItemCountError, setDeclaredItemCountError] = useState<string | null>(null);
 
   // Session & Auth
   const session = getStoredSession();
@@ -104,9 +141,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [internalAddresses, setInternalAddresses] = useState<UserAddress[]>(addresses);
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const [addressToEdit, setAddressToEdit] = useState<UserAddress | null>(null);
-  const [selectedAddressId, setSelectedAddressId] = useState(
-    addresses.find((a) => a.isDefault)?.id || addresses[0]?.id || ''
-  );
+  const [selectedAddressId, setSelectedAddressId] = useState<string>(() => {
+    const saved = loadSavedCheckoutProgress();
+    return saved?.selectedAddressId || addresses.find((a) => a.isDefault)?.id || addresses[0]?.id || '';
+  });
 
   useEffect(() => {
     setInternalAddresses(addresses);
@@ -116,32 +154,121 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     }
   }, [addresses]);
 
-  // Declared Item Count (Mandatory)
-  const [declaredItemCount, setDeclaredItemCount] = useState<string>('');
-  const [declaredItemCountError, setDeclaredItemCountError] = useState<string | null>(null);
-
   // -------------------------------------------------------------
   // SCREEN 1: SLOTS STATE (DYNAMIC FROM PLANT MANAGER)
   // -------------------------------------------------------------
-  const [pickupDate, setPickupDate] = useState('');
-  const [pickupSlot, setPickupSlot] = useState('');
-  const [pickupInstruction, setPickupInstruction] = useState<string>('Collect from me in person');
+  const [pickupDate, setPickupDate] = useState<string>(() => {
+    const saved = loadSavedCheckoutProgress();
+    return saved?.pickupDate || '';
+  });
+  const [pickupSlot, setPickupSlot] = useState<string>(() => {
+    const saved = loadSavedCheckoutProgress();
+    return saved?.pickupSlot || '';
+  });
+  const [pickupInstruction, setPickupInstruction] = useState<string>(() => {
+    const saved = loadSavedCheckoutProgress();
+    return saved?.pickupInstruction || 'Collect from me in person';
+  });
 
-  const [deliveryDate, setDeliveryDate] = useState('');
-  const [deliverySlot, setDeliverySlot] = useState('');
-  const [deliveryInstruction, setDeliveryInstruction] = useState<string>('Deliver to me in person');
+  const [deliveryDate, setDeliveryDate] = useState<string>(() => {
+    const saved = loadSavedCheckoutProgress();
+    return saved?.deliveryDate || '';
+  });
+  const [deliverySlot, setDeliverySlot] = useState<string>(() => {
+    const saved = loadSavedCheckoutProgress();
+    return saved?.deliverySlot || '';
+  });
+  const [deliveryInstruction, setDeliveryInstruction] = useState<string>(() => {
+    const saved = loadSavedCheckoutProgress();
+    return saved?.deliveryInstruction || 'Deliver to me in person';
+  });
   const [scheduleError, setScheduleError] = useState<string | null>(null);
+
+  // Synchronize state across changes and save progress
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (cart.length === 0) {
+      clearSavedCheckoutProgress();
+      return;
+    }
+    if (currentStep !== 'cart' || pickupDate || pickupSlot || deliveryDate || deliverySlot || declaredItemCount) {
+      try {
+        const payload: SavedCheckoutProgress = {
+          currentStep,
+          selectedAddressId,
+          pickupDate,
+          pickupSlot,
+          pickupInstruction,
+          deliveryDate,
+          deliverySlot,
+          deliveryInstruction,
+          declaredItemCount,
+          updatedAt: Date.now()
+        };
+        localStorage.setItem(CHECKOUT_PROGRESS_KEY, JSON.stringify(payload));
+      } catch {}
+    }
+  }, [currentStep, selectedAddressId, pickupDate, pickupSlot, pickupInstruction, deliveryDate, deliverySlot, deliveryInstruction, declaredItemCount, cart.length]);
+
+  // Restore or preserve checkout progress when drawer opens / closes
+  useEffect(() => {
+    if (isOpen) {
+      if (cart.length > 0) {
+        const saved = loadSavedCheckoutProgress();
+        if (saved && saved.currentStep && saved.currentStep !== 'cart') {
+          setCurrentStep(saved.currentStep);
+          if (saved.pickupDate) setPickupDate(saved.pickupDate);
+          if (saved.pickupSlot) setPickupSlot(saved.pickupSlot);
+          if (saved.pickupInstruction) setPickupInstruction(saved.pickupInstruction);
+          if (saved.deliveryDate) setDeliveryDate(saved.deliveryDate);
+          if (saved.deliverySlot) setDeliverySlot(saved.deliverySlot);
+          if (saved.deliveryInstruction) setDeliveryInstruction(saved.deliveryInstruction);
+          if (saved.selectedAddressId) setSelectedAddressId(saved.selectedAddressId);
+          if (saved.declaredItemCount) setDeclaredItemCount(saved.declaredItemCount);
+        }
+      }
+    } else {
+      setSubmitError(null);
+      setDeclaredItemCountError(null);
+    }
+  }, [isOpen]);
 
   // Dynamic slots state from DB
   const [dynamicSlots, setDynamicSlots] = useState<any[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [slotsLoadedPlantName, setSlotsLoadedPlantName] = useState<string | null>(null);
 
+  const [cartPostcode, setCartPostcode] = useState<string>('');
+
   const selectedAddress = useMemo(() => {
     return internalAddresses.find((a) => a.id === selectedAddressId) || internalAddresses[0] || null;
   }, [internalAddresses, selectedAddressId]);
 
-  const currentPostcode = selectedAddress?.pincode || (selectedAddress as any)?.postcode || '';
+  // Selected address for preview and logistics
+  const activeAddr = useMemo(() => {
+    const found = internalAddresses.find((a) => a.id === selectedAddressId) || internalAddresses[0];
+    if (found) {
+      if (cartPostcode && cartPostcode !== found.pincode) {
+        return { ...found, pincode: cartPostcode };
+      }
+      return found;
+    }
+    if (cartPostcode) {
+      return {
+        id: 'cart_postcode_loc',
+        label: 'Delivery Area',
+        flatNo: '',
+        street: 'Selected Service Area',
+        city: 'Preston',
+        pincode: cartPostcode,
+        isDefault: true
+      } as UserAddress;
+    }
+    return null;
+  }, [internalAddresses, selectedAddressId, cartPostcode]);
+
+  const currentAddressPostcode = selectedAddress?.pincode || (selectedAddress as any)?.postcode || '';
+  const currentPostcode = (cartPostcode || currentAddressPostcode || '').trim();
 
   // Fetch dynamic slots for the selected address postcode
   useEffect(() => {
@@ -537,8 +664,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       setScheduleError('Estimated Total Items in Bag is required. Please return to Bag and enter the count.');
       return;
     }
-    if (!activeAddr) {
-      setScheduleError('Please add or select your service location first.');
+    if (!currentPostcode) {
+      setScheduleError('Please enter your area postcode or add your service location above to check slot availability.');
       return;
     }
     if (!slotsLoading && dynamicSlots.length === 0) {
@@ -558,6 +685,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       setScheduleError(scheduleValidation.error || 'Please select a valid collection and delivery schedule.');
       return;
     }
+
+    // If activeAddr is a provisional postcode location without street/door details, prompt user to complete address
+    if (!activeAddr?.street || activeAddr?.id === 'cart_postcode_loc') {
+      setAddressToEdit({
+        id: '',
+        label: 'Home',
+        flatNo: '',
+        street: '',
+        city: 'Preston',
+        pincode: currentPostcode,
+        isDefault: true
+      } as any);
+      setAddressModalOpen(true);
+      return;
+    }
+
     setCurrentStep('contact');
   };
 
@@ -723,9 +866,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
 
   if (!isOpen) return null;
-
-  // Selected address for preview
-  const activeAddr = internalAddresses.find((a) => a.id === selectedAddressId) || internalAddresses[0];
 
   return (
     <div className="fixed inset-0 z-[120] bg-[#f8fafc] overflow-y-auto min-h-screen flex flex-col animate-in fade-in-50 duration-200">
@@ -1027,8 +1167,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </p>
                 </div>
 
-                {/* 1. SERVICE LOCATION UI (Shown First) */}
-                <div className="rounded-2xl border-2 border-blue-200 bg-[#f8fbff] p-5 shadow-sm space-y-3">
+                {/* 1. SERVICE LOCATION & POSTCODE SLOT CHECKER */}
+                <div className="rounded-2xl border-2 border-blue-200 bg-[#f8fbff] p-5 shadow-sm space-y-4">
                   <div className="flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
                     <div className="flex items-start gap-3 min-w-0">
                       <div className="w-10 h-10 rounded-xl bg-[#03045E] text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -1037,29 +1177,29 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-sm font-extrabold text-[#03045E]">1. Service Location</span>
-                          {activeAddr?.pincode && (
+                          {currentPostcode && (
                             <span className="font-mono text-xs font-extrabold bg-[#CAF0F8] text-[#03045E] px-2.5 py-0.5 rounded-md">
-                              {activeAddr.pincode}
+                              {currentPostcode}
                             </span>
                           )}
-                          {activeAddr && slotsLoadedPlantName && dynamicSlots.length > 0 ? (
+                          {currentPostcode && slotsLoadedPlantName && dynamicSlots.length > 0 ? (
                             <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                               Covering Plant: {slotsLoadedPlantName}
                             </span>
-                          ) : activeAddr && !slotsLoading && dynamicSlots.length === 0 ? (
+                          ) : currentPostcode && !slotsLoading && dynamicSlots.length === 0 ? (
                             <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-300 flex items-center gap-1">
                               <AlertCircle className="w-3 h-3 text-amber-700" />
                               There is no plant in the area
                             </span>
-                          ) : activeAddr && slotsLoading ? (
+                          ) : currentPostcode && slotsLoading ? (
                             <span className="text-[10px] text-gray-400">Locating covering plant...</span>
                           ) : null}
                         </div>
                         <p className="text-xs text-gray-600 mt-1">
-                          {activeAddr
-                            ? `${activeAddr.flatNo ? activeAddr.flatNo + ', ' : ''}${activeAddr.street}, ${activeAddr.city}`
-                            : 'Please add or select your delivery and collection address to load available time slots for your area.'}
+                          {activeAddr?.street && activeAddr.id !== 'cart_postcode_loc'
+                            ? `${activeAddr.flatNo ? activeAddr.flatNo + ', ' : ''}${activeAddr.street}, ${activeAddr.city || ''}`
+                            : 'Select your area outward code from the dropdown and type your inward code to check slot availability.'}
                         </p>
                       </div>
                     </div>
@@ -1068,7 +1208,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       {internalAddresses.length > 1 && (
                         <select
                           value={selectedAddressId}
-                          onChange={(e) => setSelectedAddressId(e.target.value)}
+                          onChange={(e) => {
+                            setSelectedAddressId(e.target.value);
+                            setCartPostcode('');
+                          }}
                           className="h-10 px-3 rounded-xl border border-gray-300 text-xs font-bold text-navy bg-white focus:outline-none cursor-pointer shadow-2xs"
                         >
                           {internalAddresses.map(a => (
@@ -1087,40 +1230,53 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         className="px-4 py-2.5 rounded-xl bg-[#03045E] hover:bg-[#023E8A] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
                       >
                         <Plus className="w-4 h-4" />
-                        <span>{activeAddr ? 'Change Address' : 'Add Service Location'}</span>
+                        <span>{activeAddr?.street && activeAddr.id !== 'cart_postcode_loc' ? 'Change Address' : 'Add Full Address'}</span>
                       </button>
                     </div>
                   </div>
+
+                  {/* Two-Part Postcode Checker (Outward Code Dropdown + Inward Code Input) */}
+                  <div className="pt-3 border-t border-blue-100">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-[#082b78]" />
+                        <span>Check Area Slot Availability</span>
+                      </span>
+                      {currentPostcode && (
+                        <span className="text-[11px] text-slate-500 font-medium">
+                          Checking: <strong className="font-mono text-[#082b78]">{currentPostcode}</strong>
+                        </span>
+                      )}
+                    </div>
+                    <PostcodeSplitInput
+                      initialValue={currentPostcode}
+                      onChange={(full) => {
+                        if (full !== cartPostcode) {
+                          setCartPostcode(full);
+                        }
+                      }}
+                      showLiveStatus={true}
+                    />
+                  </div>
                 </div>
 
-                {/* 2. TIME SLOTS SECTION (Revealed ONLY after Service Location is set and plant has slots) */}
-                {!activeAddr ? (
+                {/* 2. TIME SLOTS SECTION (Revealed ONLY after Service Location / Postcode is set and plant has slots) */}
+                {!currentPostcode ? (
                   <div className="rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/50 p-8 text-center space-y-4">
                     <div className="w-12 h-12 rounded-full bg-blue-100 text-[#1d5bd8] flex items-center justify-center mx-auto">
                       <MapPin className="w-6 h-6 animate-bounce" />
                     </div>
                     <div className="max-w-md mx-auto space-y-1">
-                      <h3 className="text-base font-bold text-navy">Service Location Required First</h3>
+                      <h3 className="text-base font-bold text-navy">Enter Your Postcode to Reveal Slots</h3>
                       <p className="text-xs text-gray-500">
-                        Please add or select your service location above. Once your location is set, available pickup and delivery time slots for your area will be revealed.
+                        Please select your outward district from the dropdown and type your inward code above to check live courier and collection slots.
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAddressToEdit(null);
-                        setAddressModalOpen(true);
-                      }}
-                      className="px-6 py-3 bg-[#03045E] hover:bg-[#023E8A] text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer inline-flex items-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>Add Service Location Now</span>
-                    </button>
                   </div>
                 ) : slotsLoading ? (
                   <div className="rounded-2xl border border-blue-100 bg-white p-8 text-center space-y-3 shadow-xs">
                     <div className="w-8 h-8 rounded-full border-2 border-[#03045E] border-t-transparent animate-spin mx-auto" />
-                    <p className="text-xs font-semibold text-gray-600">Loading service slots for your area...</p>
+                    <p className="text-xs font-semibold text-gray-600">Loading service slots for {currentPostcode}...</p>
                   </div>
                 ) : dynamicSlots.length === 0 ? (
                   <div className="rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/70 p-8 text-center space-y-4">
@@ -1130,20 +1286,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <div className="max-w-md mx-auto space-y-2">
                       <h3 className="text-base font-extrabold text-amber-950">There is no plant in the area</h3>
                       <p className="text-xs text-amber-900/85 leading-relaxed">
-                        We currently do not have an active plant servicing {activeAddr?.pincode ? `postcode ${activeAddr.pincode}` : 'this area'}. Booking slots will be revealed once an operational plant with assigned couriers is available.
+                        We currently do not have an active plant servicing postcode <strong className="font-mono">{currentPostcode}</strong>. Booking slots will be revealed once an operational plant with couriers is available.
                       </p>
                     </div>
                     <div className="pt-2 flex items-center justify-center gap-3">
                       <button
                         type="button"
                         onClick={() => {
+                          setCartPostcode('');
                           setAddressToEdit(null);
                           setAddressModalOpen(true);
                         }}
                         className="px-5 py-2.5 bg-[#03045E] hover:bg-[#023E8A] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2"
                       >
                         <MapPin className="w-4 h-4" />
-                        <span>Change Address / Postcode</span>
+                        <span>Try Another Postcode / Address</span>
                       </button>
                     </div>
                   </div>

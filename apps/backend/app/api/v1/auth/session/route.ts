@@ -45,7 +45,10 @@ async function sessionHandler(req: NextRequest) {
                 email: dbUser.email,
                 name: dbUser.full_name,
                 role,
-                plantId: dbUser.plantId || tokenUser.plantId,
+                plantId: dbUser.plantId || dbUser.plant_id || tokenUser.plantId || null,
+                plant_id: dbUser.plant_id || dbUser.plantId || tokenUser.plantId || null,
+                plantName: dbUser.plantName || dbUser.plant_name || null,
+                manager_id: dbUser.manager_id || dbUser.plantManagerId || null,
                 avatar_url: dbUser.avatar_url,
                 phone: dbUser.phone || '',
             }

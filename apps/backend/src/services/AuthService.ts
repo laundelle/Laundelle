@@ -8,6 +8,7 @@ import crypto from 'crypto';
 import { generateCustomerId, generateStaffId } from '@laundelle/ids';
 import { OrderService } from '@/services/OrderService';
 import { Auth0Service } from '@/services/Auth0Service';
+import { sendWelcomeEmail, sendVerificationEmail } from '@/emails';
 
 export class AuthService {
     
@@ -83,6 +84,23 @@ export class AuthService {
             actorRole: 'customer',
             ipAddress: clientIp
         });
+
+        // Send Welcome email (with WELCOME20 coupon) & Verification email asynchronously
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.CUSTOMER_APP_URL || 'https://laundelle.com';
+        sendWelcomeEmail({
+            to: formatted,
+            customerName: newUser.full_name,
+            couponCode: 'WELCOME20',
+            discountPercent: 20,
+            appUrl
+        }).catch(err => console.error('[AuthService] Welcome email error:', err?.message || err));
+
+        sendVerificationEmail({
+            to: formatted,
+            customerName: newUser.full_name,
+            verificationUrl: `${appUrl}/verify-email?email=${encodeURIComponent(formatted)}&token=${customerId}`,
+            appUrl
+        }).catch(err => console.error('[AuthService] Verification email error:', err?.message || err));
 
         const token = signJwt({ sub: internalDbId, email: formatted, role: 'customer' });
         
@@ -203,6 +221,33 @@ export class AuthService {
 
         const token = signJwt({ sub: String(user._id), email: formatted, role: user.role || 'customer' });
         
+        let resolvedPlantId = user.plantId || user.plant_id || null;
+        let resolvedPlantName = user.plantName || user.plant_name || null;
+        if (!resolvedPlantId && (user.manager_id || user.plantManagerId)) {
+            const mgrId = user.manager_id || user.plantManagerId;
+            const plant = await db.collection('plants').findOne({
+                $or: [
+                    { manager_id: mgrId },
+                    ...(ObjectId.isValid(mgrId) ? [{ manager_id: new ObjectId(mgrId) }] : [])
+                ]
+            });
+            if (plant) {
+                resolvedPlantId = plant.publicId || plant.id || String(plant._id);
+                resolvedPlantName = plant.name;
+            }
+        } else if (resolvedPlantId && !resolvedPlantName) {
+            const plant = await db.collection('plants').findOne({
+                $or: [
+                    { _id: resolvedPlantId as any },
+                    { id: resolvedPlantId },
+                    { publicId: resolvedPlantId },
+                    { code: resolvedPlantId },
+                    ...(ObjectId.isValid(resolvedPlantId) ? [{ _id: new ObjectId(resolvedPlantId) }] : [])
+                ]
+            } as any);
+            if (plant) resolvedPlantName = plant.name;
+        }
+
         const publicId = user.publicId || user.customerId || user.staffId || String(user._id);
         const isStaff = ['driver', 'processor', 'manager', 'admin', 'super_admin'].includes(user.role);
         return {
@@ -215,7 +260,11 @@ export class AuthService {
                 internalId: String(user._id),
                 email: user.email, 
                 name: user.full_name, 
-                role: user.role || 'customer' 
+                role: user.role || 'customer',
+                plantId: resolvedPlantId,
+                plant_id: resolvedPlantId,
+                plantName: resolvedPlantName || (resolvedPlantId ? `Plant Unit (${resolvedPlantId})` : null),
+                manager_id: user.manager_id || user.plantManagerId || null,
             }
         };
     }
@@ -620,6 +669,47 @@ export class AuthService {
                     { _id: user._id } as any,
                     updateOps
                 );
+            }
+        }
+
+        // Dispatch Welcome Email (WELCOME20) and Email Verification Mail for customers signing in via Google / Auth0
+        if (user.role === 'customer' || isCustomerPortal) {
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.CUSTOMER_APP_URL || 'https://laundelle.com';
+            const customerDisplayName = user.full_name || name || formatted.split('@')[0] || 'Valued Customer';
+            const customerIdentifier = user.customerId || user.publicId || String(user._id);
+
+            // 1. Welcome Email with WELCOME20 coupon
+            if (!user.welcome_email_sent) {
+                sendWelcomeEmail({
+                    to: formatted,
+                    customerName: customerDisplayName,
+                    couponCode: 'WELCOME20',
+                    discountPercent: 20,
+                    appUrl
+                }).then(async (res) => {
+                    await db.collection('users').updateOne(
+                        { _id: user._id } as any,
+                        { $set: { welcome_email_sent: true, welcome_email_sent_at: new Date().toISOString() } }
+                    );
+                    user.welcome_email_sent = true;
+                }).catch(err => console.error('[AuthService] Google login welcome email error:', err?.message || err));
+            }
+
+            // 2. Email Verification Mail (Universal account verification button)
+            if (!user.verification_email_sent) {
+                const verificationUrl = `${appUrl}/verify-email?email=${encodeURIComponent(formatted)}&token=${customerIdentifier}&provider=google`;
+                sendVerificationEmail({
+                    to: formatted,
+                    customerName: customerDisplayName,
+                    verificationUrl,
+                    appUrl
+                }).then(async (res) => {
+                    await db.collection('users').updateOne(
+                        { _id: user._id } as any,
+                        { $set: { verification_email_sent: true, verification_email_sent_at: new Date().toISOString() } }
+                    );
+                    user.verification_email_sent = true;
+                }).catch(err => console.error('[AuthService] Google login verification email error:', err?.message || err));
             }
         }
 

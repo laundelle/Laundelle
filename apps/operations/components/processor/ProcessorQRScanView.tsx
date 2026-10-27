@@ -121,7 +121,7 @@ export const ProcessorQRScanView: React.FC<ProcessorQRScanViewProps> = ({ onNavi
         if (user?.plantId || user?.plant_id) {
           setCurrentProcessorPlant({
             id: user.plantId || user.plant_id || 'PLANT-LON-01',
-            name: user.plantName || (user.plantId ? `Plant Unit (${user.plantId})` : 'Preston Plant 1')
+            name: user.plantName || user.plant_name || (user.plantId ? `Plant Unit (${user.plantId})` : 'Preston Plant 1')
           });
         }
       }
@@ -130,10 +130,11 @@ export const ProcessorQRScanView: React.FC<ProcessorQRScanViewProps> = ({ onNavi
         apiFetch('/api/v1/users/me', { headers: { Authorization: `Bearer ${token}` } })
           .then(res => res.json())
           .then(data => {
-            if (data?.data?.plant_id || data?.data?.plantId) {
+            const profile = data?.data || data?.user || data;
+            if (profile?.plant_id || profile?.plantId) {
               setCurrentProcessorPlant({
-                id: data.data.plant_id || data.data.plantId,
-                name: data.data.plantName || `Plant Unit (${data.data.plant_id || data.data.plantId})`
+                id: profile.plant_id || profile.plantId,
+                name: profile.plantName || profile.plant_name || `Plant Unit (${profile.plant_id || profile.plantId})`
               });
             }
           })
@@ -247,6 +248,12 @@ export const ProcessorQRScanView: React.FC<ProcessorQRScanViewProps> = ({ onNavi
           mismatchProcessorPlant = data.processorPlantName || currentProcessorPlant.name;
         } else if (data.found && data.order) {
           orderData = data.order;
+          if (data.processorPlantId) {
+            setCurrentProcessorPlant({
+              id: data.processorPlantId,
+              name: data.processorPlantName || `Plant Unit (${data.processorPlantId})`
+            });
+          }
         }
       }
 
@@ -355,28 +362,11 @@ export const ProcessorQRScanView: React.FC<ProcessorQRScanViewProps> = ({ onNavi
         return;
       }
 
-      // ─── STEP 4: Verify Plant Assignment ─────────────────────────────────
-      const orderPlantId = orderData.plant_id || orderData.plantId;
-      const orderPlantName = orderData.plantName || orderData.plant_name || orderPlantId;
-      const currentPlantId = currentProcessorPlant.id;
-      const currentPlantName = currentProcessorPlant.name;
-
-      // If order is assigned to a plant, and current station has a plant, ensure they match!
-      if (orderPlantId && currentPlantId) {
-        const norm = (s: string) => s.trim().toLowerCase().replace(/[-_]/g, '');
-        if (norm(orderPlantId) !== norm(currentPlantId)) {
-          // MISMATCH: Even if processor scans, DO NOT PROCEED!
-          setScanError({
-            type: 'PLANT_MISMATCH',
-            title: 'Facility Mismatch: Assigned to Another Plant',
-            message: `This order is assigned to ${orderPlantName || orderPlantId}, but this station is operating under ${currentPlantName} (${currentPlantId}). Intake cannot proceed at this plant.`,
-            orderPlant: orderPlantName || orderPlantId,
-            currentPlant: `${currentPlantName} (${currentPlantId})`,
-            scannedCode: rawCode
-          });
-          return;
-        }
-      }
+      // ─── STEP 4: Synchronize Plant Assignment ─────────────────────────────
+      // Note: Backend has already verified plant matching and manager inheritance authoritatively.
+      // We align the scanned order plant details with the verified facility context.
+      const orderPlantId = orderData.plant_id || orderData.plantId || currentProcessorPlant.id;
+      const orderPlantName = orderData.plantName || orderData.plant_name || currentProcessorPlant.name;
 
       // ─── STEP 5: All Checks Passed! Open Streamlined Confirmation Modal ──
       setScannedOrder({
@@ -392,8 +382,8 @@ export const ProcessorQRScanView: React.FC<ProcessorQRScanViewProps> = ({ onNavi
         weight: String(orderData.weightKg || orderData.weight || '5.0'),
         address: orderData.address || '',
         items: orderData.items || [],
-        plantId: orderPlantId || currentPlantId,
-        plantName: orderPlantName || currentPlantName,
+        plantId: orderPlantId || currentProcessorPlant.id,
+        plantName: orderPlantName || currentProcessorPlant.name,
         bagQr: orderData.bagQr || `BAG-${orderData.id || orderId}`,
         status: orderData.status || 'laundry_collected',
         statusLabel: orderData.statusLabel || 'Laundry Collected'

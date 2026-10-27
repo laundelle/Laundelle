@@ -53,7 +53,7 @@ export const RescheduleCancelModal: React.FC<RescheduleCancelModalProps> = ({
     if (order.status === 'cancelled' || (order as any).isCancelled) return false;
     const hasBeenCollected = [
       'laundry_collected', 'received_at_facility', 'sorting', 'washing', 'in_wash', 'drying',
-      'ironing', 'folding', 'quality_check', 'qc_ready', 'ready_for_delivery', 'waiting_for_driver',
+      'ironing', 'folding', 'quality_check', 'qc_ready', 'ready_for_delivery',
       'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery', 'delivered', 'completed'
     ].includes(order.status) || Boolean(order.pickup_pin_verified_at || (order as any).pickup_otp_verified_at);
     if (hasBeenCollected) return false;

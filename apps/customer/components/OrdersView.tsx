@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Order, OrderStatus } from '@laundelle/types';
 import { dbCancelOrder, getStoredSession, apiFetch } from '@laundelle/api-client';
+import { OrderRatingModal } from './OrderRatingModal';
 
 export interface JourneyStage {
   id: string;
@@ -67,7 +68,7 @@ export const canReschedulePickup = (order: Order): boolean => {
   // Clothes must not have been picked up yet
   const hasMovedPastPickup = [
     'laundry_collected', 'received_at_facility', 'sorting', 'washing', 'in_wash', 'drying',
-    'ironing', 'folding', 'quality_check', 'qc_ready', 'ready_for_delivery', 'waiting_for_driver',
+    'ironing', 'folding', 'quality_check', 'qc_ready', 'ready_for_delivery',
     'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery',
     'delivered', 'completed'
   ].includes(status) || Boolean(order.pickup_pin_verified_at || (order as any).pickup_otp_verified_at);
@@ -203,19 +204,24 @@ export const computeOrderJourney = (order: Order) => {
   };
 
   // 1. Booking Confirmed: Customer placed order and payment was successfully completed
-  const isPaid = order.paymentStatus === 'Paid' || order.isPaid === true;
-  const isPendingPayment = status === 'pending_payment';
-  const hasMovedPastBooking = !isPendingPayment && [
-    'booking_confirmed', 'collection_scheduled', 'driver_assigned', 'pickup_in_progress',
-    'laundry_collected', 'received_at_facility', 'sorting', 'washing', 'in_wash', 'drying',
-    'ironing', 'folding', 'quality_check', 'qc_ready', 'ready_for_delivery', 'waiting_for_driver',
+  const isCancelled = status === 'cancelled' || (order as any).isCancelled === true;
+  const isPendingPayment = ['pending_payment', 'payment_failed'].includes(status) || order.paymentStatus === 'Pending' || order.paymentStatus === 'Failed';
+  const isPaid = (order.paymentStatus === 'Paid' || order.isPaid === true) && !isPendingPayment && !isCancelled;
+
+  // An order has moved PAST booking confirmation once pickup is scheduled, driver assigned, or further down the pipeline
+  const hasMovedPastBooking = isPaid && [
+    'collection_scheduled', 'driver_assigned', 'pickup_in_progress',
+    'laundry_collected', 'picked_up', 'in_transit_to_plant', 'received_at_facility',
+    'sorting', 'washing', 'in_wash', 'drying', 'ironing', 'folding',
+    'quality_check', 'qc_ready', 'ready_for_delivery',
     'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery',
     'delivered', 'completed'
   ].includes(status);
 
-  const step1Completed = (isPaid || hasMovedPastBooking) && !isPendingPayment;
-  const step1InProgress = isPendingPayment;
-  const step1Time = findEventTime(['payment_success', 'order_placed', 'order_created']) || order.createdAt;
+  // Stage 1 is marked completed only once the order advances to collection/driver assignment or beyond AND payment is completed
+  const step1Completed = hasMovedPastBooking;
+  const step1InProgress = isPaid && !step1Completed && (status === 'booking_confirmed');
+  const step1Time = isPaid ? (findEventTime(['booking_confirmed', 'payment_confirmed', 'payment_success', 'order_placed', 'order_created']) || order.createdAt) : null;
 
   // 2. Order Pickup Completed: Driver picks up the order by verifying the OTP
   const pickupOtpVerified = Boolean(
@@ -225,15 +231,16 @@ export const computeOrderJourney = (order: Order) => {
     findEventTime(['laundry_collected', 'pickup_pin_verified_and_collected', 'pickup_completed'])
   );
   const hasMovedPastPickup = [
-    'laundry_collected', 'received_at_facility', 'sorting', 'washing', 'in_wash', 'drying',
-    'ironing', 'folding', 'quality_check', 'qc_ready', 'ready_for_delivery', 'waiting_for_driver',
+    'laundry_collected', 'picked_up', 'in_transit_to_plant', 'received_at_facility',
+    'sorting', 'washing', 'in_wash', 'drying', 'ironing', 'folding',
+    'quality_check', 'qc_ready', 'ready_for_delivery',
     'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery',
     'delivered', 'completed'
   ].includes(status);
 
-  const step2Completed = pickupOtpVerified || hasMovedPastPickup;
+  const step2Completed = step1Completed && (pickupOtpVerified || hasMovedPastPickup);
   const step2InProgress = !step2Completed && [
-    'booking_confirmed', 'collection_scheduled', 'driver_assigned', 'pickup_in_progress'
+    'collection_scheduled', 'driver_assigned', 'pickup_in_progress'
   ].includes(status);
   const step2Time = order.pickup_pin_verified_at ||
     (order as any).pickup_otp_verified_at ||
@@ -244,25 +251,27 @@ export const computeOrderJourney = (order: Order) => {
   const plantIntakeDone = Boolean(
     (order as any).intake?.intakeAt ||
     (order as any).package?.attached_at ||
+    (order as any).receivedAtFacilityAt ||
     findEventTime(['facility_intake', 'received_at_facility'])
   );
   const hasMovedPastPlant = [
-    'received_at_facility', 'sorting', 'washing', 'in_wash', 'drying', 'ironing', 'folding',
-    'quality_check', 'qc_ready', 'ready_for_delivery', 'waiting_for_driver',
+    'sorting', 'washing', 'in_wash', 'drying', 'ironing', 'folding',
+    'quality_check', 'qc_ready', 'ready_for_delivery',
     'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery',
     'delivered', 'completed'
-  ].includes(status);
+  ].includes(status) || Boolean((order as any).qc?.passed);
 
   const step3Completed = step2Completed && (plantIntakeDone || hasMovedPastPlant);
-  const step3InProgress = !step3Completed && status === 'laundry_collected';
+  const step3InProgress = !step3Completed && step2Completed && (status === 'laundry_collected' || status === 'in_transit_to_plant' || status === 'received_at_facility');
   const step3Time = (order as any).intake?.intakeAt ||
     (order as any).package?.attached_at ||
+    (order as any).receivedAtFacilityAt ||
     findEventTime(['facility_intake', 'received_at_facility']);
 
   // 4. Washing: Processor starts washing the clothes
   const hasMovedPastWashing = [
     'drying', 'ironing', 'folding', 'quality_check', 'qc_ready', 'ready_for_delivery',
-    'waiting_for_driver', 'delivery_driver_assigned', 'package_collected_for_delivery',
+    'delivery_driver_assigned', 'package_collected_for_delivery',
     'out_for_delivery', 'delivered', 'completed'
   ].includes(status) || Boolean((order as any).qc?.passed);
 
@@ -274,23 +283,23 @@ export const computeOrderJourney = (order: Order) => {
   const qcPassed = Boolean(
     (order as any).qc?.passed === true ||
     findEventTime(['quality_check_passed', 'qc_passed']) ||
-    ['ready_for_delivery', 'waiting_for_driver', 'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery', 'delivered', 'completed'].includes(status)
+    ['ready_for_delivery', 'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery', 'delivered', 'completed'].includes(status)
   );
 
-  const step5Completed = step3Completed && qcPassed;
-  const step5InProgress = !step5Completed && ['quality_check', 'qc_ready'].includes(status);
+  const step5Completed = step4Completed && qcPassed;
+  const step5InProgress = !step5Completed && step4Completed && ['quality_check', 'qc_ready'].includes(status);
   const step5Time = (order as any).qc?.checkedAt || findEventTime(['quality_check_passed', 'qc_passed']);
 
   // 6. Out for Delivery: All QC are passed and order is ready to deliver
   const hasMovedPastOutForDelivery = ['delivered', 'completed'].includes(status) ||
-    Boolean(order.delivery_pin_verified_at || (order as any).delivery_otp_verified_at || (order as any).delivered_at);
+    Boolean(order.delivery_pin_verified_at || (order as any).delivery_otp_verified_at || (order as any).delivered_at || findEventTime(['delivered', 'delivery_confirmed']));
 
   const isReadyOrDispatched = [
-    'ready_for_delivery', 'waiting_for_driver', 'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery'
+    'ready_for_delivery', 'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery'
   ].includes(status);
 
-  const step6Completed = hasMovedPastOutForDelivery;
-  const step6InProgress = !step6Completed && (status === 'out_for_delivery' || (step5Completed && isReadyOrDispatched));
+  const step6Completed = step5Completed && hasMovedPastOutForDelivery;
+  const step6InProgress = !step6Completed && step5Completed && (status === 'out_for_delivery' || isReadyOrDispatched);
   const step6Time = findEventTime(['out_for_delivery', 'package_collected_for_delivery']) || (order as any).ready_for_delivery_at;
 
   // 7. Delivered at Doorstep: Delivery boy delivers order successfully after verifying delivery Pin
@@ -303,8 +312,8 @@ export const computeOrderJourney = (order: Order) => {
     findEventTime(['delivered', 'delivery_confirmed', 'delivery_pin_verified'])
   );
 
-  const step7Completed = deliveryPinVerified;
-  const step7InProgress = !step7Completed && status === 'out_for_delivery';
+  const step7Completed = step6Completed && deliveryPinVerified;
+  const step7InProgress = !step7Completed && step6InProgress;
   const step7Time = (order as any).delivered_at ||
     order.delivery_pin_verified_at ||
     (order as any).delivery_otp_verified_at ||
@@ -320,7 +329,7 @@ export const computeOrderJourney = (order: Order) => {
   const step4Done = step5Done || Boolean(step4Completed);
   const step3Done = step4Done || Boolean(step3Completed);
   const step2Done = step3Done || Boolean(step2Completed);
-  const step1Done = step2Done || Boolean(step1Completed);
+  const step1Done = Boolean(isPaid && (step2Done || step1Completed));
 
   const stageDones = [step1Done, step2Done, step3Done, step4Done, step5Done, step6Done, step7Done];
   const activeIndex = stageDones.findIndex(done => !done); // -1 if all are completed
@@ -337,16 +346,22 @@ export const computeOrderJourney = (order: Order) => {
     {
       id: 'booking_confirmed',
       stepNumber: 1,
-      title: 'Booking Confirmed',
-      shortTitle: 'Confirmed',
-      requirement: 'Customer placed order and payment was successfully completed.',
-      description: step1Done
-        ? 'Customer placed order and payment was successfully completed.'
-        : 'Order placed — awaiting payment confirmation.',
-      status: getStageStatus(0),
+      title: isCancelled ? 'Order Cancelled' : (!isPaid ? 'Payment Pending' : 'Booking Confirmed'),
+      shortTitle: isCancelled ? 'Cancelled' : (!isPaid ? 'Unpaid' : 'Confirmed'),
+      requirement: isCancelled
+        ? 'This order has been cancelled.'
+        : (!isPaid
+          ? 'Payment has not been completed. Please complete payment to confirm your booking and generate your pickup PIN.'
+          : 'Customer placed order and payment was successfully completed.'),
+      description: isCancelled
+        ? 'This order has been cancelled.'
+        : (!isPaid
+          ? 'Payment is pending. Please complete payment so we can dispatch a driver.'
+          : 'Customer placed order and payment was successfully completed.'),
+      status: isCancelled ? 'upcoming' : (!isPaid ? 'in_progress' : getStageStatus(0)),
       timestamp: step1Time,
-      icon: CheckCircle2,
-      metaBadge: isPaid ? 'Payment Confirmed' : undefined,
+      icon: isCancelled ? XCircle : (!isPaid ? Clock : CheckCircle2),
+      metaBadge: isPaid ? 'Payment Confirmed' : (isCancelled ? 'Cancelled' : 'Payment Required'),
     },
     {
       id: 'pickup_completed',
@@ -485,10 +500,38 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [retryingOrderId, setRetryingOrderId] = useState<string | null>(null);
   const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
+  const [ratingModalOrder, setRatingModalOrder] = useState<Order | null>(null);
+  const [ratingModalOpen, setRatingModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     setIsTimelineOpen(true);
   }, [selectedOrderIdState]);
+
+  // Prompt ratings modal when customer has an unrated completed order
+  useEffect(() => {
+    const unratedCompleted = orders.find(
+      (o) =>
+        (o.status === 'delivered' || o.status === 'completed') &&
+        !o.rating &&
+        !o.customerRating?.rating &&
+        !o.ratingFeedback
+    );
+
+    if (unratedCompleted) {
+      const dismissed =
+        typeof window !== 'undefined'
+          ? sessionStorage.getItem(`laundelle_dismissed_rating_${unratedCompleted.id}`)
+          : null;
+
+      if (!dismissed && !ratingModalOpen) {
+        const timer = setTimeout(() => {
+          setRatingModalOrder(unratedCompleted);
+          setRatingModalOpen(true);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [orders, ratingModalOpen]);
 
   const selectedOrder = selectedOrderIdState ? orders.find(o => o.id === selectedOrderIdState || (o as any)._id === selectedOrderIdState) || null : null;
   const isSelectedOrderCancelled = Boolean(
@@ -1155,8 +1198,40 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                         </div>
                       </div>
 
-                      {/* Right side: Chevron */}
-                      <div className="flex flex-col items-end gap-1 shrink-0">
+                      {/* Right side: Actions / Chevron */}
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        {category === 'pending' && (order.status === 'pending_payment' || order.status === 'payment_failed' || (order.paymentStatus || '').toLowerCase() === 'pending' || (order.paymentStatus || '').toLowerCase() === 'failed') && !order.isPaid && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRetryPayment(order);
+                            }}
+                            disabled={retryingOrderId === orderId}
+                            className="px-2.5 py-1 bg-[#102e78] hover:bg-[#0c235c] text-white rounded-lg text-[11px] font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                          >
+                            <CreditCard className="w-3 h-3" />
+                            <span>{retryingOrderId === orderId ? '...' : 'Resume Payment'}</span>
+                          </button>
+                        )}
+                        {category === 'completed' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setRatingModalOrder(order);
+                              setRatingModalOpen(true);
+                            }}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer ${
+                              order.rating || order.customerRating?.rating
+                                ? 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                            }`}
+                          >
+                            <Star className={`w-3 h-3 ${order.rating || order.customerRating?.rating ? 'text-amber-500 fill-amber-500' : 'text-emerald-600'}`} />
+                            <span>{order.rating || order.customerRating?.rating ? `${order.rating || order.customerRating?.rating} ★` : 'Rate Order'}</span>
+                          </button>
+                        )}
                         <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:text-[#102e78] group-hover:translate-x-1 transition-all" />
                       </div>
                     </article>
@@ -1450,8 +1525,84 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                       <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#102e78]" />
                       <span>Invoice</span>
                     </button>
+
+                    {(isOrderCompleted(selectedOrder.status) || selectedJourney?.isAllCompleted) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRatingModalOrder(selectedOrder);
+                          setRatingModalOpen(true);
+                        }}
+                        className={`px-3 sm:px-3.5 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer border shadow-xs ${
+                          selectedOrder.rating || selectedOrder.customerRating?.rating
+                            ? 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-200'
+                            : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200 animate-pulse'
+                        }`}
+                      >
+                        <Star className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${selectedOrder.rating || selectedOrder.customerRating?.rating ? 'text-amber-500 fill-amber-500' : 'text-emerald-600'}`} />
+                        <span>{selectedOrder.rating || selectedOrder.customerRating?.rating ? 'View / Edit Rating' : 'Rate Order'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
+
+                {/* Customer Rating & Experience Card */}
+                {(isOrderCompleted(selectedOrder.status) || selectedJourney?.isAllCompleted) && (
+                  <div className="p-4 sm:p-5 bg-gradient-to-r from-amber-50/90 via-amber-100/40 to-amber-50/90 border border-amber-200/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+                    <div className="flex items-start gap-3.5 min-w-0">
+                      <div className="w-11 h-11 rounded-xl bg-amber-400 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <Star className="w-6 h-6 fill-current drop-shadow-2xs" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-amber-950 uppercase tracking-wider">
+                            {selectedOrder.rating || selectedOrder.customerRating?.rating ? 'Your Rating & Feedback' : 'Order Completed'}
+                          </span>
+                          {(selectedOrder.rating || selectedOrder.customerRating?.rating) && (
+                            <div className="flex items-center text-amber-500">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-3.5 h-3.5 ${
+                                    i < (selectedOrder.rating || selectedOrder.customerRating?.rating || 0)
+                                      ? 'fill-current text-amber-500'
+                                      : 'text-slate-300'
+                                  }`}
+                                />
+                              ))}
+                              <span className="text-xs font-extrabold text-amber-900 ml-1.5">
+                                {(selectedOrder.rating || selectedOrder.customerRating?.rating)}.0
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        {selectedOrder.ratingFeedback || selectedOrder.customerRating?.feedback ? (
+                          <p className="text-xs text-amber-900 mt-1 italic font-medium bg-white/70 px-3 py-1.5 rounded-lg border border-amber-200/50">
+                            "{selectedOrder.ratingFeedback || selectedOrder.customerRating?.feedback}"
+                          </p>
+                        ) : (
+                          <p className="text-xs text-amber-850 mt-0.5">
+                            {selectedOrder.rating || selectedOrder.customerRating?.rating
+                              ? 'Thank you for your rating! Your review is visible to our management team.'
+                              : 'How did we do? Take a second to leave a 1-5 star rating and feedback.'}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRatingModalOrder(selectedOrder);
+                        setRatingModalOpen(true);
+                      }}
+                      className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer shrink-0 active:scale-98 flex items-center justify-center gap-1.5"
+                    >
+                      <Star className="w-3.5 h-3.5 fill-current" />
+                      <span>{selectedOrder.rating || selectedOrder.customerRating?.rating ? 'Edit Rating & Feedback' : 'Give Rating & Feedback'}</span>
+                    </button>
+                  </div>
+                )}
+
                 {/* Unpaid / Failed Payment Alert in Modal */}
                 {(selectedOrder.status === 'pending_payment' || selectedOrder.status === 'payment_failed' || selectedOrder.paymentStatus === 'Failed') && (
                   <div className="p-4 sm:p-5 bg-rose-50 border-2 border-rose-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
@@ -1549,7 +1700,12 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                 )}
 
                 {/* Collection Pickup Security PIN */}
-                {Boolean(selectedOrder.pickup_pin || selectedOrder.pickup_otp) && ['booking_confirmed', 'collection_scheduled', 'driver_assigned', 'pickup_in_progress'].includes(selectedOrder.status) && (
+                {Boolean(selectedOrder.pickup_pin || selectedOrder.pickup_otp) &&
+                  !['pending_payment', 'payment_failed', 'cancelled'].includes(selectedOrder.status) &&
+                  selectedOrder.paymentStatus !== 'Pending' &&
+                  selectedOrder.paymentStatus !== 'Failed' &&
+                  (selectedOrder.isPaid || selectedOrder.paymentStatus === 'Paid') &&
+                  ['booking_confirmed', 'collection_scheduled', 'driver_assigned', 'pickup_in_progress'].includes(selectedOrder.status) && (
                   <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                     <div className="flex items-start sm:items-center gap-3.5">
                       <div className="w-11 h-11 rounded-xl bg-[#102e78] text-white flex items-center justify-center shrink-0 shadow-md">
@@ -1610,7 +1766,10 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                 {/* Delivery Security PIN */}
                 {selectedOrder.deliveryInstructionType !== 'LEAVE_AT_DOOR' &&
                   Boolean(selectedOrder.delivery_pin || selectedOrder.delivery_otp) &&
-                  !['delivered', 'completed', 'cancelled'].includes(selectedOrder.status) &&
+                  !['delivered', 'completed', 'cancelled', 'pending_payment', 'payment_failed'].includes(selectedOrder.status) &&
+                  selectedOrder.paymentStatus !== 'Pending' &&
+                  selectedOrder.paymentStatus !== 'Failed' &&
+                  (selectedOrder.isPaid || selectedOrder.paymentStatus === 'Paid') &&
                   !selectedOrder.delivery_pin_verified_at && (
                   <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                     <div className="flex items-start sm:items-center gap-3.5">
@@ -1994,7 +2153,10 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                           </div>
 
                           {/* In-App Helper Card for OTP verification during pickup if active */}
-                          {selectedJourney.stages.find(s => s.id === 'pickup_completed')?.status === 'in_progress' && (selectedOrder.pickup_pin || selectedOrder.pickup_otp) && (
+                          {selectedJourney.stages.find(s => s.id === 'pickup_completed')?.status === 'in_progress' &&
+                            (selectedOrder.pickup_pin || selectedOrder.pickup_otp) &&
+                            !['pending_payment', 'payment_failed', 'cancelled'].includes(selectedOrder.status) &&
+                            (selectedOrder.isPaid || selectedOrder.paymentStatus === 'Paid') && (
                             <div className="mt-4 p-3 bg-white border border-blue-200 rounded-xl flex items-center justify-between shadow-2xs">
                               <div className="flex items-center gap-2">
                                 <ShieldCheck className="w-4 h-4 text-[#102e78]" />
@@ -2015,14 +2177,14 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
 
                           {/* In-App Helper Card for Delivery PIN verification if active */}
                           {selectedOrder.deliveryInstructionType !== 'LEAVE_AT_DOOR' &&
-                            !['delivered', 'completed', 'cancelled'].includes(selectedOrder.status) &&
+                            !['delivered', 'completed', 'cancelled', 'pending_payment', 'payment_failed'].includes(selectedOrder.status) &&
+                            (selectedOrder.isPaid || selectedOrder.paymentStatus === 'Paid') &&
                             !selectedOrder.delivery_pin_verified_at &&
                             Boolean(selectedOrder.delivery_pin || selectedOrder.delivery_otp) &&
                             (
-                              selectedJourney.stages.find(s => s.id === 'pickup_completed')?.status === 'completed' ||
-                              ['ready_for_delivery', 'waiting_for_driver', 'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery', 'delivery_in_progress'].includes(selectedOrder.status) ||
                               selectedJourney.stages.find(s => s.id === 'out_for_delivery')?.status === 'in_progress' ||
-                              selectedJourney.stages.find(s => s.id === 'delivered_at_doorstep')?.status === 'in_progress'
+                              selectedJourney.stages.find(s => s.id === 'delivered_at_doorstep')?.status === 'in_progress' ||
+                              ['ready_for_delivery', 'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery', 'delivery_in_progress'].includes(selectedOrder.status)
                             ) && (
                             <div className="mt-4 p-3 bg-white border border-emerald-200 rounded-xl flex items-center justify-between shadow-2xs">
                               <div className="flex items-center gap-2">
@@ -2173,6 +2335,30 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
         </div>
       )}
 
+      {/* Order Rating Modal */}
+      <OrderRatingModal
+        isOpen={ratingModalOpen}
+        order={ratingModalOrder}
+        onClose={() => {
+          setRatingModalOpen(false);
+          setRatingModalOrder(null);
+        }}
+        onRatingSubmitted={(orderId, rating, feedback) => {
+          if (ratingModalOrder && (ratingModalOrder.id === orderId || (ratingModalOrder as any)._id === orderId)) {
+            setRatingModalOrder({
+              ...ratingModalOrder,
+              rating: rating ?? undefined,
+              ratingFeedback: feedback,
+              ratingSubmittedAt: new Date().toISOString(),
+              customerRating: {
+                rating,
+                feedback,
+                createdAt: new Date().toISOString(),
+              },
+            });
+          }
+        }}
+      />
     </div>
   );
 };

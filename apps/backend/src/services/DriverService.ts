@@ -4,14 +4,16 @@ import { getDb } from '@/lib/mongodb';
 import { BadRequestError, NotFoundError, ForbiddenError } from '@/lib/api';
 import { AuditService } from '@/services/AuditService';
 import { matchesPostcode, validateOtpAttempt, assertValidTransition } from '@/lib/workflow';
-import { verifyOrderPinAttempt } from '@/lib/orderPin';
+import { verifyOrderPinAttempt, hashOrderPin, decryptOrderPin } from '@/lib/orderPin';
 import { ExceptionService } from '@/services/ExceptionService';
 import { SlaService } from '@/services/SlaService';
 import { EvidenceService } from '@/services/EvidenceService';
 import { CodService } from '@/services/CodService';
 import { PickupFailureReason, DeliveryFailureReason, PickupAttemptRecord, DeliveryAttemptRecord } from '@laundelle/types';
-import { generatePickupAttemptId, generateDeliveryAttemptId, generateBagId } from '@laundelle/ids';
+import { generatePickupAttemptId, generateDeliveryAttemptId, generateBagId, buildEntityLookupQuery } from '@laundelle/ids';
+import { sendOrderCompletedEmail } from '@/emails';
 import { OrderCustomerEnrichmentService } from './OrderCustomerEnrichmentService';
+import crypto from 'crypto';
 
 export class DriverService {
     
@@ -80,7 +82,6 @@ export class DriverService {
             'driver_assigned',
             'pickup_in_progress',
             'pickup_failed',
-            'laundry_collected',
             'ready_for_delivery',
             'qc_passed',
             'waiting_for_driver',
@@ -136,11 +137,15 @@ export class DriverService {
                 if (assignedIds.has(String(uOrder._id || uOrder.id))) continue;
 
             const oPlantId = uOrder.plant_id ? String(uOrder.plant_id) : null;
-            const isPlantMatch = Boolean(driverPlantId && oPlantId && driverPlantId === oPlantId);
-            const isPostcodeMatch = driverPostcodes.length > 0 && matchesPostcode(uOrder.postcode || uOrder.address, driverPostcodes);
-            const isNoRestriction = !driverPlantId && driverPostcodes.length === 0;
+            const hasPostcodeRestriction = driverPostcodes.length > 0;
+            const postcodeMatches = hasPostcodeRestriction ? matchesPostcode(uOrder.postcode || uOrder.address, driverPostcodes) : true;
+            const plantMatches = driverPlantId ? (oPlantId ? driverPlantId === oPlantId : true) : true;
 
-            if (isPlantMatch || isPostcodeMatch || isNoRestriction) {
+            const isEligible = hasPostcodeRestriction
+                ? (postcodeMatches && plantMatches)
+                : (driverPlantId ? Boolean(oPlantId && driverPlantId === oPlantId) : !oPlantId);
+
+            if (isEligible) {
                 const now = new Date().toISOString();
                 const driverMeta = {
                     id: driverIdStr,
@@ -183,12 +188,12 @@ export class DriverService {
 
         const completedQuery = {
             $or: [
-                { 'qr_tracking.collectedByDriverId': { $in: driverIds }, status: { $ne: 'laundry_collected' } },
+                { 'qr_tracking.collectedByDriverId': { $in: driverIds } },
                 { 'qr_tracking.deliveredByDriverId': { $in: driverIds } },
                 {
                     $and: [
                         driverQuery,
-                        { status: { $in: ['delivered', 'completed'] } }
+                        { status: { $in: ['laundry_collected', 'delivered', 'completed'] } }
                     ]
                 }
             ]
@@ -253,8 +258,20 @@ export class DriverService {
             }
         }
 
+        const deliveryQuery: any = {
+            status: { $in: ['ready_for_delivery', 'qc_passed'] }
+        };
+        if (driverPlantId) {
+            deliveryQuery.$or = [
+                { plant_id: driverPlantId },
+                { plant_id: { $exists: false } },
+                { plant_id: null },
+                { plant_id: '' }
+            ];
+        }
+
         let available_deliveries = await db.collection('orders')
-            .find({ status: { $in: ['qc_passed', 'waiting_for_driver', 'ready_for_delivery'] } })
+            .find(deliveryQuery)
             .sort({ updated_at: -1 })
             .toArray();
         
@@ -382,11 +399,15 @@ export class DriverService {
             }
 
             const oPlantId = order.plant_id ? String(order.plant_id) : null;
-            const isPlantMatch = Boolean(driverPlantId && oPlantId && driverPlantId === oPlantId);
-            const isPostcodeMatch = driverPostcodes.length > 0 && matchesPostcode(order.postcode || order.address, driverPostcodes);
-            const isNoRestriction = !driverPlantId && driverPostcodes.length === 0;
+            const hasPostcodeRestriction = driverPostcodes.length > 0;
+            const postcodeMatches = hasPostcodeRestriction ? matchesPostcode(order.postcode || order.address, driverPostcodes) : true;
+            const plantMatches = driverPlantId ? (oPlantId ? driverPlantId === oPlantId : true) : true;
 
-            if (isPlantMatch || isPostcodeMatch || (isNoRestriction && !oPlantId)) {
+            const isEligible = hasPostcodeRestriction
+                ? (postcodeMatches && plantMatches)
+                : (driverPlantId ? Boolean(oPlantId && driverPlantId === oPlantId) : !oPlantId);
+
+            if (isEligible) {
                 const isDelivery = ['ready_for_delivery', 'qc_passed'].includes(order.status) ||
                     Boolean(order.processed_at || order.received_at_plant_at || order.qr_tracking?.intakeAt);
 
@@ -493,19 +514,19 @@ export class DriverService {
 
     static async sendOtp(driverId: string, orderId: string) {
         const db = await getDb();
-        const order = await db.collection('orders').findOne({ $or: [{ id: orderId }, { _id: orderId as any }] });
+        const order = await db.collection('orders').findOne(buildEntityLookupQuery(orderId, 'order'));
         
         if (!order) throw new NotFoundError('Order not found.');
         const { driverUser, driverIds } = await this.getDriverIdentifiers(driverId);
         const isOwner = driverIds.includes(String(order.assigned_driver_id)) ||
             (order.driver && driverIds.includes(String(order.driver.id))) ||
-            (['ready_for_delivery', 'waiting_for_driver', 'qc_passed'].includes(order.status) && !order.assigned_driver_id);
+            (['ready_for_delivery', 'qc_passed'].includes(order.status) && !order.assigned_driver_id);
 
         if (!isOwner) {
             throw new ForbiddenError('You do not own this assignment.');
         }
 
-        const isDelivery = ['ready_for_delivery', 'qc_passed', 'waiting_for_driver', 'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery'].includes(order.status);
+        const isDelivery = ['ready_for_delivery', 'qc_passed', 'delivery_driver_assigned', 'package_collected_for_delivery', 'out_for_delivery'].includes(order.status);
 
         // Always create customer in-app notification reminding them to check their app for their PIN
         if (order.customer_id) {
@@ -522,7 +543,7 @@ export class DriverService {
 
         const now = new Date().toISOString();
         await db.collection('orders').updateOne(
-            { id: orderId },
+            { _id: order._id },
             { 
                 $push: { 
                     timeline_events: { 
@@ -679,6 +700,117 @@ export class DriverService {
         return { success: true, attempt: attemptRecord };
     }
 
+    private static verifyOrderVerificationPin(
+        submittedPin: string,
+        order: any,
+        type: 'pickup' | 'delivery'
+    ): { valid: boolean; error?: string } {
+        if (!submittedPin || typeof submittedPin !== 'string') {
+            return { valid: false, error: 'A valid numeric PIN is required.' };
+        }
+        const cleanPin = submittedPin.trim();
+
+        // Prevent reuse if already verified/consumed
+        if (type === 'pickup') {
+            if (order.pickup_pin_verified_at || ['laundry_collected', 'received_at_facility', 'sorting', 'washing', 'ready_for_delivery', 'qc_passed', 'delivered', 'completed'].includes(order.status)) {
+                return { valid: false, error: 'Pickup PIN has already been verified for this order.' };
+            }
+        } else {
+            if (order.delivery_pin_verified_at || ['delivered', 'completed'].includes(order.status)) {
+                return { valid: false, error: 'Delivery PIN has already been verified for this order.' };
+            }
+        }
+
+        const attempts = type === 'pickup'
+            ? (order.pickup_pin_attempts || order.pickup_otp_attempts || 0)
+            : (order.delivery_pin_attempts || order.delivery_otp_attempts || 0);
+
+        const isLocked = type === 'pickup'
+            ? order.pickup_pin_locked === true
+            : order.delivery_pin_locked === true;
+
+        if (isLocked || attempts >= 5) {
+            return {
+                valid: false,
+                error: 'Security Lockout: Too many incorrect PIN attempts. This order PIN is locked. Contact dispatch support.'
+            };
+        }
+
+        const orderIdCandidates = [
+            order.id,
+            order.publicId,
+            order.orderNumber,
+            order.orderId,
+            order._id ? String(order._id) : null
+        ].filter(Boolean).map(String);
+
+        const custIdCandidates = [
+            order.customer_id,
+            order.customerId,
+            order.userId,
+            order.user_id,
+            order.auth0UserId,
+            order.auth0_sub,
+            order.auth0Id
+        ].filter(Boolean).map(String);
+
+        // 1. Try decrypting AES encrypted payload if stored
+        const encPayload = type === 'pickup' ? order.pickup_pin_enc : order.delivery_pin_enc;
+        if (encPayload) {
+            for (const oId of orderIdCandidates) {
+                for (const cId of custIdCandidates) {
+                    const decrypted = decryptOrderPin(encPayload, oId, cId);
+                    if (decrypted && decrypted.trim() === cleanPin) {
+                        return { valid: true };
+                    }
+                }
+            }
+        }
+
+        // 2. Try HMAC hash verification across candidate (orderId, customerId) pairs
+        const expectedHash = type === 'pickup' ? order.pickup_pin_hash : order.delivery_pin_hash;
+        const salt = type === 'pickup' ? order.pickup_pin_salt : order.delivery_pin_salt;
+
+        if (expectedHash && salt) {
+            for (const oId of orderIdCandidates) {
+                for (const cId of custIdCandidates) {
+                    const computedHash = hashOrderPin(cleanPin, salt, oId, cId);
+                    const compBuf = Buffer.from(computedHash, 'utf8');
+                    const expBuf = Buffer.from(expectedHash, 'utf8');
+                    if (compBuf.length === expBuf.length && crypto.timingSafeEqual(compBuf, expBuf)) {
+                        return { valid: true };
+                    }
+                }
+            }
+        }
+
+        // 3. Constant-time comparison for plaintext PINs (unencrypted / legacy orders)
+        const plaintextPin = type === 'pickup'
+            ? (order.pickup_pin || order.pickup_otp)
+            : (order.delivery_pin || order.delivery_otp);
+
+        if (plaintextPin) {
+            const plainStr = String(plaintextPin).trim();
+            const plainBuf = Buffer.from(plainStr, 'utf8');
+            const inputBuf = Buffer.from(cleanPin, 'utf8');
+            if (plainBuf.length === inputBuf.length && crypto.timingSafeEqual(plainBuf, inputBuf)) {
+                return { valid: true };
+            }
+        }
+
+        if (!expectedHash && !encPayload && !plaintextPin) {
+            return { valid: false, error: `No active ${type} PIN found for this order.` };
+        }
+
+        const remaining = 5 - (attempts + 1);
+        return {
+            valid: false,
+            error: remaining > 0
+                ? `Incorrect ${type === 'pickup' ? 'Collection' : 'Delivery'} PIN. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining before lockout.`
+                : 'Incorrect PIN. Attempt limit reached. Order verification PIN is now locked.'
+        };
+    }
+
     static async confirmPickup(
         driverId: string,
         orderId: string,
@@ -704,7 +836,7 @@ export class DriverService {
         }
 
         const db = await getDb();
-        const order = await db.collection('orders').findOne({ id: orderId });
+        const order = await db.collection('orders').findOne(buildEntityLookupQuery(orderId, 'order'));
         if (!order) throw new NotFoundError('Order not found.');
         
         const { driverUser, driverIds } = await this.getDriverIdentifiers(driverId);
@@ -720,54 +852,19 @@ export class DriverService {
         }
 
         // Validate current order status is pickup-eligible
-        const validPickupStatuses = ['booking_confirmed', 'collection_scheduled', 'driver_assigned', 'pickup_in_progress', 'pickup_failed'];
+        const validPickupStatuses = ['booking_confirmed', 'collection_scheduled', 'waiting_for_driver', 'driver_assigned', 'pickup_in_progress', 'pickup_failed'];
         if (!validPickupStatuses.includes(order.status)) {
             throw new BadRequestError(`Cannot confirm pickup. Order is in '${order.status}' stage.`);
         }
 
-        // Validate PIN attempt
-        const attempts = order.pickup_pin_attempts || order.pickup_otp_attempts || 0;
-        const isLocked = order.pickup_pin_locked === true;
-        
-        if (isLocked) {
-            throw new BadRequestError('Maximum attempts exceeded. This order PIN is locked.');
-        }
+        const verifyResult = this.verifyOrderVerificationPin(otp, order, 'pickup');
 
-        let isValid = false;
-        let errorMessage = 'Invalid PIN.';
-
-        const customerId = String(order.customer_id || order.customerId || order.userId || '');
-        if (order.pickup_pin_hash && order.pickup_pin_salt) {
-            const verifyResult = verifyOrderPinAttempt(
-                otp,
-                order.pickup_pin_hash,
-                order.pickup_pin_salt,
-                order.id,
-                customerId,
-                null, // PINs do not expire
-                attempts,
-                5,
-                isLocked
-            );
-            isValid = verifyResult.valid;
-            if (!isValid) errorMessage = verifyResult.error || 'Invalid PIN.';
-        } else if (order.pickup_otp) {
-            const validation = validateOtpAttempt(otp, order.pickup_otp, null, attempts, 5);
-            isValid = validation.valid;
-            if (!isValid) errorMessage = validation.error || 'Invalid PIN.';
-        } else if (order.pickup_pin) {
-            const validation = validateOtpAttempt(otp, order.pickup_pin, null, attempts, 5);
-            isValid = validation.valid;
-            if (!isValid) errorMessage = validation.error || 'Invalid PIN.';
-        } else {
-            throw new BadRequestError('No active pickup PIN found for this order.');
-        }
-
-        if (!isValid) {
-            const newAttempts = attempts + 1;
+        if (!verifyResult.valid) {
+            const currentAttempts = order.pickup_pin_attempts || order.pickup_otp_attempts || 0;
+            const newAttempts = currentAttempts + 1;
             const willLock = newAttempts >= 5;
             await db.collection('orders').updateOne(
-                { id: orderId },
+                { _id: order._id },
                 { 
                     $set: {
                         pickup_pin_attempts: newAttempts,
@@ -778,18 +875,18 @@ export class DriverService {
             );
 
             await AuditService.recordOrderEvent({
-                orderId,
+                orderId: order.id,
                 action: willLock ? 'pickup_pin_locked' : 'pickup_pin_attempt_failed',
                 actorId: driverId,
                 actorRole: 'driver',
-                reason: errorMessage,
+                reason: verifyResult.error,
                 metadata: { attempt: newAttempts, willLock }
             });
 
             if (willLock) {
                 // Raise operational exception for locked PIN
                 await ExceptionService.createException({
-                    orderId,
+                    orderId: order.id,
                     orderNumber: order.id,
                     type: 'PIN_locked',
                     priority: 'high',
@@ -798,7 +895,7 @@ export class DriverService {
                 }).catch(e => console.warn('Exception raise warning:', e.message));
             }
 
-            throw new BadRequestError(errorMessage);
+            throw new BadRequestError(verifyResult.error || 'Invalid PIN.');
         }
 
         const now = new Date().toISOString();
@@ -851,7 +948,7 @@ export class DriverService {
         // 3. Atomically confirm pickup and wipe pickup PIN / OTP to prevent reuse
         const result = await db.collection('orders').updateOne(
             { 
-                id: orderId,
+                _id: order._id,
                 status: { $in: validPickupStatuses }
             },
             {
@@ -1057,10 +1154,10 @@ export class DriverService {
 
     static async acceptDelivery(driverId: string, orderId: string) {
         const db = await getDb();
-        const order = await db.collection('orders').findOne({ id: orderId });
+        const order = await db.collection('orders').findOne(buildEntityLookupQuery(orderId, 'order'));
         if (!order) throw new NotFoundError('Order not found.');
         
-        const validStatuses = ['ready_for_delivery', 'waiting_for_driver', 'qc_passed'];
+        const validStatuses = ['ready_for_delivery', 'qc_passed'];
         if (!validStatuses.includes(order.status)) {
             throw new BadRequestError('Order is not currently waiting for a delivery driver.');
         }
@@ -1078,7 +1175,7 @@ export class DriverService {
         // Atomic update to avoid race condition where two drivers accept simultaneously
         const result = await db.collection('orders').updateOne(
             { 
-                id: orderId,
+                _id: order._id,
                 status: { $in: validStatuses },
                 $or: [
                     { assigned_driver_id: null },
@@ -1434,12 +1531,12 @@ export class DriverService {
         }
 
         const db = await getDb();
-        const order = await db.collection('orders').findOne({ id: orderId });
+        const order = await db.collection('orders').findOne(buildEntityLookupQuery(orderId, 'order'));
         if (!order) throw new NotFoundError('Order not found.');
         const { driverUser, driverIds } = await this.getDriverIdentifiers(driverId);
         const isOwner = driverIds.includes(String(order.assigned_driver_id)) ||
             (order.driver?.id && driverIds.includes(String(order.driver.id))) ||
-            (['ready_for_delivery', 'waiting_for_driver', 'qc_passed'].includes(order.status) && !order.assigned_driver_id);
+            (['ready_for_delivery', 'qc_passed'].includes(order.status) && !order.assigned_driver_id);
 
         if (!isOwner) {
             throw new ForbiddenError('You do not own this assignment.');
@@ -1450,7 +1547,6 @@ export class DriverService {
 
         const allowedStatuses = [
             'ready_for_delivery',
-            'waiting_for_driver',
             'qc_passed',
             'out_for_delivery',
             'package_collected_for_delivery',
@@ -1538,7 +1634,7 @@ export class DriverService {
         // 3. Atomically complete order and clear delivery PIN / OTP
         const result = await db.collection('orders').updateOne(
             { 
-                id: orderId,
+                _id: order._id,
                 status: { $in: allowedStatuses }
             },
             {
@@ -1618,6 +1714,57 @@ export class DriverService {
             });
         }
 
+        // Send Order Completed Email (Official Tax Invoice & Total Bill)
+        (async () => {
+            try {
+                let customerEmail = order.customer_email || order.contactDetails?.email || order.email;
+                let customerName = recipientNameVal || order.customer_name || order.customerName;
+                if (!customerEmail && order.customer_id) {
+                    const custUser = await db.collection('users').findOne(buildEntityLookupQuery(order.customer_id, 'user') as any);
+                    if (custUser) {
+                        customerEmail = custUser.email;
+                        customerName = customerName || custUser.full_name || custUser.name;
+                    }
+                }
+
+                if (customerEmail) {
+                    const formattedDate = new Date(now).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    });
+
+                    await sendOrderCompletedEmail({
+                        to: customerEmail,
+                        orderId,
+                        invoiceNumber: `INV-${orderId.replace(/^ORD-|^LD-/, '')}`,
+                        customerName: customerName || 'Valued Customer',
+                        completedDate: formattedDate,
+                        deliveryAddress: order.address || order.pickup_address || 'Customer Delivery Address',
+                        driverName: driverName || 'Laundelle Dedicated Courier',
+                        items: Array.isArray(order.items) ? order.items.map((i: any) => ({
+                            name: i.name || i.title || 'Garment Item',
+                            quantity: i.quantity || 1,
+                            unitPrice: i.price || i.unitPrice || 0,
+                            totalPrice: (Number(i.price || i.unitPrice || 0)) * (Number(i.quantity || 1)),
+                            unit: i.unit,
+                            selectedOption: i.selectedOption || i.category,
+                        })) : [],
+                        subtotal: order.subtotal || order.amount || 0,
+                        discount: order.discount || 0,
+                        additionalCharges: order.additionalCharges || order.surcharge || 0,
+                        additionalChargeReason: order.additionalChargeReason || '',
+                        total: order.total_amount || order.total || order.amount || 0,
+                        paymentMethod: order.payment_method || 'Online Payment',
+                    });
+                }
+            } catch (emailErr: any) {
+                console.error('[DriverService] Error sending Order Completed invoice email:', emailErr?.message || emailErr);
+            }
+        })();
+
         // Recalculate SLA
         await SlaService.checkAndEscalateSla(orderId).catch(e => console.warn('SLA calc error:', e.message));
 
@@ -1635,48 +1782,14 @@ export class DriverService {
     }
 
     private static async validateDeliveryPinInternal(db: any, order: any, deliveryPin: string) {
-        const attempts = order.delivery_pin_attempts || order.delivery_otp_attempts || 0;
-        const isLocked = order.delivery_pin_locked === true;
+        const verifyResult = this.verifyOrderVerificationPin(deliveryPin, order, 'delivery');
 
-        if (isLocked) {
-            throw new BadRequestError('Maximum attempts exceeded. This delivery PIN is locked.');
-        }
-
-        let isValid = false;
-        let errorMessage = 'Invalid Delivery PIN.';
-
-        const customerId = String(order.customer_id || order.customerId || order.userId || '');
-        if (order.delivery_pin_hash && order.delivery_pin_salt) {
-            const verifyResult = verifyOrderPinAttempt(
-                deliveryPin,
-                order.delivery_pin_hash,
-                order.delivery_pin_salt,
-                order.id,
-                customerId,
-                null,
-                attempts,
-                5,
-                isLocked
-            );
-            isValid = verifyResult.valid;
-            if (!isValid) errorMessage = verifyResult.error || 'Invalid Delivery PIN.';
-        } else if (order.delivery_otp) {
-            const validation = validateOtpAttempt(deliveryPin, order.delivery_otp, null, attempts, 5);
-            isValid = validation.valid;
-            if (!isValid) errorMessage = validation.error || 'Invalid Delivery PIN.';
-        } else if (order.delivery_pin) {
-            const validation = validateOtpAttempt(deliveryPin, order.delivery_pin, null, attempts, 5);
-            isValid = validation.valid;
-            if (!isValid) errorMessage = validation.error || 'Invalid Delivery PIN.';
-        } else {
-            throw new BadRequestError('No active delivery PIN found for this order.');
-        }
-
-        if (!isValid) {
-            const newAttempts = attempts + 1;
+        if (!verifyResult.valid) {
+            const currentAttempts = order.delivery_pin_attempts || order.delivery_otp_attempts || 0;
+            const newAttempts = currentAttempts + 1;
             const willLock = newAttempts >= 5;
             await db.collection('orders').updateOne(
-                { id: order.id },
+                { _id: order._id },
                 { 
                     $set: {
                         delivery_pin_attempts: newAttempts,
@@ -1691,7 +1804,7 @@ export class DriverService {
                 action: willLock ? 'delivery_pin_locked' : 'delivery_pin_attempt_failed',
                 actorId: 'driver',
                 actorRole: 'driver',
-                reason: errorMessage,
+                reason: verifyResult.error,
                 metadata: { attempt: newAttempts, willLock }
             });
 
@@ -1706,7 +1819,7 @@ export class DriverService {
                 }).catch(e => console.warn('Exception raise warning:', e.message));
             }
 
-            throw new BadRequestError(errorMessage);
+            throw new BadRequestError(verifyResult.error || 'Invalid Delivery PIN.');
         }
     }
 }

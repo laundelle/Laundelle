@@ -380,60 +380,6 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
           ))}
         </div>
       </div>
-
-      {/* Full-Width Bottom Trust Banner */}
-      <div className="w-full max-w-7xl mx-auto mt-8 sm:mt-10">
-        <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-7 border border-blue-100/90 shadow-[0_8px_30px_rgba(0,102,245,0.05)] flex flex-col lg:flex-row items-center justify-between gap-6">
-          {/* Left section: 100% Eco-Enzyme Guarantee with Leaf Badge */}
-          <div className="flex items-center gap-4 text-center sm:text-left w-full lg:w-auto">
-            <div className="w-14 h-14 rounded-full bg-[#eff6ff] text-[#0066f5] flex items-center justify-center shrink-0 border border-blue-100/90 shadow-2xs mx-auto sm:mx-0">
-              <Leaf className="w-7 h-7 text-[#0066f5] fill-[#0066f5]/15 stroke-[1.8]" />
-            </div>
-            <div className="space-y-0.5">
-              <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-[#0066f5] block">
-                100% Eco-Enzyme Guarantee
-              </span>
-              <h4 className="text-base sm:text-lg font-black text-[#0a192f]">
-                Zero harsh chlorine bleach.
-              </h4>
-              <p className="text-xs text-gray-500 font-medium">
-                Safe for 100% cashmere, tailored suits, silks, and sneakers.
-              </p>
-            </div>
-          </div>
-
-          {/* Middle section: 3 Trust Indicators */}
-          <div className="flex items-center justify-center gap-6 sm:gap-10 py-2 lg:py-0 border-y lg:border-y-0 lg:border-x border-slate-100 w-full lg:w-auto lg:px-8">
-            {/* Indicator 1 */}
-            <div className="flex flex-col items-center gap-1.5 text-center">
-              <FlaskConical className="w-5 h-5 text-[#0066f5] stroke-[1.8]" />
-              <span className="text-[11px] font-bold text-gray-700">Eco-Friendly</span>
-            </div>
-
-            {/* Indicator 2 */}
-            <div className="flex flex-col items-center gap-1.5 text-center">
-              <ShieldCheck className="w-5 h-5 text-[#0066f5] stroke-[1.8]" />
-              <span className="text-[11px] font-bold text-gray-700">Fabric Safe</span>
-            </div>
-
-            {/* Indicator 3 */}
-            <div className="flex flex-col items-center gap-1.5 text-center">
-              <Leaf className="w-5 h-5 text-[#0066f5] stroke-[1.8]" />
-              <span className="text-[11px] font-bold text-gray-700">Premium Care</span>
-            </div>
-          </div>
-
-          {/* Right section: Book Collection Now Button */}
-          <button
-            type="button"
-            onClick={onBookPickup}
-            className="w-full lg:w-auto bg-[#0066f5] hover:bg-[#0052cc] text-white px-7 py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95 shrink-0"
-          >
-            <span>Book Collection Now</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
     </section>
   );
 };

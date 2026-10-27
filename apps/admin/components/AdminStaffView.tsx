@@ -53,6 +53,7 @@ export const AdminStaffView: React.FC = () => {
   const [selectedManagerId, setSelectedManagerId] = useState('');
   const [managerPlantPreview, setManagerPlantPreview] = useState<{ plantName: string; postcodes: string[] } | null>(null);
   const [loadingManagerPreview, setLoadingManagerPreview] = useState(false);
+  const [selectedDriverPostcodes, setSelectedDriverPostcodes] = useState<string[]>([]);
 
   // Driver fields
   const [vehicleType, setVehicleType] = useState('Van');
@@ -104,7 +105,7 @@ export const AdminStaffView: React.FC = () => {
         (p.manager_email && uEmail && String(p.manager_email).toLowerCase() === uEmail)
       );
 
-      const resolvedPlantId = directPlantId || (matchedPlant ? String(matchedPlant._id) : '');
+      const resolvedPlantId = matchedPlant ? String(matchedPlant._id) : (directPlantId ? String(directPlantId) : '');
       const resolvedPlantName = matchedPlant ? `${matchedPlant.name} (${matchedPlant.code})` : '';
 
       return {
@@ -147,15 +148,18 @@ export const AdminStaffView: React.FC = () => {
   const handleManagerSelect = async (managerId: string) => {
     setSelectedManagerId(managerId);
     setManagerPlantPreview(null);
+    setSelectedDriverPostcodes([]);
     if (!managerId) return;
     setLoadingManagerPreview(true);
     try {
       const details = await dbFetchManagerDetails(managerId);
       if (details?.plant) {
+        const codes = details.inheritedPostcodes || details.plant.service_pincodes || [];
         setManagerPlantPreview({
           plantName: `${details.plant.name} (${details.plant.code})`,
-          postcodes: details.inheritedPostcodes || details.plant.service_pincodes || []
+          postcodes: codes
         });
+        setSelectedDriverPostcodes(codes);
       }
     } catch {
       // Preview unavailable — not critical
@@ -187,6 +191,7 @@ export const AdminStaffView: React.FC = () => {
     setEmergencyPhone('');
     setSelectedManagerId('');
     setManagerPlantPreview(null);
+    setSelectedDriverPostcodes([]);
     setModalOpen(true);
   };
 
@@ -205,6 +210,7 @@ export const AdminStaffView: React.FC = () => {
     );
     setPlantId(stf.plantId || (matchedP ? String(matchedP._id) : ''));
     setAssignedPostcodes((stf.assigned_postcodes || []).join(', '));
+    setSelectedDriverPostcodes(stf.assigned_postcodes || []);
     setIsActive(stf.isActive);
     setVehicleType(stf.vehicleType || 'Van');
     setVehicleReg(stf.vehicleReg || '');
@@ -258,7 +264,12 @@ export const AdminStaffView: React.FC = () => {
         return;
       }
       if (!editingStaff && !selectedManagerId) {
-        alert('Please select a Plant Manager for this driver. Postcodes will be auto-inherited from their plant.');
+        alert('Please select a Plant Manager for this driver.');
+        setSubmitting(false);
+        return;
+      }
+      if (!editingStaff && managerPlantPreview && managerPlantPreview.postcodes.length > 0 && selectedDriverPostcodes.length === 0) {
+        alert("Please assign at least one pincode for this driver from the manager's plant.");
         setSubmitting(false);
         return;
       }
@@ -300,6 +311,10 @@ export const AdminStaffView: React.FC = () => {
         const fullEmergPhone = emergencyPhone.trim() ? `${emergencyPhoneCountryCode} ${emergencyPhone.trim().replace(/^0/, '')}`.trim() : '';
         staffData.emergency_contact = { name: emergencyName.trim(), phone: fullEmergPhone };
         staffData.vehicle = `${vehicleType} - ${vehicleReg.trim().toUpperCase()}`;
+        if (selectedDriverPostcodes.length > 0) {
+          staffData.assigned_postcodes = selectedDriverPostcodes;
+          staffData.assignedSectors = selectedDriverPostcodes;
+        }
       }
     } else if (role === 'manager') {
       staffData.plant_id = plantId || null;
@@ -345,24 +360,38 @@ export const AdminStaffView: React.FC = () => {
   };
 
   const filteredStaff = staff.filter(s => {
-    const matchesRole = roleFilter === 'all' || s.role === roleFilter;
+    const sRole = (s.role || '').toLowerCase();
+    const matchesRole =
+      roleFilter === 'all' ||
+      sRole === roleFilter ||
+      (roleFilter === 'manager' && (sRole === 'manager' || sRole === 'plant_manager')) ||
+      (roleFilter === 'admin' && (sRole === 'admin' || sRole === 'super_admin')) ||
+      (roleFilter === 'driver' && sRole === 'driver') ||
+      (roleFilter === 'processor' && sRole === 'processor');
 
+    const isActuallyActive = s.isActive !== false && s.status !== 'suspended' && s.status !== 'inactive';
     const matchesStatus =
       statusFilter === 'all' ||
-      (statusFilter === 'active' && s.isActive !== false && s.status !== 'suspended') ||
-      (statusFilter === 'suspended' && (s.isActive === false || s.status === 'suspended'));
+      (statusFilter === 'active' && isActuallyActive) ||
+      (statusFilter === 'suspended' && !isActuallyActive);
 
     const matchesPlant =
       plantFilter === 'all' ||
-      String(s.plantId) === String(plantFilter);
+      String(s.plantId) === String(plantFilter) ||
+      (s.plant && String(s.plant._id || s.plant.id) === String(plantFilter)) ||
+      plants.some(p => String(p._id) === String(plantFilter) && (String(p._id) === String(s.plantId) || p.code === s.plantId || p.id === s.plantId));
 
     const q = searchQuery.toLowerCase().trim();
+    const pcList = Array.isArray(s.assigned_postcodes) ? s.assigned_postcodes.join(' ').toLowerCase() : '';
     const matchesQuery = !q || (
       (s.fullName || '').toLowerCase().includes(q) ||
       (s.email || '').toLowerCase().includes(q) ||
       (s.phone || '').includes(q) ||
       (s.employeeNumber || '').toLowerCase().includes(q) ||
-      (s.vehicle || '').toLowerCase().includes(q)
+      (s.vehicle || '').toLowerCase().includes(q) ||
+      (s.roleLabel || '').toLowerCase().includes(q) ||
+      (s.plantName || '').toLowerCase().includes(q) ||
+      pcList.includes(q)
     );
 
     return matchesRole && matchesStatus && matchesPlant && matchesQuery;
@@ -1105,25 +1134,93 @@ export const AdminStaffView: React.FC = () => {
                     </div>
                   )}
                   {managerPlantPreview && !loadingManagerPreview && (
-                    <div className="mt-2 p-3 bg-blue-50 rounded-xl border border-blue-100 space-y-1.5">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-[#0077B6]">
-                        Inherited from Manager's Plant
-                      </p>
-                      <p className="text-xs font-bold text-[#03045E]">{managerPlantPreview.plantName}</p>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {managerPlantPreview.postcodes.length > 0 ? (
-                          managerPlantPreview.postcodes.map((pc: string) => (
-                            <span
-                              key={pc}
-                              className="px-2 py-0.5 bg-white rounded-md border border-blue-200 text-[10px] font-mono font-bold text-[#0077B6]"
+                    <div className="mt-2 p-3.5 bg-blue-50/70 rounded-xl border border-blue-200/80 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-wider text-[#0077B6]">
+                            Manager's Plant: {managerPlantPreview.plantName}
+                          </p>
+                          <p className="text-[10px] text-blue-700 font-medium">
+                            {role === 'driver' ? 'Assign Driver Pincodes (Only pincodes under this manager)' : 'Inherited Plant Postcodes'}
+                          </p>
+                        </div>
+                        {role === 'driver' && managerPlantPreview.postcodes.length > 0 && (
+                          <div className="flex items-center gap-1.5 text-[10px] font-bold">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedDriverPostcodes([...managerPlantPreview.postcodes])}
+                              className="text-[#0077B6] hover:underline cursor-pointer"
                             >
-                              {pc}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-[10px] text-gray-400 italic">No postcodes configured for this plant</span>
+                              All
+                            </button>
+                            <span className="text-gray-300">|</span>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedDriverPostcodes([])}
+                              className="text-gray-500 hover:underline cursor-pointer"
+                            >
+                              Clear
+                            </button>
+                          </div>
                         )}
                       </div>
+
+                      {role === 'driver' ? (
+                        <div>
+                          {managerPlantPreview.postcodes.length > 0 ? (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {managerPlantPreview.postcodes.map((pc: string) => {
+                                const isSelected = selectedDriverPostcodes.includes(pc);
+                                return (
+                                  <button
+                                    key={pc}
+                                    type="button"
+                                    onClick={() => {
+                                      if (isSelected) {
+                                        setSelectedDriverPostcodes(selectedDriverPostcodes.filter(p => p !== pc));
+                                      } else {
+                                        setSelectedDriverPostcodes([...selectedDriverPostcodes, pc]);
+                                      }
+                                    }}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer border flex items-center gap-1.5 ${
+                                      isSelected
+                                        ? 'bg-[#0077B6] text-white border-[#0077B6] shadow-2xs'
+                                        : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
+                                    }`}
+                                  >
+                                    <span>{pc}</span>
+                                    {isSelected ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3 opacity-40" />}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-amber-700 italic bg-amber-50 p-2 rounded-lg border border-amber-200">
+                              No postcodes configured for this manager's plant.
+                            </span>
+                          )}
+                          {selectedDriverPostcodes.length > 0 && (
+                            <p className="text-[10px] font-bold text-emerald-700 pt-1.5">
+                              ✓ {selectedDriverPostcodes.length} pincode(s) selected: {selectedDriverPostcodes.join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {managerPlantPreview.postcodes.length > 0 ? (
+                            managerPlantPreview.postcodes.map((pc: string) => (
+                              <span
+                                key={pc}
+                                className="px-2 py-0.5 bg-white rounded-md border border-blue-200 text-[10px] font-mono font-bold text-[#0077B6]"
+                              >
+                                {pc}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-[10px] text-gray-400 italic">No postcodes configured for this plant</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

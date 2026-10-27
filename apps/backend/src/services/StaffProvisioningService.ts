@@ -12,12 +12,15 @@ import {
     NotFoundError,
     AuthenticatedContext,
     assertPlantIsolation
-} from '../lib/api';
+} from '@/lib/api';
+import { extractOutwardCode, isPostcodeInServiceArea } from '@laundelle/utils';
 
 export interface ProvisionStaffInput {
     email: string;
     name: string;
     phone?: string;
+    assigned_postcodes?: string[];
+    assignedSectors?: string[];
     plantId?: string | null;
     plantManagerId?: string | null;
     vehicle_type?: string;
@@ -88,9 +91,13 @@ export class StaffProvisioningService {
      * Prioritizes the manager's assigned plant, then falls back to direct manager postcodes.
      */
     public static async resolveManagerPostcodes(db: any, managerId: string | null, plantId: string | null): Promise<string[]> {
+        const authorized = new Set<string>();
+
         if (plantId) {
             const plantCodes = await this.resolvePlantPostcodes(db, plantId);
-            if (plantCodes && plantCodes.length > 0) return plantCodes;
+            if (plantCodes && plantCodes.length > 0) {
+                plantCodes.forEach(p => authorized.add((extractOutwardCode(p) || p).trim().toUpperCase()));
+            }
         }
 
         if (managerId) {
@@ -101,7 +108,9 @@ export class StaffProvisioningService {
                 const mPlantId = manager.plant_id || manager.plantId;
                 if (mPlantId && mPlantId !== plantId) {
                     const plantCodes = await this.resolvePlantPostcodes(db, mPlantId);
-                    if (plantCodes && plantCodes.length > 0) return plantCodes;
+                    if (plantCodes && plantCodes.length > 0) {
+                        plantCodes.forEach(p => authorized.add((extractOutwardCode(p) || p).trim().toUpperCase()));
+                    }
                 }
                 const mKeys = [managerId, String(manager._id), manager.publicId].filter(Boolean);
                 const plant = await db.collection('plants').findOne({
@@ -112,17 +121,19 @@ export class StaffProvisioningService {
                 } as any);
                 if (plant) {
                     const plantCodes = await this.resolvePlantPostcodes(db, String(plant._id));
-                    if (plantCodes && plantCodes.length > 0) return plantCodes;
+                    if (plantCodes && plantCodes.length > 0) {
+                        plantCodes.forEach(p => authorized.add((extractOutwardCode(p) || p).trim().toUpperCase()));
+                    }
                 }
                 if (Array.isArray(manager.assigned_postcodes) && manager.assigned_postcodes.length > 0) {
-                    return manager.assigned_postcodes;
+                    manager.assigned_postcodes.forEach((p: string) => authorized.add((extractOutwardCode(p) || p).trim().toUpperCase()));
                 }
                 if (Array.isArray(manager.assignedSectors) && manager.assignedSectors.length > 0) {
-                    return manager.assignedSectors;
+                    manager.assignedSectors.forEach((p: string) => authorized.add((extractOutwardCode(p) || p).trim().toUpperCase()));
                 }
             }
         }
-        return [];
+        return Array.from(authorized);
     }
 
     /**
@@ -370,8 +381,28 @@ export class StaffProvisioningService {
             resolvedPlantId = plantExists.publicId || plantExists.id || String(plantExists._id);
         }
 
-        // Postcodes are inherited from the assigned plant or manager
+        // Postcodes are inherited from the assigned plant or manager, or validated if specified by manager
         const inheritedPostcodes = await this.resolveManagerPostcodes(db, resolvedManagerId, resolvedPlantId);
+        let assignedStaffPostcodes = inheritedPostcodes;
+
+        const rawRequested = input.assigned_postcodes || input.assignedSectors;
+        if (rawRequested && (Array.isArray(rawRequested) ? rawRequested.length > 0 : String(rawRequested).trim().length > 0)) {
+            const requestedList = (Array.isArray(rawRequested) ? rawRequested : String(rawRequested).split(','))
+                .map((p: string) => (extractOutwardCode(String(p).trim()) || String(p).trim().toUpperCase()))
+                .filter(Boolean);
+            const normalizedRequested = Array.from(new Set(requestedList));
+
+            if (inheritedPostcodes.length > 0) {
+                const authorizedSet = new Set(inheritedPostcodes.map((p: string) => (extractOutwardCode(p) || p).trim().toUpperCase()));
+                const unauthorized = normalizedRequested.filter(p => !authorizedSet.has(p));
+                if (unauthorized.length > 0) {
+                    throw new BadRequestError(
+                        `Unauthorized postcode assignment: Postcode(s) [${unauthorized.join(', ')}] are outside the plant manager's authorized service area [${Array.from(authorizedSet).join(', ')}]. Only pincodes under this plant manager can be assigned.`
+                    );
+                }
+            }
+            assignedStaffPostcodes = normalizedRequested;
+        }
 
         const internalDbId = new ObjectId().toHexString();
         const staffPublicId = generateStaffId();
@@ -426,8 +457,8 @@ export class StaffProvisioningService {
                     license_number: input.license_number || input.licenseNum || '',
                     emergency_contact: emergencyContact,
                     vehicle: vehicleSummary,
-                    assigned_postcodes: inheritedPostcodes,
-                    assignedSectors: inheritedPostcodes,
+                    assigned_postcodes: assignedStaffPostcodes,
+                    assignedSectors: assignedStaffPostcodes,
                     status: 'active',
                     is_active: true,
                     created_at: now,
@@ -628,24 +659,102 @@ export class StaffProvisioningService {
         }
 
         // Postcodes
-        if (actorRole === 'super_admin' && (input.assigned_postcodes !== undefined || input.assignedSectors !== undefined)) {
-            const postcodes = input.assigned_postcodes || input.assignedSectors || [];
-            updateFields.assigned_postcodes = postcodes;
-            updateFields.assignedSectors = postcodes;
+        if (input.assigned_postcodes !== undefined || input.assignedSectors !== undefined) {
+            const rawPostcodes: string[] = Array.isArray(input.assigned_postcodes)
+                ? input.assigned_postcodes
+                : Array.isArray(input.assignedSectors)
+                ? input.assignedSectors
+                : typeof (input as any).assigned_postcodes === 'string'
+                ? (input as any).assigned_postcodes.split(',')
+                : typeof (input as any).assignedSectors === 'string'
+                ? (input as any).assignedSectors.split(',')
+                : [];
 
-            // Cascade to subordinate staff if updating a manager
-            if (['manager', 'plant_manager'].includes(targetUser.role)) {
-                const mKeys = [String(targetUser._id), targetUser.publicId, targetUser.id, targetUser.staffId].filter(Boolean);
-                await db.collection('users').updateMany(
-                    {
-                        $or: [
-                            { manager_id: { $in: mKeys } },
-                            { plantManagerId: { $in: mKeys } }
-                        ],
-                        role: { $in: ['driver', 'processor'] }
-                    },
-                    { $set: { assigned_postcodes: postcodes, assignedSectors: postcodes } }
-                ).catch(() => {});
+            const normalizedPostcodes = Array.from(new Set(
+                rawPostcodes
+                    .map((p: string) => (extractOutwardCode(String(p).trim()) || String(p).trim().toUpperCase()))
+                    .filter(Boolean)
+            ));
+
+            if (actorRole === 'super_admin') {
+                updateFields.assigned_postcodes = normalizedPostcodes;
+                updateFields.assignedSectors = normalizedPostcodes;
+
+                // Cascade to subordinate staff if updating a manager
+                if (['manager', 'plant_manager'].includes(targetUser.role)) {
+                    const mKeys = [String(targetUser._id), targetUser.publicId, targetUser.id, targetUser.staffId].filter(Boolean);
+                    await db.collection('users').updateMany(
+                        {
+                            $or: [
+                                { manager_id: { $in: mKeys } },
+                                { plantManagerId: { $in: mKeys } }
+                            ],
+                            role: { $in: ['driver', 'processor'] }
+                        },
+                        { $set: { assigned_postcodes: normalizedPostcodes, assignedSectors: normalizedPostcodes } }
+                    ).catch(() => {});
+                }
+            } else if (actorRole === 'plant_manager' || actorRole === 'manager') {
+                // Plant Managers can allocate postcodes to their drivers or processors
+                if (!['driver', 'processor'].includes(targetUser.role)) {
+                    throw new ForbiddenError('Plant Managers can only allocate postcodes to Drivers and Processors.');
+                }
+
+                // Resolve manager authorized postcodes
+                const managerPlantId = actorContext.dbUser.plant_id || actorContext.dbUser.plantId;
+                const authorizedPostcodes = await this.resolveManagerPostcodes(db, String(actorContext.dbUser._id), managerPlantId);
+                const authorizedSet = new Set(authorizedPostcodes.map((p: string) => (extractOutwardCode(p) || p).trim().toUpperCase()));
+
+                // Strict validation: every requested postcode must be authorized
+                const unauthorized = normalizedPostcodes.filter(p => !authorizedSet.has(p));
+                if (unauthorized.length > 0) {
+                    throw new BadRequestError(
+                        `Unauthorized postcode assignment: Postcode(s) [${unauthorized.join(', ')}] are outside your authorized service area [${Array.from(authorizedSet).join(', ')}].`
+                    );
+                }
+
+                updateFields.assigned_postcodes = normalizedPostcodes;
+                updateFields.assignedSectors = normalizedPostcodes;
+
+                // Safe reassignment: if postcodes were removed from an active driver, unassign any uncollected orders in removed postcodes
+                if (targetUser.role === 'driver') {
+                    const previousPostcodes: string[] = targetUser.assigned_postcodes || targetUser.assignedSectors || [];
+                    const removedPostcodes = previousPostcodes.filter(p => !normalizedPostcodes.includes(p));
+                    if (removedPostcodes.length > 0) {
+                        const driverKeys = [String(targetUser._id), targetUser.id, targetUser.publicId].filter(Boolean);
+                        const activeOrders = await db.collection('orders').find({
+                            assigned_driver_id: { $in: driverKeys },
+                            status: { $in: ['collection_scheduled', 'driver_assigned', 'booking_confirmed'] }
+                        }).toArray();
+
+                        for (const order of activeOrders) {
+                            const orderPostcode = order.postcode || order.address?.postcode || order.address || '';
+                            if (isPostcodeInServiceArea(orderPostcode, removedPostcodes) && !isPostcodeInServiceArea(orderPostcode, normalizedPostcodes)) {
+                                await db.collection('orders').updateOne(
+                                    { _id: order._id },
+                                    {
+                                        $set: {
+                                            assigned_driver_id: null,
+                                            driver: null,
+                                            status: 'collection_scheduled',
+                                            statusLabel: 'Collection Scheduled',
+                                            updated_at: now
+                                        },
+                                        $push: {
+                                            timeline_events: {
+                                                event: 'driver_unassigned_due_to_postcode_reallocation',
+                                                label: 'Driver unassigned due to manager postcode reallocation',
+                                                actor: 'manager',
+                                                actorId: String(actorContext.dbUser._id),
+                                                timestamp: now
+                                            }
+                                        } as any
+                                    }
+                                );
+                            }
+                        }
+                    }
+                }
             }
         }
 

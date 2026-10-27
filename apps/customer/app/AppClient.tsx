@@ -749,7 +749,11 @@ export default function App({ initialTab }: { initialTab?: string }) {
           if (res.ok && data.confirmed && data.order) {
             // ✅ Webhook ran, order found in DB, payment confirmed
             setCart([]);
-            try { localStorage.removeItem('laundelle_user_cart'); } catch { }
+            try { 
+              localStorage.removeItem('laundelle_user_cart'); 
+              localStorage.removeItem('laundelle_checkout_progress'); 
+              localStorage.removeItem('laundelle_open_cart'); 
+            } catch { }
             const confirmedId = data.order.publicId || data.order.orderNumber || data.order.id || orderId;
             const confirmedTotal = data.order.total ?? (data.order as any).total_price ?? (data.order as any).amount;
             showToast(`💳 Payment confirmed! Order #${confirmedId} is placed.`);
@@ -847,6 +851,17 @@ export default function App({ initialTab }: { initialTab?: string }) {
       isAuthenticated: true,
     });
     showToast(`Welcome back, ${name}!`);
+
+    // Resume checkout if user was checking out before login
+    try {
+      if (typeof window !== 'undefined') {
+        const shouldOpenCart = localStorage.getItem('laundelle_open_cart') === 'true' || Boolean(localStorage.getItem('laundelle_checkout_progress'));
+        if (shouldOpenCart) {
+          localStorage.removeItem('laundelle_open_cart');
+          setCartDrawerOpen(true);
+        }
+      }
+    } catch {}
   };
 
 

@@ -89,6 +89,9 @@ export const ManagerStaffView: React.FC<ManagerStaffViewProps> = ({
   const [newRole, setNewRole] = useState<'driver' | 'processor'>('driver');
   const [adding, setAdding] = useState(false);
 
+  const [plantPostcodes, setPlantPostcodes] = useState<string[]>([]);
+  const [selectedDriverPostcodes, setSelectedDriverPostcodes] = useState<string[]>([]);
+
   // Invitation Modal State
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [createdStaffInvite, setCreatedStaffInvite] = useState<{
@@ -106,6 +109,9 @@ export const ManagerStaffView: React.FC<ManagerStaffViewProps> = ({
     setLoading(true);
     const data = await dbFetchManagerStaff();
     setStaffList(data);
+    const codes: string[] = (data as any)?.plantPincodes || [];
+    setPlantPostcodes(codes);
+    setSelectedDriverPostcodes(prev => prev.length === 0 ? codes : prev);
     setLoading(false);
   };
 
@@ -186,6 +192,11 @@ export const ManagerStaffView: React.FC<ManagerStaffViewProps> = ({
       return;
     }
 
+    if (newRole === 'driver' && plantPostcodes.length > 0 && selectedDriverPostcodes.length === 0) {
+      showNotification('error', 'Please select at least one pincode for this driver from your plant.');
+      return;
+    }
+
     setAdding(true);
 
     const fullNewPhone = newPhone.trim() ? `${newPhoneCountryCode} ${newPhone.trim().replace(/^0/, '')}`.trim() : '';
@@ -196,11 +207,14 @@ export const ManagerStaffView: React.FC<ManagerStaffViewProps> = ({
       role: newRole,
       is_active: true,
       availability: 'available',
-      // Postcodes are auto-inherited from manager's plant — not sent from UI
     };
 
     if (newRole === 'driver') {
       payload.vehicle = newVehicle.trim() || 'Logistics Van';
+      if (selectedDriverPostcodes.length > 0) {
+        payload.assigned_postcodes = selectedDriverPostcodes;
+        payload.assignedSectors = selectedDriverPostcodes;
+      }
     }
 
     const result = await dbManagerCreateStaff(payload);
@@ -890,16 +904,89 @@ export const ManagerStaffView: React.FC<ManagerStaffViewProps> = ({
 
               {/* Driver-specific fields */}
               {newRole === 'driver' && (
-                <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1">Assigned Vehicle</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Ford Transit - BD21 XYZ"
-                    value={newVehicle}
-                    onChange={(e) => setNewVehicle(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-hidden focus:border-[#0077B6] focus:bg-white"
-                  />
-                </div>
+                <>
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Assigned Vehicle</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Ford Transit - BD21 XYZ"
+                      value={newVehicle}
+                      onChange={(e) => setNewVehicle(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-hidden focus:border-[#0077B6] focus:bg-white"
+                    />
+                  </div>
+
+                  {/* Manual Pincode Assignment (Only plant pincodes shown) */}
+                  <div className="p-3.5 bg-blue-50/60 rounded-xl border border-blue-200/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="text-xs font-bold text-[#03045E] block">
+                          Assign Driver Pincodes
+                        </label>
+                        <p className="text-[10px] text-blue-600 font-medium">
+                          Only pincodes under your plant can be assigned to this driver.
+                        </p>
+                      </div>
+                      {plantPostcodes.length > 0 && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedDriverPostcodes([...plantPostcodes])}
+                            className="text-[#0077B6] hover:underline cursor-pointer"
+                          >
+                            All
+                          </button>
+                          <span className="text-gray-300">|</span>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedDriverPostcodes([])}
+                            className="text-gray-500 hover:underline cursor-pointer"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {plantPostcodes.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {plantPostcodes.map((pc) => {
+                          const isSelected = selectedDriverPostcodes.includes(pc);
+                          return (
+                            <button
+                              key={pc}
+                              type="button"
+                              onClick={() => {
+                                if (isSelected) {
+                                  setSelectedDriverPostcodes(selectedDriverPostcodes.filter(p => p !== pc));
+                                } else {
+                                  setSelectedDriverPostcodes([...selectedDriverPostcodes, pc]);
+                                }
+                              }}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer border flex items-center gap-1.5 ${
+                                isSelected
+                                  ? 'bg-[#0077B6] text-white border-[#0077B6] shadow-2xs'
+                                  : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
+                              }`}
+                            >
+                              <span>{pc}</span>
+                              {isSelected ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3 opacity-40" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-amber-700 italic bg-amber-50 p-2 rounded-lg border border-amber-200">
+                        No service pincodes currently registered for this plant.
+                      </p>
+                    )}
+                    {selectedDriverPostcodes.length > 0 && (
+                      <p className="text-[10px] font-bold text-emerald-700 pt-0.5">
+                        ✓ {selectedDriverPostcodes.length} pincode(s) selected: {selectedDriverPostcodes.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                </>
               )}
 
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">

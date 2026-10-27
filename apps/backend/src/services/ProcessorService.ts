@@ -12,6 +12,7 @@ import crypto from 'crypto';
 import { generateBagId, generateOrderItemId, buildEntityLookupQuery, generateId, generatePaymentId } from '@laundelle/ids';
 import { normalizeRole } from '@laundelle/auth';
 import { OrderCustomerEnrichmentService } from './OrderCustomerEnrichmentService';
+import { ManagerService } from './ManagerService';
 
 export class ProcessorService {
     public static userFilter(userId: string) {
@@ -42,6 +43,227 @@ export class ProcessorService {
         return norm === 'processor' || norm === 'plant_manager' || norm === 'super_admin';
     }
 
+    public static async resolvePlantDoc(db: any, plantIdentifier: any): Promise<any | null> {
+        if (!plantIdentifier) return null;
+        const objectIdConverter = (id: string) => ObjectId.isValid(id) ? new ObjectId(id) : null;
+        const key = typeof plantIdentifier === 'object' && plantIdentifier !== null && !(plantIdentifier instanceof ObjectId)
+            ? (plantIdentifier.id || plantIdentifier._id || plantIdentifier.plantId || plantIdentifier.code)
+            : plantIdentifier;
+        if (!key) return null;
+
+        const keyStr = String(key).trim();
+        const query = buildEntityLookupQuery(keyStr, 'plant', objectIdConverter);
+        let plant = await db.collection('plants').findOne(query);
+        if (!plant && ObjectId.isValid(keyStr)) {
+            try {
+                plant = await db.collection('plants').findOne({ _id: new ObjectId(keyStr) });
+            } catch {}
+        }
+        return plant;
+    }
+
+    public static async resolveProcessorPlant(db: any, processor: any): Promise<any | null> {
+        if (!processor) return null;
+
+        // 1. Direct plant fields on user
+        const directKey = processor.plantId || processor.plant_id || processor.assigned_plant || processor.assignedPlant;
+        if (directKey) {
+            const plant = await this.resolvePlantDoc(db, directKey);
+            if (plant) return plant;
+        }
+
+        // 2. Manager inheritance (driver or processor subordinate to manager)
+        const managerId = processor.manager_id || processor.plantManagerId;
+        if (managerId) {
+            const res = await ManagerService.resolveManagerAndPlant(db, String(managerId));
+            if (res?.plant) return res.plant;
+        }
+
+        // 3. User themselves is a plant manager or admin
+        const normRole = normalizeRole(processor.role);
+        if (normRole === 'plant_manager') {
+            const res = await ManagerService.resolveManagerAndPlant(db, String(processor._id || processor.id));
+            if (res?.plant) return res.plant;
+        }
+
+        return null;
+    }
+
+    public static async resolveOrderPlant(db: any, order: any): Promise<any | null> {
+        if (!order) return null;
+
+        // 1. Direct plant fields on order
+        const directKey = order.plant_id || order.plantId || order.plant_code || order.plantCode;
+        if (directKey) {
+            const plant = await this.resolvePlantDoc(db, directKey);
+            if (plant) return plant;
+        }
+
+        // 2. Order's assigned manager
+        if (order.manager_id) {
+            const res = await ManagerService.resolveManagerAndPlant(db, String(order.manager_id));
+            if (res?.plant) return res.plant;
+        }
+
+        // 3. Order's assigned driver
+        const driverId = order.assigned_driver_id || order.staffId || order.driver?.id;
+        if (driverId) {
+            const driverUser = await this.findProcessorUser(String(driverId));
+            if (driverUser) {
+                const driverPlant = await this.resolveProcessorPlant(db, driverUser);
+                if (driverPlant) return driverPlant;
+            }
+        }
+
+        return null;
+    }
+
+    public static async verifyPlantAndManagerMatch(
+        db: any,
+        processor: any,
+        order: any
+    ): Promise<{
+        matches: boolean;
+        orderPlantId: string | null;
+        orderPlantName: string;
+        processorPlantId: string | null;
+        processorPlantName: string;
+    }> {
+        const normRole = normalizeRole(processor?.role);
+        if (normRole === 'super_admin') {
+            const ordPlant = await this.resolveOrderPlant(db, order);
+            const ordPlantName = ordPlant?.name || order.plantName || order.plant_name || 'All Facilities (Admin)';
+            const ordPlantId = ordPlant?.publicId || ordPlant?.id || String(ordPlant?._id || order.plant_id || '');
+            return {
+                matches: true,
+                orderPlantId: ordPlantId,
+                orderPlantName: ordPlantName,
+                processorPlantId: ordPlantId,
+                processorPlantName: ordPlantName
+            };
+        }
+
+        const processorPlant = await this.resolveProcessorPlant(db, processor);
+        const orderPlant = await this.resolveOrderPlant(db, order);
+
+        const procPlantId = processorPlant ? (processorPlant.publicId || processorPlant.id || String(processorPlant._id)) : (processor.plantId || processor.plant_id || null);
+        const procPlantName = processorPlant?.name || processor.plantName || processor.plant_name || 'Processor Facility';
+
+        let ordPlantId = orderPlant ? (orderPlant.publicId || orderPlant.id || String(orderPlant._id)) : (order.plant_id || order.plantId || null);
+        let ordPlantName = orderPlant?.name || order.plantName || order.plant_name || (ordPlantId ? `Plant (${ordPlantId})` : 'Unknown Facility');
+
+        // If neither has any plant assigned
+        if (!procPlantId && !ordPlantId) {
+            return {
+                matches: true,
+                orderPlantId: null,
+                orderPlantName: ordPlantName,
+                processorPlantId: null,
+                processorPlantName: procPlantName
+            };
+        }
+
+        // 1. If resolved to the same MongoDB plant document
+        if (processorPlant && orderPlant) {
+            const sameDoc = String(processorPlant._id) === String(orderPlant._id) ||
+                (processorPlant.id && orderPlant.id && processorPlant.id === orderPlant.id) ||
+                (processorPlant.publicId && orderPlant.publicId && processorPlant.publicId === orderPlant.publicId) ||
+                (processorPlant.code && orderPlant.code && processorPlant.code.toUpperCase() === orderPlant.code.toUpperCase());
+            if (sameDoc) {
+                return {
+                    matches: true,
+                    orderPlantId: procPlantId,
+                    orderPlantName: procPlantName,
+                    processorPlantId: procPlantId,
+                    processorPlantName: procPlantName
+                };
+            }
+        }
+
+        // 2. Normalized plant ID match
+        if (procPlantId && ordPlantId) {
+            const norm = (s: string) => String(s).trim().toLowerCase().replace(/[-_]/g, '');
+            if (norm(procPlantId) === norm(ordPlantId)) {
+                return {
+                    matches: true,
+                    orderPlantId: procPlantId,
+                    orderPlantName: procPlantName,
+                    processorPlantId: procPlantId,
+                    processorPlantName: procPlantName
+                };
+            }
+        }
+
+        // 3. Manager Inheritance & Shared Team Matching
+        const processorManagerId = processor.manager_id || processor.plantManagerId;
+
+        // A. Match order manager with processor manager
+        if (order.manager_id && processorManagerId) {
+            if (String(order.manager_id).trim() === String(processorManagerId).trim()) {
+                return {
+                    matches: true,
+                    orderPlantId: procPlantId,
+                    orderPlantName: procPlantName,
+                    processorPlantId: procPlantId,
+                    processorPlantName: procPlantName
+                };
+            }
+        }
+
+        // B. Match order driver with processor (inherited from same manager or same plant)
+        const orderDriverId = order.assigned_driver_id || order.staffId || order.driver?.id;
+        if (orderDriverId) {
+            const driver = await this.findProcessorUser(String(orderDriverId));
+            if (driver) {
+                const driverManagerId = driver.manager_id || driver.plantManagerId;
+                if (driverManagerId && processorManagerId && String(driverManagerId).trim() === String(processorManagerId).trim()) {
+                    return {
+                        matches: true,
+                        orderPlantId: procPlantId,
+                        orderPlantName: procPlantName,
+                        processorPlantId: procPlantId,
+                        processorPlantName: procPlantName
+                    };
+                }
+
+                const driverPlant = await this.resolveProcessorPlant(db, driver);
+                if (driverPlant && processorPlant) {
+                    const driverPlantMatch = String(driverPlant._id) === String(processorPlant._id) ||
+                        (driverPlant.id && processorPlant.id && driverPlant.id === processorPlant.id) ||
+                        (driverPlant.publicId && processorPlant.publicId && driverPlant.publicId === processorPlant.publicId);
+                    if (driverPlantMatch) {
+                        return {
+                            matches: true,
+                            orderPlantId: procPlantId,
+                            orderPlantName: procPlantName,
+                            processorPlantId: procPlantId,
+                            processorPlantName: procPlantName
+                        };
+                    }
+                }
+            }
+        }
+
+        // If either one has no plant assigned, associate rather than block
+        if (!procPlantId || !ordPlantId) {
+            return {
+                matches: true,
+                orderPlantId: procPlantId || ordPlantId,
+                orderPlantName: procPlantName || ordPlantName,
+                processorPlantId: procPlantId || ordPlantId,
+                processorPlantName: procPlantName || ordPlantName
+            };
+        }
+
+        return {
+            matches: false,
+            orderPlantId: ordPlantId,
+            orderPlantName: ordPlantName,
+            processorPlantId: procPlantId,
+            processorPlantName: procPlantName
+        };
+    }
+
     static async getJobs(processorId: string) {
         const db = await getDb();
         const processor = await this.findProcessorUser(processorId);
@@ -51,10 +273,21 @@ export class ProcessorService {
         }
 
         const isProcessor = normalizeRole(processor.role) === 'processor';
-        let plantId = processor.plantId || processor.plant_id;
+        const plant = await this.resolveProcessorPlant(db, processor);
+        let plantId = plant ? (plant.publicId || plant.id || String(plant._id)) : (processor.plantId || processor.plant_id);
 
         if (isProcessor && !plantId) {
             throw new ForbiddenError('Access denied: Processor is not assigned to any laundry plant. Please contact your Plant Manager.');
+        }
+
+        const plantIds: any[] = [];
+        if (plant) {
+            plantIds.push(plant._id);
+            plantIds.push(String(plant._id));
+            if (plant.id) plantIds.push(plant.id);
+            if (plant.publicId) plantIds.push(plant.publicId);
+        } else if (plantId) {
+            plantIds.push(plantId);
         }
 
         const assignedStatuses = [
@@ -73,19 +306,21 @@ export class ProcessorService {
             'processing'
         ];
 
+        const plantCondition = plantIds.length > 1 ? { plant_id: { $in: plantIds } } : (plantIds.length === 1 ? { plant_id: plantIds[0] } : (plantId ? { plant_id: plantId } : null));
+
         const processorQuery: any = {
             $or: [
                 { assigned_processor_id: processorId },
                 { assigned_processor_id: processor._id.toString() },
                 { 'processor.id': processorId },
                 { 'processor.id': processor._id.toString() },
-                ...(plantId ? [{ plant_id: plantId }] : [])
+                ...(plantCondition ? [plantCondition] : [])
             ],
             status: { $in: assignedStatuses }
         };
 
-        if (plantId) {
-            processorQuery.plant_id = plantId;
+        if (plantCondition) {
+            processorQuery.plant_id = plantCondition.plant_id;
         }
 
         let assigned = await db.collection('orders')
@@ -96,7 +331,7 @@ export class ProcessorService {
         // If staff has no specifically assigned orders in admin mode, fetch plant orders
         if (assigned.length === 0 && (processor.role === 'admin' || processor.role === 'super_admin')) {
             const adminQuery: any = { status: { $in: assignedStatuses } };
-            if (plantId) adminQuery.plant_id = plantId;
+            if (plantCondition) adminQuery.plant_id = plantCondition.plant_id;
             assigned = await db.collection('orders')
                 .find(adminQuery)
                 .sort({ updated_at: -1, updatedAt: -1 })
@@ -104,9 +339,9 @@ export class ProcessorService {
                 .toArray();
         }
 
-        const queue = plantId ? await db.collection('orders')
+        const queue = plantCondition ? await db.collection('orders')
             .find({
-                plant_id: plantId,
+                plant_id: plantCondition.plant_id,
                 status: { $in: ['received_at_facility', 'waiting_for_processor', 'laundry_collected', 'booking_confirmed', 'pickup_in_progress'] }
             })
             .sort({ updated_at: 1, updatedAt: 1 })
@@ -121,8 +356,8 @@ export class ProcessorService {
             ],
             status: { $in: ['ready_for_delivery', 'out_for_delivery', 'delivered'] }
         };
-        if (plantId) {
-            completedQuery.plant_id = plantId;
+        if (plantCondition) {
+            completedQuery.plant_id = plantCondition.plant_id;
         }
 
         const completed = await db.collection('orders')
@@ -309,42 +544,36 @@ export class ProcessorService {
             let customerName = order.customerName || order.customer_name;
             let customerPhone = order.customerPhone || order.customer_phone || order.phone;
 
-            // Resolve plant information
-            let orderPlantName = order.plantName || order.plant_name || '';
-            if (!orderPlantName && order.plant_id) {
-                const plant = await db.collection('plants').findOne({
-                    _id: (ObjectId.isValid(order.plant_id) ? new ObjectId(order.plant_id) : order.plant_id) as any
-                });
-                if (plant) orderPlantName = plant.name;
-            }
-
             let plantMismatch = false;
             let processorPlantId: string | null = null;
             let processorPlantName = '';
+            let orderPlantName = order.plantName || order.plant_name || '';
 
             if (processorId) {
                 const processor = await this.findProcessorUser(processorId);
                 if (processor) {
-                    processorPlantId = processor.plantId ? String(processor.plantId) : (processor.plant_id ? String(processor.plant_id) : null);
-                    if (processorPlantId) {
-                        const procPlant = await db.collection('plants').findOne({
-                            $or: [
-                                { _id: processorPlantId as any },
-                                { id: processorPlantId },
-                                ...(ObjectId.isValid(processorPlantId) ? [{ _id: new ObjectId(processorPlantId) }] : [])
-                            ]
-                        });
-                        if (procPlant) processorPlantName = procPlant.name;
-                    }
+                    const matchResult = await this.verifyPlantAndManagerMatch(db, processor, order);
+                    plantMismatch = !matchResult.matches;
+                    processorPlantId = matchResult.processorPlantId;
+                    processorPlantName = matchResult.processorPlantName;
+                    orderPlantName = matchResult.orderPlantName;
 
-                    // Check if order is assigned to a different plant
-                    const normRole = normalizeRole(processor.role);
-                    if (normRole === 'processor' && processorPlantId && order.plant_id) {
-                        if (String(order.plant_id).trim() !== String(processorPlantId).trim()) {
-                            plantMismatch = true;
+                    if (matchResult.matches && processorPlantId) {
+                        if (!order.plant_id || String(order.plant_id).trim() !== String(processorPlantId).trim()) {
+                            order.plant_id = processorPlantId;
+                            order.plantId = processorPlantId;
+                            order.plant_name = processorPlantName;
+                            order.plantName = processorPlantName;
+                            db.collection('orders').updateOne(
+                                { _id: order._id },
+                                { $set: { plant_id: processorPlantId, plantId: processorPlantId, plant_name: processorPlantName, plantName: processorPlantName } }
+                            ).catch(() => {});
                         }
                     }
                 }
+            } else {
+                const ordPlant = await this.resolveOrderPlant(db, order);
+                if (ordPlant) orderPlantName = ordPlant.name;
             }
 
             // Rule 1: Check driver pickup & OTP verification
@@ -381,8 +610,8 @@ export class ProcessorService {
                 plantMismatch,
                 isDriverCollected,
                 alreadyIntaked,
-                orderPlantId: order.plant_id ? String(order.plant_id) : null,
-                orderPlantName: orderPlantName || order.plant_id || 'Other Plant Facility',
+                orderPlantId: order.plant_id ? String(order.plant_id) : (processorPlantId || null),
+                orderPlantName: orderPlantName || processorPlantName || 'Assigned Plant',
                 processorPlantId,
                 processorPlantName: processorPlantName || processorPlantId || 'Current Facility',
                 order: {
@@ -398,8 +627,8 @@ export class ProcessorService {
                     alreadyIntaked,
                     total: order.total || order.total_price || 0,
                     address: order.address || '',
-                    plant_id: order.plant_id ? String(order.plant_id) : null,
-                    plantName: orderPlantName || order.plant_id || '',
+                    plant_id: order.plant_id ? String(order.plant_id) : (processorPlantId || null),
+                    plantName: orderPlantName || processorPlantName || '',
                     bagQr: order.package?.qr_code || order.qr_code || order.qr_tracking?.qrTagId || order.bag_id || order.publicId || order.id || clean
                 }
             };
@@ -478,13 +707,15 @@ export class ProcessorService {
         }
 
         // Enforce plant assignment: Reject intake if order is assigned to a different plant
-        const processorPlantId = processor.plantId || processor.plant_id;
-        const normRole = normalizeRole(processor.role);
-        if (normRole === 'processor' && order.plant_id && processorPlantId && String(order.plant_id).trim() !== String(processorPlantId).trim()) {
-            throw new Error(`Order #${cleanOrderId} is assigned to a different plant (${order.plantName || order.plant_id}). Cannot intake at this facility.`);
+        const matchResult = await this.verifyPlantAndManagerMatch(db, processor, order);
+        if (!matchResult.matches) {
+            throw new Error(`Order #${cleanOrderId} is assigned to a different plant (${matchResult.orderPlantName || order.plant_id}). Cannot intake at this facility (${matchResult.processorPlantName}).`);
         }
-        if (!order.plant_id && processorPlantId) {
-            order.plant_id = processorPlantId;
+        if (matchResult.processorPlantId) {
+            order.plant_id = matchResult.processorPlantId;
+            order.plantId = matchResult.processorPlantId;
+            order.plant_name = matchResult.processorPlantName;
+            order.plantName = matchResult.processorPlantName;
         }
 
         // Enrich customer name if missing or null in order document
@@ -1139,13 +1370,13 @@ export class ProcessorService {
 
         if (matchingDrivers.length === 0) {
             return {
-                status: 'waiting_for_driver',
-                statusLabel: 'Waiting for Driver',
+                status: 'ready_for_delivery',
+                statusLabel: 'Ready for Delivery (Awaiting Driver)',
                 assigned_driver_id: null,
                 driver: null,
                 timelineEvent: {
-                    event: 'waiting_for_driver',
-                    label: `Waiting for Driver (No active driver for postcode: ${orderPostcode})`,
+                    event: 'ready_for_delivery',
+                    label: `Ready for Delivery (Awaiting Driver for postcode: ${orderPostcode})`,
                     actor: 'system',
                     timestamp: now
                 }

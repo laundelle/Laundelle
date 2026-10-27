@@ -1945,7 +1945,7 @@ export class ManagerService {
                 : (Array.isArray(manager?.assigned_postcodes) ? manager.assigned_postcodes : (Array.isArray(manager?.assignedSectors) ? manager.assignedSectors : [])));
 
         if (managerPostcodes.length > 0 && staff.length > 0) {
-            const needHealing = staff.filter((s: any) => (!s.assigned_postcodes || s.assigned_postcodes.length === 0));
+            const needHealing = staff.filter((s: any) => s.assigned_postcodes === undefined && s.assignedSectors === undefined);
             if (needHealing.length > 0) {
                 const healingIds = needHealing.map((s: any) => s._id);
                 await db.collection('users').updateMany(
@@ -1953,7 +1953,7 @@ export class ManagerService {
                     { $set: { assigned_postcodes: managerPostcodes, assignedSectors: managerPostcodes } }
                 ).catch(() => {});
                 for (const s of staff) {
-                    if (!s.assigned_postcodes || s.assigned_postcodes.length === 0) {
+                    if (s.assigned_postcodes === undefined && s.assignedSectors === undefined) {
                         s.assigned_postcodes = managerPostcodes;
                         s.assignedSectors = managerPostcodes;
                     }
@@ -1961,7 +1961,7 @@ export class ManagerService {
             }
         }
 
-        return { staff };
+        return { staff, plantPincodes: managerPostcodes };
     }
 
     // ─── Helper: Sync all driver/processor postcodes from manager's plant ───────
@@ -2061,5 +2061,142 @@ export class ManagerService {
         };
 
         return StaffProvisioningService.updateUser(actorContext, staffId, staffData);
+    }
+
+    static async getCustomers(
+        managerId: string,
+        search?: string,
+        status?: string,
+        limit: number = 50,
+        page: number = 1
+    ) {
+        const db = await getDb();
+        const { plant, plantOrConditions, isSuperAdminNoPlant } = await this.buildPlantQueryContext(db, managerId);
+
+        const safeLimit = Math.max(1, Math.min(100, Number(limit) || 50));
+        const safePage = Math.max(1, Number(page) || 1);
+
+        // Fetch orders strictly belonging to this plant
+        const orderQuery: any = {
+            status: { $ne: 'pending_payment' }
+        };
+        if (plantOrConditions.length > 0 && !isSuperAdminNoPlant) {
+            orderQuery.$or = plantOrConditions;
+        }
+
+        const orders = await db.collection('orders')
+            .find(orderQuery)
+            .sort({ createdAt: -1 })
+            .toArray();
+
+        await OrderCustomerEnrichmentService.enrichOrders(orders, db);
+
+        // Fetch flags and notes
+        const flags = await db.collection('customer_flags').find({}).toArray();
+        const notes = await db.collection('customer_notes').find({}).toArray();
+        const incidents = await db.collection('incidents').find({}).toArray();
+
+        const customerList: any[] = [];
+        const unlinkedGroups = new Map<string, any[]>();
+
+        for (const ord of orders) {
+            const key = (ord.customerEmail || ord.customer_email || ord.contactDetails?.email || ord.email || ord.customerName || ord.customer_name || ord.id || '').toLowerCase().trim();
+            if (!key) continue;
+            if (!unlinkedGroups.has(key)) unlinkedGroups.set(key, []);
+            unlinkedGroups.get(key)!.push(ord);
+        }
+
+        unlinkedGroups.forEach((groupOrders, groupKey) => {
+            const first = groupOrders[0];
+            const derivedId = String(first.customerId || first.customer_id || first.userId || first.user_id || `cust_${groupKey.replace(/[^a-z0-9]/g, '')}`);
+            const publicId = `CUST-${derivedId.slice(-6).toUpperCase()}`;
+            const email = (first.customerEmail || first.customer_email || first.contactDetails?.email || first.email || '').trim();
+            const phone = first.customerPhone || first.customer_phone || first.contactDetails?.phone || first.phone || '';
+            const fullName = first.customerName || first.customer_name || (first.contactDetails ? `${first.contactDetails.firstName || ''} ${first.contactDetails.lastName || ''}`.trim() : '') || 'Customer';
+            const postcode = first.postcode || '';
+            const fullAddress = (typeof first.address === 'string' ? first.address : (first.address?.line1 ? `${first.address?.line1}, ${first.address?.city || ''} ${first.address?.postcode || ''}`.trim() : (first.contactDetails?.address ? `${first.contactDetails.address}, ${first.postcode || ''}`.trim() : ''))) || postcode;
+            const recentOrders = groupOrders.slice(0, 5).map(o => ({
+                id: String(o.id || o.publicId || o._id),
+                orderNumber: o.orderNumber || o.publicId || o.id,
+                status: o.status,
+                total: Number(o.total || o.total_price || 0),
+                date: o.createdAt || o.created_at || o.bookedAt,
+                service: o.items?.[0]?.name || o.service || 'Laundry Service'
+            }));
+
+            const totalOrders = groupOrders.length;
+            const lifetimeSpend = groupOrders.reduce((sum: number, o: any) => sum + Number(o.total || o.total_price || 0), 0);
+            const averageOrderValue = totalOrders > 0 ? lifetimeSpend / totalOrders : 0;
+            const repeatRate = totalOrders > 1 ? Math.min(100, Math.round(((totalOrders - 1) / totalOrders) * 100)) : 0;
+            const lastOrderDate = groupOrders[0]?.createdAt || groupOrders[0]?.created_at || groupOrders[0]?.bookedAt || '';
+
+            let customerStatus = 'new';
+            if (lifetimeSpend > 250) customerStatus = 'high_value';
+            else if (totalOrders >= 4) customerStatus = 'vip';
+            else if (totalOrders >= 2) customerStatus = 'regular';
+
+            const groupFlags = flags.filter(f => f.customerId === derivedId || f.customerId === publicId);
+            const groupNotes = notes.filter(n => n.customerId === derivedId || n.customerId === publicId);
+            const groupIncidents = incidents.filter(inc => inc.customerId === derivedId || inc.customerId === publicId || (email && inc.customerEmail?.toLowerCase() === email.toLowerCase()));
+
+            customerList.push({
+                id: derivedId,
+                publicId,
+                customerId: publicId,
+                fullName,
+                email,
+                phone,
+                postcode,
+                address: fullAddress,
+                status: customerStatus,
+                lifetimeSpend,
+                totalOrders,
+                repeatRate,
+                averageOrderValue,
+                lastOrderDate,
+                preferredService: groupOrders[0]?.items?.[0]?.name || groupOrders[0]?.service || 'Wash & Fold',
+                preferredDetergent: 'Standard',
+                preferredSoftener: 'Standard',
+                avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=03045E&color=CAF0F8&size=128`,
+                flagsCount: groupFlags.length,
+                internalNotesCount: groupNotes.length,
+                incidentsCount: groupIncidents.length,
+                createdAt: groupOrders[groupOrders.length - 1]?.createdAt || new Date().toISOString(),
+                recentOrders,
+                plantName: plant ? plant.name : undefined
+            });
+        });
+
+        // Search filtering
+        let filtered = customerList;
+        if (search && search.trim()) {
+            const q = search.toLowerCase().trim();
+            filtered = filtered.filter(c =>
+                (c.fullName && c.fullName.toLowerCase().includes(q)) ||
+                (c.email && c.email.toLowerCase().includes(q)) ||
+                (c.phone && c.phone.includes(q)) ||
+                (c.postcode && c.postcode.toLowerCase().includes(q)) ||
+                (c.id && c.id.toLowerCase().includes(q)) ||
+                (c.publicId && c.publicId.toLowerCase().includes(q))
+            );
+        }
+
+        // Status filtering
+        if (status && status !== 'all') {
+            filtered = filtered.filter(c => c.status === status);
+        }
+
+        // Sort by total orders and lifetime spend descending
+        filtered.sort((a, b) => (b.totalOrders - a.totalOrders) || (b.lifetimeSpend - a.lifetimeSpend));
+
+        const total = filtered.length;
+        const paginated = filtered.slice((safePage - 1) * safeLimit, safePage * safeLimit);
+
+        return {
+            customers: paginated,
+            total,
+            flags,
+            notes
+        };
     }
 }

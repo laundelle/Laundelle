@@ -285,3 +285,12 @@ export function buildAddressDistrictRegex(district: string): RegExp {
   const clean = district.trim().toUpperCase().replace(/\s+/g, '');
   return new RegExp(`\\b${clean}(\\s*[0-9][A-Z]{2}\\b|\\s.*\\b|\\b)(?!\\d|[A-Z])`, 'i');
 }
+
+/**
+ * Convenience matcher checking if a candidate postcode matches an area or array of areas.
+ */
+export function matchesPostcode(candidateRaw: string | undefined | null, serviceAreas: string | string[]): boolean {
+  if (!serviceAreas) return false;
+  const areas = Array.isArray(serviceAreas) ? serviceAreas : [serviceAreas];
+  return isPostcodeInServiceArea(candidateRaw, areas);
+}

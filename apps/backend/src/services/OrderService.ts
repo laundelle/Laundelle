@@ -25,10 +25,11 @@ import {
     isDeliveryTimeSlotValid,
     formatDateToYyyyMmDd
 } from '@/lib/scheduleValidation';
-import { OrderCustomerEnrichmentService } from './OrderCustomerEnrichmentService';
 import { ObjectId } from 'mongodb';
 import { generateOrderId, generateOrderItemId, generatePaymentId, buildEntityLookupQuery } from '@laundelle/ids';
+import { sendOrderConfirmedEmail } from '@/emails';
 import { PricingChargeService } from '@/services/PricingChargeService';
+import { OrderCustomerEnrichmentService } from './OrderCustomerEnrichmentService';
 
 function generateOrderNumber(): string {
     return generateOrderId();
@@ -515,8 +516,8 @@ export class OrderService {
 
         const routing = await locatePlantAndDriverForOrder(db, rawPostcode, orderData.address || '', now);
 
-        const initialStatus = routing.driver ? 'collection_scheduled' : 'waiting_for_driver';
-        const initialStatusLabel = routing.driver ? 'Collection Scheduled' : 'Waiting for Driver';
+        const initialStatus = 'booking_confirmed';
+        const initialStatusLabel = 'Booking Confirmed';
 
         // Secure In-App Order PINs
         const pickupPin = generateSecureNumericPin(6);
@@ -637,6 +638,12 @@ export class OrderService {
                     amount: amountGBP,
                     currency: stripeSession?.currency?.toUpperCase() || 'GBP',
                     timestamp: now
+                },
+                {
+                    event: 'booking_confirmed',
+                    label: 'Booking Confirmed',
+                    actor: 'system',
+                    timestamp: now
                 }
             ]
         };
@@ -735,6 +742,32 @@ export class OrderService {
                     $set: { last_order_at: now, updated_at: now }
                 }
             );
+        }
+
+        // Send Order Confirmed Email (Contains order details and Pickup OTP only)
+        if (customerEmail) {
+            sendOrderConfirmedEmail({
+                to: customerEmail,
+                orderId,
+                customerName: customerName || 'Valued Customer',
+                pickupOtp: pickupPin,
+                pickupDate: orderData.collectionDate || orderData.pickupDate || 'Tomorrow',
+                pickupSlot: orderData.collectionTimeSlot || orderData.pickupSlot || '10:00 AM - 12:00 PM',
+                deliveryDate: orderData.deliveryDate || 'In 2 Days',
+                deliverySlot: orderData.deliveryTimeSlot || orderData.deliverySlot || '10:00 AM - 12:00 PM',
+                pickupAddress: orderData.address || rawPostcode || 'Customer Address',
+                items: Array.isArray(orderData.items) ? orderData.items.map((i: any) => ({
+                    name: i.name || i.title || 'Garment Item',
+                    quantity: i.quantity || 1,
+                    price: i.price || i.unitPrice || 0,
+                    unit: i.unit,
+                    selectedOption: i.selectedOption || i.category
+                })) : [],
+                subtotal: orderData.subtotal || amountGBP,
+                discount: orderData.discount || 0,
+                total: amountGBP,
+                paymentMethod: 'Card (Stripe Confirmed)',
+            }).catch(err => console.error('[OrderService] Order confirmed email error:', err?.message || err));
         }
 
         // Audit Log
@@ -859,15 +892,15 @@ export class OrderService {
         const initialStatusLabel = 'Pending Payment Authorization';
         const isPendingOnlinePayment = initialStatus === 'pending_payment';
 
-        // 3. Cryptographically Secure In-App Order PINs (6 digits pickup, 4 digits delivery)
-        const pickupPin = generateSecureNumericPin(6);
-        const deliveryPin = generateSecureNumericPin(4);
-        const pickupPinSalt = generatePinSalt();
-        const deliveryPinSalt = generatePinSalt();
-        const pickupPinHash = hashOrderPin(pickupPin, pickupPinSalt, orderId, customerId);
-        const deliveryPinHash = hashOrderPin(deliveryPin, deliveryPinSalt, orderId, customerId);
-        const pickupPinEnc = encryptOrderPin(pickupPin, orderId, customerId);
-        const deliveryPinEnc = encryptOrderPin(deliveryPin, orderId, customerId);
+        // 3. Cryptographically Secure In-App Order PINs: only generated once payment is completed
+        const pickupPin = isPendingOnlinePayment ? null : generateSecureNumericPin(6);
+        const deliveryPin = isPendingOnlinePayment ? null : generateSecureNumericPin(4);
+        const pickupPinSalt = pickupPin ? generatePinSalt() : null;
+        const deliveryPinSalt = deliveryPin ? generatePinSalt() : null;
+        const pickupPinHash = pickupPin && pickupPinSalt ? hashOrderPin(pickupPin, pickupPinSalt, orderId, customerId) : null;
+        const deliveryPinHash = deliveryPin && deliveryPinSalt ? hashOrderPin(deliveryPin, deliveryPinSalt, orderId, customerId) : null;
+        const pickupPinEnc = pickupPin ? encryptOrderPin(pickupPin, orderId, customerId) : null;
+        const deliveryPinEnc = deliveryPin ? encryptOrderPin(deliveryPin, orderId, customerId) : null;
         // PINs do not expire: orders may have extended lead times or distant schedules
         const pinExpiryTime = null;
 
@@ -1542,5 +1575,70 @@ export class OrderService {
         });
 
         return { success: true };
+    }
+
+    static async submitOrderRating(customerId: string, orderId: string, rating?: number | null, feedback?: string) {
+        const db = await getDb();
+        const orderLookup = buildEntityLookupQuery(orderId, 'order');
+        const order = await db.collection('orders').findOne(orderLookup);
+        if (!order) throw new NotFoundError('Order not found');
+
+        let validRating: number | null = null;
+        if (rating !== undefined && rating !== null && (rating as any) !== '') {
+            const num = Number(rating);
+            if (!isNaN(num) && num >= 1 && num <= 5) {
+                validRating = Math.round(num);
+            }
+        }
+
+        const cleanFeedback = typeof feedback === 'string' ? feedback.trim() : '';
+        const now = new Date().toISOString();
+        const customerName = order.contactDetails?.firstName 
+            ? `${order.contactDetails.firstName} ${order.contactDetails.lastName || ''}`.trim()
+            : (order.customer_name || order.customerName || 'Customer');
+
+        const ratingData = {
+            rating: validRating,
+            feedback: cleanFeedback,
+            createdAt: now,
+            customerName
+        };
+
+        await db.collection('orders').updateOne(
+            { _id: order._id },
+            {
+                $set: {
+                    rating: validRating,
+                    ratingFeedback: cleanFeedback,
+                    ratingSubmittedAt: now,
+                    customerRating: ratingData,
+                    updated_at: now
+                },
+                $push: {
+                    timeline_events: {
+                        event: 'order_rated',
+                        label: validRating ? `Customer submitted ${validRating}-star rating` : 'Customer submitted feedback',
+                        actor: 'customer',
+                        actorId: customerId,
+                        timestamp: now,
+                        rating: validRating,
+                        feedback: cleanFeedback
+                    }
+                } as any
+            }
+        );
+
+        await AuditService.recordOrderEvent({
+            orderId: order.id || orderId,
+            action: 'customer_order_rating',
+            actorId: customerId,
+            actorRole: 'customer',
+            before: { rating: order.rating, feedback: order.ratingFeedback },
+            after: { rating: validRating, feedback: cleanFeedback },
+            reason: cleanFeedback || (validRating ? `Customer rated ${validRating} stars` : 'Feedback updated')
+        });
+
+        const updatedOrder = await db.collection('orders').findOne({ _id: order._id });
+        return { success: true, order: updatedOrder, rating: ratingData };
     }
 }

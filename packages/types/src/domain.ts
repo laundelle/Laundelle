@@ -646,6 +646,13 @@ export interface AdditionalCharge {
   resolutionAction?: string;
 }
 
+export interface OrderCustomerRating {
+  rating?: number | null; // 1 to 5 stars
+  feedback?: string;
+  createdAt?: string;
+  customerName?: string;
+}
+
 export interface Order {
   id: string;
   publicId?: string;
@@ -785,6 +792,10 @@ export interface Order {
   codRecord?: CodCollectionRecord;
   pickupAttemptsCount?: number;
   deliveryAttemptsCount?: number;
+  rating?: number;
+  ratingFeedback?: string;
+  ratingSubmittedAt?: string;
+  customerRating?: OrderCustomerRating;
 }
 
 export interface UserAddress {

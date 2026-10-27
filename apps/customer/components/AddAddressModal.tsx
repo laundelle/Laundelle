@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { UserAddress } from '@laundelle/types';
 import { normalizeUkPostcode, isValidUkPostcodeOrDistrict } from '@laundelle/utils';
+import { PostcodeSplitInput } from './PostcodeSplitInput';
 
 interface AddAddressModalProps {
   isOpen: boolean;
@@ -472,7 +473,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
               />
             </div>
 
-            <div>
+            <div className="sm:col-span-2">
               <div className="flex items-center justify-between mb-1">
                 <label className="block text-gray-700 font-bold">
                   Postcode / Postal Code <span className="text-red-500">*</span>
@@ -485,12 +486,9 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
                   <span>📍 Use current location</span>
                 </button>
               </div>
-              <input
-                type="text"
-                value={pincode}
-                onChange={(e) => setPincode(e.target.value.toUpperCase())}
-                placeholder="e.g. PR1 2AB"
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl uppercase font-mono focus:outline-none focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8]"
+              <PostcodeSplitInput
+                initialValue={pincode}
+                onChange={(full) => setPincode(full)}
                 required
               />
             </div>

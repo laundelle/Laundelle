@@ -264,11 +264,6 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                 <span className="text-[#1677d8] font-bold">Help Always</span>
               </div>
 
-              {/* Floating Heart */}
-              <div className="absolute left-1/4 top-32 z-30 text-2xl text-[#096ac9] animate-bounce">
-                ♥
-              </div>
-
               {/* Support Agent Arch & Photo Container */}
               <div className="relative w-[85%] sm:w-[75%] h-[350px] sm:h-[400px] flex items-end justify-center overflow-hidden rounded-t-[120px] bg-gradient-to-br from-blue-100 to-blue-50 border-t-4 border-l-4 border-r-4 border-white shadow-2xl">
                 {/* Secondary Interior Arch */}
@@ -415,228 +410,225 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
           {/* FAQ SECTION */}
           {/* ===================================================== */}
           <ScrollReveal yOffset={28} className="w-full">
-          <section
-            ref={faqRef}
-            id="faq"
-            className="rounded-3xl border border-blue-100 bg-white p-6 sm:p-8 shadow-[0_8px_30px_rgba(15,76,129,0.07)] space-y-6 scroll-mt-24"
-          >
-            {/* Header with Search */}
-            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center border-b border-gray-100 pb-5">
-              <div>
-                <span className="inline-flex rounded-lg bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0867c8]">
-                  FAQ
-                </span>
-                <h2 className="mt-2 font-serif text-2xl font-bold text-[#092d67] sm:text-3xl">
-                  Frequently Asked Questions
-                </h2>
-                <p className="mt-1 text-xs sm:text-sm text-slate-500">
-                  Find quick answers to the most common questions about our services.
-                </p>
-              </div>
+            <section
+              ref={faqRef}
+              id="faq"
+              className="rounded-3xl border border-blue-100 bg-white p-6 sm:p-8 shadow-[0_8px_30px_rgba(15,76,129,0.07)] space-y-6 scroll-mt-24"
+            >
+              {/* Header with Search */}
+              <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center border-b border-gray-100 pb-5">
+                <div>
+                  <span className="inline-flex rounded-lg bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0867c8]">
+                    FAQ
+                  </span>
+                  <h2 className="mt-2 font-serif text-2xl font-bold text-[#092d67] sm:text-3xl">
+                    Frequently Asked Questions
+                  </h2>
+                  <p className="mt-1 text-xs sm:text-sm text-slate-500">
+                    Find quick answers to the most common questions about our services.
+                  </p>
+                </div>
 
-              {/* Search questions input */}
-              <div className="relative w-full md:w-64">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={faqSearchQuery}
-                  onChange={(e) => setFaqSearchQuery(e.target.value)}
-                  placeholder="Search questions..."
-                  className="h-11 w-full rounded-xl border border-blue-100 bg-white pl-10 pr-4 text-xs sm:text-sm text-slate-700 outline-hidden transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                />
-                {faqSearchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setFaqSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* FAQ Accordion List */}
-            <div className="space-y-3">
-              {filteredFaqs.length > 0 ? (
-                filteredFaqs.map((faq, index) => {
-                  const isOpen = openFaqIndex === index;
-                  return (
-                    <div
-                      key={index}
-                      className="overflow-hidden rounded-xl border border-blue-100 transition-all bg-white"
+                {/* Search questions input */}
+                <div className="relative w-full md:w-64">
+                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={faqSearchQuery}
+                    onChange={(e) => setFaqSearchQuery(e.target.value)}
+                    placeholder="Search questions..."
+                    className="h-11 w-full rounded-xl border border-blue-100 bg-white pl-10 pr-4 text-xs sm:text-sm text-slate-700 outline-hidden transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                  />
+                  {faqSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setFaqSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs"
                     >
-                      <button
-                        type="button"
-                        onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                        className={`w-full flex items-center gap-3 px-4 py-3.5 text-left text-xs sm:text-sm font-semibold transition-colors cursor-pointer ${
-                          isOpen ? 'bg-blue-50/80 text-[#0867c8]' : 'text-[#092d67] hover:bg-blue-50/40'
-                        }`}
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* FAQ Accordion List */}
+              <div className="space-y-3">
+                {filteredFaqs.length > 0 ? (
+                  filteredFaqs.map((faq, index) => {
+                    const isOpen = openFaqIndex === index;
+                    return (
+                      <div
+                        key={index}
+                        className="overflow-hidden rounded-xl border border-blue-100 transition-all bg-white"
                       >
-                        <span
-                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                            isOpen
+                        <button
+                          type="button"
+                          onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                          className={`w-full flex items-center gap-3 px-4 py-3.5 text-left text-xs sm:text-sm font-semibold transition-colors cursor-pointer ${isOpen ? 'bg-blue-50/80 text-[#0867c8]' : 'text-[#092d67] hover:bg-blue-50/40'
+                            }`}
+                        >
+                          <span
+                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${isOpen
                               ? 'bg-[#0867c8] text-white'
                               : 'bg-blue-100 text-[#0867c8]'
-                          }`}
-                        >
-                          {index + 1}
-                        </span>
+                              }`}
+                          >
+                            {index + 1}
+                          </span>
 
-                        <span className="flex-1 font-medium">{faq.q}</span>
+                          <span className="flex-1 font-medium">{faq.q}</span>
 
-                        <ChevronDown
-                          className={`h-5 w-5 transition-transform duration-200 text-[#0867c8] shrink-0 ${
-                            isOpen ? 'rotate-180' : ''
-                          }`}
-                        />
-                      </button>
+                          <ChevronDown
+                            className={`h-5 w-5 transition-transform duration-200 text-[#0867c8] shrink-0 ${isOpen ? 'rotate-180' : ''
+                              }`}
+                          />
+                        </button>
 
-                      {isOpen && (
-                        <div className="flex gap-4 p-4 sm:p-5 bg-white border-t border-blue-50 animate-in fade-in">
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
-                            <Truck className="h-5 w-5" />
+                        {isOpen && (
+                          <div className="flex gap-4 p-4 sm:p-5 bg-white border-t border-blue-50 animate-in fade-in">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
+                              <Truck className="h-5 w-5" />
+                            </div>
+                            <div className="space-y-1">
+                              <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#0867c8] bg-blue-100/60 px-2 py-0.5 rounded-md">
+                                {faq.category}
+                              </span>
+                              <p className="text-xs sm:text-sm leading-relaxed text-slate-600">
+                                {faq.a}
+                              </p>
+                            </div>
                           </div>
-                          <div className="space-y-1">
-                            <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#0867c8] bg-blue-100/60 px-2 py-0.5 rounded-md">
-                              {faq.category}
-                            </span>
-                            <p className="text-xs sm:text-sm leading-relaxed text-slate-600">
-                              {faq.a}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="text-center py-10 text-gray-400 space-y-2">
-                  <AlertCircle className="w-8 h-8 mx-auto text-blue-300" />
-                  <p className="text-xs">No questions found matching "{faqSearchQuery}"</p>
-                  <button
-                    type="button"
-                    onClick={() => setFaqSearchQuery('')}
-                    className="text-xs font-bold text-[#0867c8] hover:underline"
-                  >
-                    Reset Search
-                  </button>
-                </div>
-              )}
-            </div>
-          </section>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-10 text-gray-400 space-y-2">
+                    <AlertCircle className="w-8 h-8 mx-auto text-blue-300" />
+                    <p className="text-xs">No questions found matching "{faqSearchQuery}"</p>
+                    <button
+                      type="button"
+                      onClick={() => setFaqSearchQuery('')}
+                      className="text-xs font-bold text-[#0867c8] hover:underline"
+                    >
+                      Reset Search
+                    </button>
+                  </div>
+                )}
+              </div>
+            </section>
           </ScrollReveal>
 
           {/* ===================================================== */}
           {/* RIGHT SIDEBAR */}
           {/* ===================================================== */}
           <ScrollReveal yOffset={28} delay={0.1} className="w-full">
-          <aside ref={contactRef} id="contact" className="space-y-5 scroll-mt-24">
-            {/* Immediate Help Card */}
-            <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-[0_8px_30px_rgba(15,76,129,0.07)]">
-              <div className="bg-blue-50/80 p-5">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0867c8] text-white shadow-md">
-                    <Headphones className="h-7 w-7" />
+            <aside ref={contactRef} id="contact" className="space-y-5 scroll-mt-24">
+              {/* Immediate Help Card */}
+              <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-[0_8px_30px_rgba(15,76,129,0.07)]">
+                <div className="bg-blue-50/80 p-5">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0867c8] text-white shadow-md">
+                      <Headphones className="h-7 w-7" />
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-lg font-bold text-[#092d67]">
+                        Need Immediate Help?
+                      </h3>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Our friendly London care team is here for you.
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-serif text-lg font-bold text-[#092d67]">
-                      Need Immediate Help?
-                    </h3>
-                    <p className="mt-1 text-xs text-slate-500">
-                      Our friendly London care team is here for you.
-                    </p>
-                  </div>
+                </div>
+
+                <div className="divide-y divide-blue-50 text-xs sm:text-sm">
+                  {/* Call Us */}
+                  <a
+                    href="tel:+442012345678"
+                    className="flex items-center gap-4 p-4 transition-colors hover:bg-blue-50/60"
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-[#092d67]">Call Us</p>
+                      <p className="font-bold text-[#0867c8]">+44 20 1234 5678</p>
+                      <p className="text-[11px] text-slate-500">Mon – Sun, 07:00 – 22:00</p>
+                    </div>
+                  </a>
+
+                  {/* Email Us */}
+                  <a
+                    href="mailto:care@laundelle.co.uk"
+                    className="flex items-center gap-4 p-4 transition-colors hover:bg-blue-50/60"
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-[#092d67]">Email Us</p>
+                      <p className="font-bold text-[#0867c8]">care@laundelle.co.uk</p>
+                      <p className="text-[11px] text-slate-500">We aim to respond within 2 hours</p>
+                    </div>
+                  </a>
+
+                  {/* Live Chat Action */}
+                  <button
+                    type="button"
+                    onClick={() => setIsLiveChatOpen(true)}
+                    className="w-full flex items-center gap-4 p-4 text-left transition-colors hover:bg-blue-50/60 cursor-pointer"
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
+                      <MessageSquare className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-[#092d67]">Live Chat</p>
+                      <p className="text-xs text-slate-500">Chat with our team in real time</p>
+                      <p className="text-[11px] font-semibold text-[#0867c8]">
+                        Available 7 days a week
+                      </p>
+                    </div>
+                    <span className="text-xl font-bold text-[#0867c8]">›</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="divide-y divide-blue-50 text-xs sm:text-sm">
-                {/* Call Us */}
-                <a
-                  href="tel:+442012345678"
-                  className="flex items-center gap-4 p-4 transition-colors hover:bg-blue-50/60"
-                >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
-                    <Phone className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[#092d67]">Call Us</p>
-                    <p className="font-bold text-[#0867c8]">+44 20 1234 5678</p>
-                    <p className="text-[11px] text-slate-500">Mon – Sun, 07:00 – 22:00</p>
-                  </div>
-                </a>
+              {/* Satisfaction Guarantee Card */}
+              <div className="flex items-center gap-4 rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-[#0867c8] shadow-sm border border-blue-100">
+                  <ShieldCheck className="h-6 w-6 text-[#0867c8]" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-xs sm:text-sm text-[#092d67]">
+                    100% Satisfaction Guarantee
+                  </h3>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                    Your happiness is our priority. If something isn't right, we'll make it right
+                    with a free re-wash.
+                  </p>
+                </div>
+                <span className="text-xl text-[#0867c8]">›</span>
+              </div>
 
-                {/* Email Us */}
-                <a
-                  href="mailto:care@laundelle.co.uk"
-                  className="flex items-center gap-4 p-4 transition-colors hover:bg-blue-50/60"
-                >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[#092d67]">Email Us</p>
-                    <p className="font-bold text-[#0867c8]">care@laundelle.co.uk</p>
-                    <p className="text-[11px] text-slate-500">We aim to respond within 2 hours</p>
-                  </div>
-                </a>
-
-                {/* Live Chat Action */}
-                <button
-                  type="button"
-                  onClick={() => setIsLiveChatOpen(true)}
-                  className="w-full flex items-center gap-4 p-4 text-left transition-colors hover:bg-blue-50/60 cursor-pointer"
-                >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
-                    <MessageSquare className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-[#092d67]">Live Chat</p>
-                    <p className="text-xs text-slate-500">Chat with our team in real time</p>
-                    <p className="text-[11px] font-semibold text-[#0867c8]">
-                      Available 7 days a week
-                    </p>
-                  </div>
-                  <span className="text-xl font-bold text-[#0867c8]">›</span>
-                </button>
+              {/* Inspirational Slogan Card */}
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-50 to-blue-100/70 p-6 border border-blue-100">
+                <div className="relative z-10 space-y-1">
+                  <p className="font-serif text-lg italic text-[#0867c8] leading-tight">
+                    "Fresh Solutions
+                  </p>
+                  <p className="font-serif text-lg italic text-[#0867c8] leading-tight font-bold">
+                    for a Brighter You."
+                  </p>
+                  <p className="text-[11px] text-slate-500 pt-1">
+                    Trusted by over 10,000+ London households.
+                  </p>
+                </div>
+                <div className="pointer-events-none absolute -bottom-6 -right-2 text-6xl opacity-20">
+                  🧺
+                </div>
               </div>
-            </div>
-
-            {/* Satisfaction Guarantee Card */}
-            <div className="flex items-center gap-4 rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-[#0867c8] shadow-sm border border-blue-100">
-                <ShieldCheck className="h-6 w-6 text-[#0867c8]" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-xs sm:text-sm text-[#092d67]">
-                  100% Satisfaction Guarantee
-                </h3>
-                <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                  Your happiness is our priority. If something isn't right, we'll make it right
-                  with a free re-wash.
-                </p>
-              </div>
-              <span className="text-xl text-[#0867c8]">›</span>
-            </div>
-
-            {/* Inspirational Slogan Card */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-50 to-blue-100/70 p-6 border border-blue-100">
-              <div className="relative z-10 space-y-1">
-                <p className="font-serif text-lg italic text-[#0867c8] leading-tight">
-                  "Fresh Solutions
-                </p>
-                <p className="font-serif text-lg italic text-[#0867c8] leading-tight font-bold">
-                  for a Brighter You."
-                </p>
-                <p className="text-[11px] text-slate-500 pt-1">
-                  Trusted by over 10,000+ London households.
-                </p>
-              </div>
-              <div className="pointer-events-none absolute -bottom-6 -right-2 text-6xl opacity-20">
-                🧺
-              </div>
-            </div>
-          </aside>
+            </aside>
           </ScrollReveal>
         </div>
 
@@ -644,234 +636,232 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
         {/* SUBMIT QUERY / ORDER ISSUE SECTION */}
         {/* ========================================================= */}
         <ScrollReveal yOffset={28} className="w-full">
-        <section
-          ref={submitQueryRef}
-          id="submit-query"
-          className="relative mt-12 overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-br from-white via-blue-50/40 to-blue-100/60 p-6 sm:p-8 lg:p-10 shadow-[0_8px_30px_rgba(15,76,129,0.07)] scroll-mt-24"
-        >
-          {/* Decorative background blur */}
-          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-200/25 blur-3xl" />
+          <section
+            ref={submitQueryRef}
+            id="submit-query"
+            className="relative mt-12 overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-br from-white via-blue-50/40 to-blue-100/60 p-6 sm:p-8 lg:p-10 shadow-[0_8px_30px_rgba(15,76,129,0.07)] scroll-mt-24"
+          >
+            {/* Decorative background blur */}
+            <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-200/25 blur-3xl" />
 
-          <div className="relative z-10">
-            {/* Header */}
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-lg bg-blue-100/70 px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#0867c8]">
-                <FileText className="h-4 w-4" />
-                <span>Submit a Query</span>
-              </span>
+            <div className="relative z-10">
+              {/* Header */}
+              <div>
+                <span className="inline-flex items-center gap-2 rounded-lg bg-blue-100/70 px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#0867c8]">
+                  <FileText className="h-4 w-4" />
+                  <span>Submit a Query</span>
+                </span>
 
-              <h2 className="mt-3 font-serif text-2xl font-bold text-[#092d67] sm:text-3xl">
-                Submit an Order Issue or Garment Concern
-              </h2>
+                <h2 className="mt-3 font-serif text-2xl font-bold text-[#092d67] sm:text-3xl">
+                  Submit an Order Issue or Garment Concern
+                </h2>
 
-              <p className="mt-1 text-xs sm:text-sm text-slate-500">
-                Every submission is backed by our 100% Satisfaction Guarantee. We review and
-                respond within 2 hours.
-              </p>
-            </div>
+                <p className="mt-1 text-xs sm:text-sm text-slate-500">
+                  Every submission is backed by our 100% Satisfaction Guarantee. We review and
+                  respond within 2 hours.
+                </p>
+              </div>
 
-            {!submittedTicket ? (
-              /* Complaint Form */
-              <form onSubmit={handleSubmitComplaint} className="mt-8 space-y-6">
-                <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr]">
-                  {/* Select Order */}
-                  <div>
-                    <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#092d67]">
-                      Select Associated Order
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={selectedOrderId}
-                        onChange={(e) => setSelectedOrderId(e.target.value)}
-                        className="h-12 w-full appearance-none rounded-xl border border-blue-200 bg-white px-4 pr-10 text-xs sm:text-sm text-slate-700 outline-hidden transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 cursor-pointer"
-                      >
-                        <option value="General">General Query (Not linked to specific order)</option>
-                        {orders.map((o) => (
-                          <option key={o.id} value={o.id}>
-                            Order #{o.id} — {o.items[0]?.name || 'Laundry'} ({o.statusLabel})
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#0867c8]" />
+              {!submittedTicket ? (
+                /* Complaint Form */
+                <form onSubmit={handleSubmitComplaint} className="mt-8 space-y-6">
+                  <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr]">
+                    {/* Select Order */}
+                    <div>
+                      <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#092d67]">
+                        Select Associated Order
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={selectedOrderId}
+                          onChange={(e) => setSelectedOrderId(e.target.value)}
+                          className="h-12 w-full appearance-none rounded-xl border border-blue-200 bg-white px-4 pr-10 text-xs sm:text-sm text-slate-700 outline-hidden transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 cursor-pointer"
+                        >
+                          <option value="General">General Query (Not linked to specific order)</option>
+                          {orders.map((o) => (
+                            <option key={o.id} value={o.id}>
+                              Order #{o.id} — {o.items[0]?.name || 'Laundry'} ({o.statusLabel})
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#0867c8]" />
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Issue Type Selector */}
-                  <div>
-                    <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#092d67]">
-                      Issue Type
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {issueTypes.map((type) => {
-                        const isSelected = issueType === type;
-                        return (
-                          <button
-                            key={type}
-                            type="button"
-                            onClick={() => setIssueType(type)}
-                            className={`rounded-lg px-4 py-2.5 text-xs font-medium transition cursor-pointer ${
-                              isSelected
+                    {/* Issue Type Selector */}
+                    <div>
+                      <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#092d67]">
+                        Issue Type
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {issueTypes.map((type) => {
+                          const isSelected = issueType === type;
+                          return (
+                            <button
+                              key={type}
+                              type="button"
+                              onClick={() => setIssueType(type)}
+                              className={`rounded-lg px-4 py-2.5 text-xs font-medium transition cursor-pointer ${isSelected
                                 ? 'border border-blue-400 bg-blue-50 text-[#0867c8] font-bold shadow-2xs'
                                 : 'border border-blue-100 bg-white text-slate-600 hover:border-blue-300 hover:bg-blue-50/50'
-                            }`}
-                          >
-                            {isSelected ? `● ${type}` : type}
-                          </button>
-                        );
-                      })}
+                                }`}
+                            >
+                              {isSelected ? `● ${type}` : type}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Description */}
-                <div>
-                  <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#092d67]">
-                    Description of Issue <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <textarea
-                      ref={descriptionRef}
-                      maxLength={1000}
-                      rows={5}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Please provide as much detail as possible about your order, collection or garment concern..."
-                      className={`w-full resize-none rounded-xl border bg-white px-4 py-3.5 text-xs sm:text-sm text-slate-700 outline-hidden transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 ${
-                        showValidationWarning
-                          ? 'border-red-400 ring-4 ring-red-100'
-                          : 'border-blue-200'
-                      }`}
-                    />
-                    <span className="absolute bottom-3 right-4 text-[11px] text-slate-400 font-mono">
-                      {description.length}/1000
-                    </span>
-                  </div>
-                  {showValidationWarning && (
-                    <p className="mt-1 text-xs text-red-600 font-medium animate-pulse">
-                      Please enter a description of the issue before submitting.
-                    </p>
-                  )}
-                </div>
-
-                {/* Bottom Row: Attach Photos & Submit Button */}
-                <div className="grid items-center gap-6 lg:grid-cols-[1fr_auto]">
-                  {/* Photo Upload Box */}
+                  {/* Description */}
                   <div>
                     <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#092d67]">
-                      Attach Photos{' '}
-                      <span className="font-normal text-slate-500 text-xs">
-                        (Optional but recommended for fabric/stain reviews)
-                      </span>
+                      Description of Issue <span className="text-red-500">*</span>
                     </label>
-
-                    <label className="flex min-h-[110px] cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-blue-200 bg-white px-5 text-center transition hover:border-blue-400 hover:bg-blue-50/60 relative">
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/png,image/jpeg"
-                        className="hidden"
-                        onChange={handlePhotoUploadSim}
+                    <div className="relative">
+                      <textarea
+                        ref={descriptionRef}
+                        maxLength={1000}
+                        rows={5}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Please provide as much detail as possible about your order, collection or garment concern..."
+                        className={`w-full resize-none rounded-xl border bg-white px-4 py-3.5 text-xs sm:text-sm text-slate-700 outline-hidden transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 ${showValidationWarning
+                          ? 'border-red-400 ring-4 ring-red-100'
+                          : 'border-blue-200'
+                          }`}
                       />
-                      <div className="py-2">
-                        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#0867c8]">
-                          <Upload className="h-5 w-5" />
-                        </div>
-                        <p className="mt-2 text-xs sm:text-sm font-medium text-[#092d67]">
-                          Click to upload photos
-                        </p>
-                        <p className="mt-1 text-[11px] text-slate-400">
-                          {uploadedPhotos.length > 0
-                            ? `${uploadedPhotos.length} photo(s) selected`
-                            : 'PNG, JPG up to 10MB'}
-                        </p>
-                      </div>
-                    </label>
-
-                    {/* Previews of attached images */}
-                    {uploadedPhotos.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-3">
-                        {uploadedPhotos.map((url, idx) => (
-                          <div key={idx} className="relative group">
-                            <img
-                              src={url}
-                              alt="Uploaded evidence"
-                              className="w-14 h-14 rounded-xl object-cover border border-blue-200 shadow-xs"
-                            />
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setUploadedPhotos((prev) => prev.filter((_, i) => i !== idx))
-                              }
-                              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px]"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ))}
-                      </div>
+                      <span className="absolute bottom-3 right-4 text-[11px] text-slate-400 font-mono">
+                        {description.length}/1000
+                      </span>
+                    </div>
+                    {showValidationWarning && (
+                      <p className="mt-1 text-xs text-red-600 font-medium animate-pulse">
+                        Please enter a description of the issue before submitting.
+                      </p>
                     )}
                   </div>
 
-                  {/* Submit Button */}
-                  <div className="lg:pt-6">
+                  {/* Bottom Row: Attach Photos & Submit Button */}
+                  <div className="grid items-center gap-6 lg:grid-cols-[1fr_auto]">
+                    {/* Photo Upload Box */}
+                    <div>
+                      <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#092d67]">
+                        Attach Photos{' '}
+                        <span className="font-normal text-slate-500 text-xs">
+                          (Optional but recommended for fabric/stain reviews)
+                        </span>
+                      </label>
+
+                      <label className="flex min-h-[110px] cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-blue-200 bg-white px-5 text-center transition hover:border-blue-400 hover:bg-blue-50/60 relative">
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/png,image/jpeg"
+                          className="hidden"
+                          onChange={handlePhotoUploadSim}
+                        />
+                        <div className="py-2">
+                          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#0867c8]">
+                            <Upload className="h-5 w-5" />
+                          </div>
+                          <p className="mt-2 text-xs sm:text-sm font-medium text-[#092d67]">
+                            Click to upload photos
+                          </p>
+                          <p className="mt-1 text-[11px] text-slate-400">
+                            {uploadedPhotos.length > 0
+                              ? `${uploadedPhotos.length} photo(s) selected`
+                              : 'PNG, JPG up to 10MB'}
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* Previews of attached images */}
+                      {uploadedPhotos.length > 0 && (
+                        <div className="flex flex-wrap gap-2 pt-3">
+                          {uploadedPhotos.map((url, idx) => (
+                            <div key={idx} className="relative group">
+                              <img
+                                src={url}
+                                alt="Uploaded evidence"
+                                className="w-14 h-14 rounded-xl object-cover border border-blue-200 shadow-xs"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setUploadedPhotos((prev) => prev.filter((_, i) => i !== idx))
+                                }
+                                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px]"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="lg:pt-6">
+                      <button
+                        type="submit"
+                        disabled={isSubmittingTicket}
+                        className="group flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-4 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue-200 transition hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-600 lg:min-w-[310px] cursor-pointer disabled:opacity-60"
+                      >
+                        <Send className="h-4 w-4" />
+                        <span>
+                          {isSubmittingTicket ? 'Submitting...' : 'Submit Complaint to Care Team'}
+                        </span>
+                        <span className="transition-transform group-hover:translate-x-1">→</span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              ) : (
+                /* Success Confirmation Box */
+                <div className="mt-8 rounded-2xl bg-white p-8 border border-emerald-200 text-center space-y-4 shadow-sm animate-in zoom-in-95">
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-xs">
+                    <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-bold uppercase tracking-widest text-emerald-700 block">
+                      Ticket Raised Successfully
+                    </span>
+                    <h3 className="text-2xl font-serif font-bold text-[#092d67]">
+                      Ticket #{submittedTicket.id}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                      Our customer care team has received your report for{' '}
+                      <strong className="text-[#092d67]">{submittedTicket.issueType}</strong>. A
+                      specialist will review your details and contact you within 2 business hours.
+                    </p>
+                  </div>
+
+                  <div className="pt-3 flex flex-wrap justify-center gap-3">
                     <button
-                      type="submit"
-                      disabled={isSubmittingTicket}
-                      className="group flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-4 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue-200 transition hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-600 lg:min-w-[310px] cursor-pointer disabled:opacity-60"
+                      type="button"
+                      onClick={() => {
+                        setSubmittedTicket(null);
+                        setDescription('');
+                        setUploadedPhotos([]);
+                      }}
+                      className="bg-[#0867c8] hover:bg-[#0755a8] text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
                     >
-                      <Send className="h-4 w-4" />
-                      <span>
-                        {isSubmittingTicket ? 'Submitting...' : 'Submit Complaint to Care Team'}
-                      </span>
-                      <span className="transition-transform group-hover:translate-x-1">→</span>
+                      Submit Another Query
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onNavigate('orders')}
+                      className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-6 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                    >
+                      View Active Orders
                     </button>
                   </div>
                 </div>
-              </form>
-            ) : (
-              /* Success Confirmation Box */
-              <div className="mt-8 rounded-2xl bg-white p-8 border border-emerald-200 text-center space-y-4 shadow-sm animate-in zoom-in-95">
-                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-xs">
-                  <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
-                </div>
-                <div className="space-y-1.5">
-                  <span className="text-xs font-bold uppercase tracking-widest text-emerald-700 block">
-                    Ticket Raised Successfully
-                  </span>
-                  <h3 className="text-2xl font-serif font-bold text-[#092d67]">
-                    Ticket #{submittedTicket.id}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                    Our customer care team has received your report for{' '}
-                    <strong className="text-[#092d67]">{submittedTicket.issueType}</strong>. A
-                    specialist will review your details and contact you within 2 business hours.
-                  </p>
-                </div>
-
-                <div className="pt-3 flex flex-wrap justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSubmittedTicket(null);
-                      setDescription('');
-                      setUploadedPhotos([]);
-                    }}
-                    className="bg-[#0867c8] hover:bg-[#0755a8] text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
-                  >
-                    Submit Another Query
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('orders')}
-                    className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-6 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer"
-                  >
-                    View Active Orders
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
+              )}
+            </div>
+          </section>
         </ScrollReveal>
       </main>
 
@@ -919,16 +909,14 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
               {chatMessages.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`flex flex-col ${
-                    msg.sender === 'user' ? 'items-end' : 'items-start'
-                  }`}
+                  className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'
+                    }`}
                 >
                   <div
-                    className={`max-w-[85%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
-                      msg.sender === 'user'
-                        ? 'bg-[#0867c8] text-white rounded-tr-none shadow-xs'
-                        : 'bg-white text-slate-800 border border-blue-100 rounded-tl-none shadow-xs'
-                    }`}
+                    className={`max-w-[85%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${msg.sender === 'user'
+                      ? 'bg-[#0867c8] text-white rounded-tr-none shadow-xs'
+                      : 'bg-white text-slate-800 border border-blue-100 rounded-tl-none shadow-xs'
+                      }`}
                   >
                     {msg.text}
                   </div>

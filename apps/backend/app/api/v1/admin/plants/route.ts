@@ -4,8 +4,8 @@ import { AdminService } from '@/services/AdminService';
 
 export async function GET(req: NextRequest) {
     try {
-        await requirePermission(req, 'plants:read');
-        const data = await AdminService.getPlants();
+        const context = await requirePermission(req, 'plants:read');
+        const data = await AdminService.getPlants(context.dbUser);
         return NextResponse.json(data);
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: e.status || 400 });

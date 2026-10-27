@@ -132,12 +132,12 @@ export const PinInput: React.FC<PinInputProps> = ({
   return (
     <div className={`flex flex-col items-center justify-center w-full ${className}`}>
       <div
-        className={`flex items-center justify-center gap-1.5 sm:gap-2.5 w-full ${
-          length === 4 ? 'max-w-[280px]' : 'max-w-[340px]'
-        }`}
+        className={`flex w-full items-center justify-center gap-2 sm:gap-3 ${length === 4 ? 'max-w-[280px]' : 'max-w-[340px]'
+          }`}
       >
         {digits.map((digit, idx) => {
           const isFilled = Boolean(digit);
+
           return (
             <input
               key={`${idPrefix}-${idx}`}
@@ -148,8 +148,8 @@ export const PinInput: React.FC<PinInputProps> = ({
               type="text"
               inputMode="numeric"
               pattern="[0-9]*"
-              autoComplete="one-time-code"
-              maxLength={2} // Allow 2 so replacing a character triggers change event with both
+              autoComplete={idx === 0 ? 'one-time-code' : 'off'}
+              maxLength={2}
               value={digit}
               disabled={disabled}
               onChange={(e) => handleChange(e, idx)}
@@ -157,18 +157,26 @@ export const PinInput: React.FC<PinInputProps> = ({
               onPaste={handlePaste}
               onFocus={handleFocus}
               aria-label={`Digit ${idx + 1} of ${length}`}
-              className={`text-center font-mono font-black transition-all outline-none cursor-text select-all
-                ${length === 4 ? 'w-13 h-15 sm:w-14 sm:h-16 text-2xl sm:text-3xl rounded-2xl' : 'w-10 h-13 sm:w-12 sm:h-14 text-xl sm:text-2xl rounded-xl sm:rounded-2xl'}
-                ${
-                  error
-                    ? 'border-2 border-red-400 bg-red-50/80 text-red-700 ring-2 ring-red-400/20 shadow-xs'
-                    : isFilled
-                    ? 'border-2 border-[#0077B6]/60 bg-blue-50/30 text-[#03045E] shadow-xs'
-                    : 'border-2 border-gray-200 bg-gray-50/80 text-[#03045E] hover:border-gray-300'
+              aria-invalid={error ? true : undefined}
+              className={`
+          box-border shrink-0
+          text-center font-mono font-semibold
+          outline-none
+          transition-[border-color,background-color,box-shadow]
+          duration-150 ease-out
+          selection:bg-[#0077B6]/15
+          ${length === 4
+                  ? 'h-14 w-12 sm:h-15 sm:w-14 text-2xl rounded-xl'
+                  : 'h-12 w-10 sm:h-14 sm:w-12 text-xl sm:text-2xl rounded-lg sm:rounded-xl'
                 }
-                focus:border-[#0077B6] focus:bg-white focus:text-[#03045E] focus:ring-4 focus:ring-[#0077B6]/15 focus:shadow-md focus:scale-[1.03]
-                disabled:opacity-50 disabled:cursor-not-allowed
-              `}
+          ${error
+                  ? 'border border-red-400 bg-red-50 text-red-700 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+                  : isFilled
+                    ? 'border border-[#0077B6]/50 bg-[#F0F9FF] text-[#03045E] focus:border-[#0077B6] focus:bg-white focus:ring-4 focus:ring-[#0077B6]/10'
+                    : 'border border-slate-200 bg-white text-[#03045E] hover:border-slate-300 focus:border-[#0077B6] focus:ring-4 focus:ring-[#0077B6]/10'
+                }
+          disabled:cursor-not-allowed disabled:opacity-50
+        `}
             />
           );
         })}

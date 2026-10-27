@@ -387,6 +387,7 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({ onSignOut, userName 
             if (res.success) {
                 showToast('Leave-at-door delivery confirmed with photo evidence!');
                 handleCloseVerification();
+                setView('history');
                 loadData(true);
             } else {
                 setOtpError(res.error || 'Failed to confirm delivery');
@@ -485,6 +486,7 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({ onSignOut, userName 
             setVerificationStep('photo');
             setPickupPieceCount('');
             setOtpLoading(false);
+            setView('history');
             return;
         }
 
@@ -499,6 +501,7 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({ onSignOut, userName 
             setVerificationPhoto(null);
             setVerificationStep('photo');
             setPickupPieceCount('');
+            setView('history');
             loadData(true);
         } else {
             setOtpError(res.error || 'Invalid PIN');
@@ -525,12 +528,11 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({ onSignOut, userName 
     };
 
     // Merge assigned orders and any available deliveries covering driver's postcodes
-    // Merge assigned orders and any available deliveries covering driver's postcodes
-    const allActiveOrders = [...assigned];
-    const assignedIds = new Set(assigned.map((o: any) => o.id || o.publicId || (o._id ? String(o._id) : '')));
+    const allActiveOrders = [...assigned].filter((o: any) => !['laundry_collected', 'delivered', 'completed'].includes(o.status));
+    const assignedIds = new Set(allActiveOrders.map((o: any) => o.id || o.publicId || (o._id ? String(o._id) : '')));
     (availableDeliveries || []).forEach((delOrder: any) => {
         const delId = delOrder.id || delOrder.publicId || (delOrder._id ? String(delOrder._id) : '');
-        if (delId && !assignedIds.has(delId)) {
+        if (delId && !assignedIds.has(delId) && !['laundry_collected', 'delivered', 'completed'].includes(delOrder.status)) {
             allActiveOrders.push(delOrder);
             assignedIds.add(delId);
         }
@@ -538,7 +540,7 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({ onSignOut, userName 
 
     // Map real DB active orders into DriverJobItem format
     const mappedAssignedJobs: DriverJobItem[] = allActiveOrders.map((order: any) => {
-        const isPickup = ['order_placed', 'pending_payment', 'booking_confirmed', 'collection_scheduled', 'driver_assigned', 'pickup_in_progress', 'pickup_failed', 'laundry_collected'].includes(order.status);
+        const isPickup = ['order_placed', 'pending_payment', 'booking_confirmed', 'collection_scheduled', 'waiting_for_driver', 'driver_assigned', 'pickup_in_progress', 'pickup_failed'].includes(order.status);
         const rawAddress = order.address || order.fullAddress || (order.deliveryAddress ? (typeof order.deliveryAddress === 'string' ? order.deliveryAddress : `${order.deliveryAddress.line1 || ''}, ${order.deliveryAddress.city || ''} ${order.deliveryAddress.postcode || ''}`) : '') || '';
         const addrParts = rawAddress.split(',').map((s: string) => s.trim()).filter(Boolean);
         const line1 = addrParts[0] || order.addressLine1 || (rawAddress ? rawAddress : 'Address not specified');
@@ -1884,39 +1886,6 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({ onSignOut, userName 
 
                                                 {/* 5. ACTION BUTTONS */}
                                                 <div className="space-y-1.5">
-                                                    {job.status === 'laundry_collected' ? (
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                            <button
-                                                                type="button"
-                                                                onClick={(e) => handleStartNavigation(job, e)}
-                                                                className="w-full py-2 px-3 bg-[#1877F2] hover:bg-[#1565C0] active:scale-98 text-white rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
-                                                                title="Navigate"
-                                                            >
-                                                                <Navigation className="w-4 h-4 text-white fill-white shrink-0" />
-                                                                <div className="text-left min-w-0">
-                                                                    <span className="block text-xs font-black leading-none">Navigate</span>
-                                                                    <span className="block text-[8px] font-extrabold opacity-80 tracking-wider uppercase mt-0.5">OPEN IN MAPS</span>
-                                                                </div>
-                                                            </button>
-
-                                                            <button
-                                                                type="button"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setSelectedJob(job.rawOrder || job);
-                                                                    setQrModalOpen(true);
-                                                                }}
-                                                                className="w-full py-2 px-3 bg-gradient-to-r from-[#03045E] to-[#0077B6] hover:from-[#023E8A] hover:to-[#0096C7] active:scale-98 text-white rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
-                                                                title="Handover QR"
-                                                            >
-                                                                <QrCode className="w-4 h-4 text-white shrink-0" />
-                                                                <div className="text-left min-w-0">
-                                                                    <span className="block text-xs font-black leading-none truncate">Handover QR</span>
-                                                                    <span className="block text-[8px] font-extrabold opacity-80 tracking-wider uppercase mt-0.5">PLANT INTAKE</span>
-                                                                </div>
-                                                            </button>
-                                                        </div>
-                                                    ) : (
                                                     <div className="grid grid-cols-2 gap-2">
                                                         <button
                                                             type="button"
@@ -1951,7 +1920,6 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({ onSignOut, userName 
                                                             </div>
                                                         </button>
                                                     </div>
-                                                )}
 
                                                     {((job.rawOrder?.payment_method === 'cash_on_delivery' || job.rawOrder?.paymentMethod === 'cash_on_delivery') && !job.rawOrder?.is_paid && job.rawOrder?.payment_status !== 'paid') && (
                                                         <button
@@ -2149,11 +2117,38 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({ onSignOut, userName 
                                                         </span>
                                                     </div>
 
-                                                    <div className="flex items-center gap-3">
+                                                    <div className="flex items-center gap-2.5">
                                                         <div className="flex items-center gap-1 text-gray-600 font-medium">
                                                             <ShoppingBag className="w-3.5 h-3.5 text-gray-400" />
                                                             <span>{bagCount} {bagCount === 1 ? 'bag' : 'bags'}</span>
                                                         </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setSelectedJob({
+                                                                    ...(order.rawOrder || order),
+                                                                    id: order.original_id || order.id,
+                                                                    orderCode: orderCodeDisplay,
+                                                                    completed_action: order.completed_action || (isBoth ? 'both' : (isDelivered ? 'delivery' : 'collection')),
+                                                                    type: order.completed_action || (isBoth ? 'both' : (isDelivered ? 'delivery' : 'collection')),
+                                                                    is_delivered: isDelivered,
+                                                                    is_both: isBoth,
+                                                                    isCompletedJob: true,
+                                                                    pickup_completed_at: pickupDateStr,
+                                                                    delivery_completed_at: dropDateStr,
+                                                                    formattedTimeSlot: isBoth
+                                                                        ? `Pickup: ${formatTime(pickupDateStr)} • Drop: ${formatTime(dropDateStr)}`
+                                                                        : `${formatDate(order.completed_at || dropDateStr)} • ${formatTime(order.completed_at || dropDateStr)}`
+                                                                });
+                                                                setQrModalOpen(true);
+                                                            }}
+                                                            className="px-2.5 py-1 bg-gradient-to-r from-[#03045E] to-[#0077B6] hover:from-[#023E8A] hover:to-[#0096C7] active:scale-95 text-white rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all shadow-xs cursor-pointer"
+                                                            title="Display QR"
+                                                        >
+                                                            <QrCode className="w-3 h-3 text-cyan-300" />
+                                                            <span>Display QR</span>
+                                                        </button>
                                                         <div className="flex items-center gap-0.5 text-[#1877F2] font-bold">
                                                             <span>Details</span>
                                                             <ChevronRight className="w-3.5 h-3.5" />
@@ -2742,32 +2737,18 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({ onSignOut, userName 
                                                 <span>Navigate</span>
                                             </button>
 
-                                            {/* Verify PIN / Handover QR */}
-                                            {selectedJob.status === 'laundry_collected' ? (
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setQrModalOpen(true);
-                                                    }}
-                                                    className="py-2.5 px-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-2xl text-xs flex flex-col items-center justify-center gap-1 border border-indigo-100 transition-all text-center cursor-pointer"
-                                                >
-                                                    <QrCode className="w-4 h-4" />
-                                                    <span>Handover QR</span>
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        handleOpenVerification(selectedJob.id);
-                                                        setSelectedJob(null);
-                                                    }}
-                                                    className="py-2.5 px-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold rounded-2xl text-xs flex flex-col items-center justify-center gap-1 border border-amber-100 transition-all text-center cursor-pointer"
-                                                >
-                                                    <Camera className="w-4 h-4" />
-                                                    <span>Verify & PIN</span>
-                                                </button>
-                                            )}
+                                            {/* Verify PIN */}
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    handleOpenVerification(selectedJob.id);
+                                                    setSelectedJob(null);
+                                                }}
+                                                className="py-2.5 px-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold rounded-2xl text-xs flex flex-col items-center justify-center gap-1 border border-amber-100 transition-all text-center cursor-pointer"
+                                            >
+                                                <Camera className="w-4 h-4" />
+                                                <span>Verify & PIN</span>
+                                            </button>
                                         </div>
 
                                         {/* Time Slot Window Card */}
@@ -3011,82 +2992,50 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({ onSignOut, userName 
                                 {/* Primary Action Buttons */}
                                 {!isCompleted ? (
                                     <div className="pt-2 space-y-2">
-                                        {selectedJob.status === 'laundry_collected' ? (
+                                        <div className="grid grid-cols-2 gap-2">
                                             <button
                                                 type="button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setQrModalOpen(true);
+                                                onClick={() => {
+                                                    const j = combinedJobs.find(x => x.id === selectedJob.id) || selectedJob;
+                                                    setFailedModalJob(j);
+                                                    setFailedReason('customer_unavailable');
+                                                    setFailedNotes('');
+                                                    setFailedPhoto(null);
+                                                    setSelectedJob(null);
                                                 }}
-                                                className="w-full py-3.5 bg-gradient-to-r from-[#03045E] to-[#0077B6] hover:from-[#023E8A] hover:to-[#0096C7] text-white font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-900/10 cursor-pointer"
+                                                className="py-3 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 border border-rose-200 cursor-pointer"
                                             >
-                                                <QrCode className="w-4 h-4" />
-                                                Generate Handover QR (Plant Intake)
+                                                <AlertCircle className="w-4 h-4 text-rose-600" />
+                                                Report Failed
                                             </button>
-                                        ) : (
-                                            <>
-                                                <div className="grid grid-cols-2 gap-2">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            const j = combinedJobs.find(x => x.id === selectedJob.id) || selectedJob;
-                                                            setFailedModalJob(j);
-                                                            setFailedReason('customer_unavailable');
-                                                            setFailedNotes('');
-                                                            setFailedPhoto(null);
-                                                            setSelectedJob(null);
-                                                        }}
-                                                        className="py-3 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 border border-rose-200 cursor-pointer"
-                                                    >
-                                                        <AlertCircle className="w-4 h-4 text-rose-600" />
-                                                        Report Failed
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            const id = selectedJob.id;
-                                                            setSelectedJob(null);
-                                                            handleOpenVerification(id);
-                                                        }}
-                                                        className="py-3 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
-                                                    >
-                                                        <Camera className="w-4 h-4" />
-                                                        Verify & Complete
-                                                    </button>
-                                                </div>
-
-                                                {!isDelivered && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setQrModalOpen(true);
-                                                        }}
-                                                        className="w-full py-3.5 bg-gradient-to-r from-[#03045E] to-[#0077B6] hover:from-[#023E8A] hover:to-[#0096C7] text-white font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-900/10 cursor-pointer"
-                                                    >
-                                                        <QrCode className="w-4 h-4" />
-                                                        Generate Handover QR (Plant Intake)
-                                                    </button>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-                                ) : (
-                                    !isDelivered && (
-                                        <div className="pt-2">
                                             <button
                                                 type="button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setQrModalOpen(true);
+                                                onClick={() => {
+                                                    const id = selectedJob.id;
+                                                    setSelectedJob(null);
+                                                    handleOpenVerification(id);
                                                 }}
-                                                className="w-full py-3.5 bg-gradient-to-r from-[#03045E] to-[#0077B6] hover:from-[#023E8A] hover:to-[#0096C7] text-white font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-900/10 cursor-pointer"
+                                                className="py-3 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                                             >
-                                                <QrCode className="w-4 h-4" />
-                                                Generate Handover QR (Plant Intake)
+                                                <Camera className="w-4 h-4" />
+                                                Verify & Complete
                                             </button>
                                         </div>
-                                    )
+                                    </div>
+                                ) : (
+                                    <div className="pt-2">
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setQrModalOpen(true);
+                                            }}
+                                            className="w-full py-3.5 bg-gradient-to-r from-[#03045E] to-[#0077B6] hover:from-[#023E8A] hover:to-[#0096C7] text-white font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-900/10 cursor-pointer"
+                                        >
+                                            <QrCode className="w-4 h-4 text-cyan-300" />
+                                            <span>Display QR Code</span>
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         </div>

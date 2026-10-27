@@ -47,12 +47,25 @@ export async function POST(req: NextRequest) {
 
         let serverDiscount = 0;
 
+        const db = await getDb();
+
         let calculatedItemsGross = 0;
         if (items && Array.isArray(items) && items.length > 0) {
+            const dbServices = await db.collection('services').find({}).toArray();
+            const servicePriceMap = new Map<string, number>();
+            dbServices.forEach((s: any) => {
+                const p = Number(s.basePrice ?? s.price ?? 0);
+                if (s.id) servicePriceMap.set(String(s.id), p);
+                if (s._id) servicePriceMap.set(String(s._id), p);
+                if (s.serviceId) servicePriceMap.set(String(s.serviceId), p);
+                if (s.name) servicePriceMap.set(String(s.name).toLowerCase().trim(), p);
+            });
             calculatedItemsGross = items.reduce((sum: number, it: any) => {
-                const price = Number(it.price) || 0;
+                const sId = String(it.serviceId || it.id || '');
+                const sName = String(it.name || '').toLowerCase().trim();
+                const authoritativePrice = servicePriceMap.get(sId) ?? (servicePriceMap.get(sName) ?? (Number(it.price) || 0));
                 const qty = Number(it.quantity) || 1;
-                return sum + price * qty;
+                return sum + authoritativePrice * qty;
             }, 0);
         }
 
@@ -102,7 +115,6 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const db = await getDb();
         const now = new Date().toISOString();
 
         // Server-authoritative Order ID creation with ownership and duplicate verification
@@ -154,17 +166,6 @@ export async function POST(req: NextRequest) {
         // Register initial order in orders collection as pending_payment.
         // If the customer leaves mid-way or closes the gateway, the order is safely visible in their orders page.
         if (orderPayload) {
-            const customerIdent = String(effectiveUserId || '');
-            const initialPickupPin = orderPayload.pickup_pin || orderPayload.pickup_otp || generateSecureNumericPin(6);
-            const pickupSalt = generatePinSalt();
-            const pickupHash = hashOrderPin(initialPickupPin, pickupSalt, targetOrderId, customerIdent);
-            const pickupEnc = encryptOrderPin(initialPickupPin, targetOrderId, customerIdent);
-
-            const initialDeliveryPin = orderPayload.delivery_pin || orderPayload.delivery_otp || generateSecureNumericPin(4);
-            const deliverySalt = generatePinSalt();
-            const deliveryHash = hashOrderPin(initialDeliveryPin, deliverySalt, targetOrderId, customerIdent);
-            const deliveryEnc = encryptOrderPin(initialDeliveryPin, targetOrderId, customerIdent);
-
             const initialOrderDoc = {
                 ...orderPayload,
                 id: targetOrderId,
@@ -178,18 +179,18 @@ export async function POST(req: NextRequest) {
                 paymentStatus: 'Pending',
                 payment_status: 'Pending',
                 isPaid: false,
-                pickup_pin: initialPickupPin,
-                pickup_otp: initialPickupPin,
-                pickup_pin_hash: pickupHash,
-                pickup_pin_salt: pickupSalt,
-                pickup_pin_enc: pickupEnc,
+                pickup_pin: null,
+                pickup_otp: null,
+                pickup_pin_hash: null,
+                pickup_pin_salt: null,
+                pickup_pin_enc: null,
                 pickup_pin_attempts: 0,
                 pickup_pin_locked: false,
-                delivery_pin: initialDeliveryPin,
-                delivery_otp: initialDeliveryPin,
-                delivery_pin_hash: deliveryHash,
-                delivery_pin_salt: deliverySalt,
-                delivery_pin_enc: deliveryEnc,
+                delivery_pin: null,
+                delivery_otp: null,
+                delivery_pin_hash: null,
+                delivery_pin_salt: null,
+                delivery_pin_enc: null,
                 delivery_pin_attempts: 0,
                 delivery_pin_locked: false,
                 created_at: now,
