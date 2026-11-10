@@ -10,6 +10,7 @@ import {
   Text,
   Link,
   Hr,
+  Img,
 } from '@react-email/components';
 
 export interface EmailVerificationEmailProps {
@@ -24,108 +25,113 @@ export const EmailVerificationEmail: React.FC<EmailVerificationEmailProps> = ({
   customerName = 'Valued Customer',
   email,
   userEmail,
-  verificationUrl = 'https://laundelle.com/verify-email?token=example-token',
-  appUrl = 'https://laundelle.com',
+  verificationUrl = 'https://laundelle.co.uk/verify-email?token=example-token',
+  appUrl = 'https://laundelle.co.uk',
 }) => {
   const displayEmail = email || userEmail || 'customer@example.com';
+  const cleanAppUrl = (appUrl || 'https://laundelle.co.uk').replace(/\/$/, '');
+
   return (
     <Html lang="en">
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Verify Your Email Address — Laundelle</title>
       </Head>
-      <Preview>Please verify your email address to activate your Laundelle account across Google, Apple, Facebook, and Gmail.</Preview>
+      <Preview>Please verify your email address to activate your Laundelle account and start booking luxury laundry & dry cleaning.</Preview>
       <Body style={mainStyle}>
         <Container style={containerStyle}>
-          {/* Header */}
+          {/* Top Brand Header */}
           <Section style={headerSectionStyle}>
             <table width="100%" cellPadding="0" cellSpacing="0" border={0} role="presentation">
               <tr>
                 <td align="center">
-                  <Text style={brandSubtitleStyle}>ACCOUNT SECURITY & VERIFICATION</Text>
-                  <Heading as="h1" style={brandTitleStyle}>LAUNDELLE</Heading>
-                  <Text style={taglineStyle}>Luxury Laundry & Dry Cleaning</Text>
+                  <Text style={headerEyebrowStyle}>LUXURY LAUNDRY & DRY CLEANING</Text>
+                  {/* Hosted crisp brand logo */}
+                  <Img
+                    src="https://res.cloudinary.com/b2st53lu/image/upload/w_360,c_scale/laundelle/branding/laundelle-logo.png"
+                    alt="LAUNDELLE"
+                    width={180}
+                    height={36}
+                    style={logoImgStyle}
+                  />
+                  <Text style={taglineStyle}>Artisan Fabric Care • Doorstep Collection • London, UK</Text>
                 </td>
               </tr>
             </table>
           </Section>
 
-          {/* Main Card */}
-          <Section style={cardSectionStyle}>
-            {/* Shield Icon Badge */}
-            <div style={shieldContainerStyle}>
-              <div style={shieldCircleStyle}>
-                🛡️
-              </div>
-            </div>
+          {/* Cyan Glow Accent Stripe */}
+          <div style={accentBarCyanStyle} />
 
-            <Heading as="h2" style={headingStyle}>
-              Verify Your Account
+          {/* Main Card Content */}
+          <Section style={cardSectionStyle}>
+            {/* Verification Security Badge */}
+            <table width="100%" cellPadding="0" cellSpacing="0" border={0} role="presentation" style={{ marginBottom: '16px' }}>
+              <tr>
+                <td align="center">
+                  <span style={badgePillStyle}>
+                    🛡️ SECURE ACCOUNT VERIFICATION
+                  </span>
+                </td>
+              </tr>
+            </table>
+
+            <Heading as="h1" style={headingStyle}>
+              Verify Your Email Address
             </Heading>
 
-            <Text style={paragraphStyle}>
+            <Text style={greetingStyle}>
               Hello <strong>{customerName}</strong>,
             </Text>
 
             <Text style={paragraphStyle}>
-              Thank you for registering with Laundelle. Please confirm that <strong>{email}</strong> belongs to you by clicking the verification button below.
+              Thank you for creating an account with <strong>Laundelle</strong>. To activate your account and access seamless door-to-door laundry, dry cleaning, and garment care across all devices, please confirm your email address.
             </Text>
 
-            {/* Provider Support Banner */}
-            <Section style={providerBannerStyle}>
+            {/* Email Address Confirmation Chip */}
+            <Section style={emailChipSectionStyle}>
               <table width="100%" cellPadding="0" cellSpacing="0" border={0} role="presentation">
                 <tr>
-                  <td align="center">
-                    <Text style={providerHeadingStyle}>
-                      UNIVERSAL ACCOUNT VERIFICATION
-                    </Text>
-                    <Text style={providerDescStyle}>
-                      Verifying enables secure one-tap access across all linked sign-in methods:
-                    </Text>
-                    <table cellPadding="0" cellSpacing="0" border={0} role="presentation" style={{ margin: '8px auto' }}>
-                      <tr>
-                        <td style={providerPillTdStyle}>
-                          <span style={providerPillStyle}>🔴 Google / Gmail</span>
-                        </td>
-                        <td style={providerPillTdStyle}>
-                          <span style={providerPillStyle}>🍏 Apple ID</span>
-                        </td>
-                        <td style={providerPillTdStyle}>
-                          <span style={providerPillStyle}>🔵 Facebook</span>
-                        </td>
-                        <td style={providerPillTdStyle}>
-                          <span style={providerPillStyle}>✉️ Email Login</span>
-                        </td>
-                      </tr>
-                    </table>
+                  <td align="center" style={emailChipTdStyle}>
+                    <Text style={emailChipLabelStyle}>ACCOUNT EMAIL TO VERIFY</Text>
+                    <Text style={emailChipValueStyle}>{displayEmail}</Text>
                   </td>
                 </tr>
               </table>
             </Section>
 
-            {/* Verification Button */}
+            {/* Primary Action Button */}
             <Section style={ctaSectionStyle}>
               <table width="100%" cellPadding="0" cellSpacing="0" border={0} role="presentation">
                 <tr>
                   <td align="center">
                     <Link href={verificationUrl} style={primaryButtonStyle}>
-                      ✓ Verify & Activate My Account
+                      Verify & Activate My Account &rarr;
                     </Link>
                   </td>
                 </tr>
               </table>
             </Section>
 
-            <Text style={expiryTextStyle}>
-              ⏱️ <strong>Note:</strong> This verification button is valid for 24 hours.
-            </Text>
+            {/* Expiry & Security Notice */}
+            <Section style={infoNoticeBoxStyle}>
+              <table width="100%" cellPadding="0" cellSpacing="0" border={0} role="presentation">
+                <tr>
+                  <td style={{ textAlign: 'center' }}>
+                    <Text style={infoNoticeTextStyle}>
+                      ⏱️ <strong>24-Hour Expiration:</strong> This secure verification link is single-use and expires in 24 hours. Once verified, you will receive your welcome gift code.
+                    </Text>
+                  </td>
+                </tr>
+              </table>
+            </Section>
 
             <Hr style={dividerStyle} />
 
-            {/* Fallback URL section */}
+            {/* Direct URL Fallback */}
             <Section style={fallbackSectionStyle}>
               <Text style={fallbackNoticeStyle}>
-                Button not working? Copy and paste this direct verification URL into your browser:
+                Having trouble clicking the button? Copy and paste this URL directly into your browser:
               </Text>
               <div style={urlBoxStyle}>
                 <Link href={verificationUrl} style={urlTextStyle}>
@@ -134,21 +140,58 @@ export const EmailVerificationEmail: React.FC<EmailVerificationEmailProps> = ({
               </div>
             </Section>
 
-            <Section style={securityNoticeStyle}>
-              <Text style={securityTextStyle}>
-                <strong>Security Reminder:</strong> If you did not create an account on Laundelle, you can safely ignore this email. No account will be activated without this verification step.
+            <Hr style={dividerStyle} />
+
+            {/* Why Verify Pillars matching website */}
+            <Section style={pillarsSectionStyle}>
+              <Text style={pillarsHeadingStyle}>WHAT YOU UNLOCK WITH LAUNDELLE</Text>
+              <table width="100%" cellPadding="0" cellSpacing="0" border={0} role="presentation">
+                <tr>
+                  <td style={pillarTdStyle} width="33%">
+                    <div style={pillarIconBoxStyle}>🧺</div>
+                    <Text style={pillarTitleStyle}>Artisan Care</Text>
+                    <Text style={pillarDescStyle}>Eco-friendly hypoallergenic enzymes & delicate hand inspection.</Text>
+                  </td>
+                  <td style={pillarTdStyle} width="33%">
+                    <div style={pillarIconBoxStyle}>🚚</div>
+                    <Text style={pillarTitleStyle}>60s Booking</Text>
+                    <Text style={pillarDescStyle}>Doorstep collection with live GPS driver tracking.</Text>
+                  </td>
+                  <td style={pillarTdStyle} width="33%">
+                    <div style={pillarIconBoxStyle}>✨</div>
+                    <Text style={pillarTitleStyle}>24–48h Delivery</Text>
+                    <Text style={pillarDescStyle}>Returned crisp, fragrant, hung or folded to perfection.</Text>
+                  </td>
+                </tr>
+              </table>
+            </Section>
+
+            {/* Security footnote */}
+            <Section style={securityFooterSectionStyle}>
+              <Text style={securityFooterTextStyle}>
+                <strong>Security Notice:</strong> If you did not create a Laundelle account using this email, you can safely ignore this message. No account will be activated without this verification step.
               </Text>
             </Section>
           </Section>
 
-          {/* Footer */}
+          {/* Footer matching website */}
           <Section style={footerSectionStyle}>
+            <Text style={footerBrandStyle}>LAUNDELLE TECHNOLOGIES</Text>
             <Text style={footerTextStyle}>
-              Need assistance? Contact our concierge at <Link href="mailto:support@laundelle.com" style={footerLinkStyle}>support@laundelle.com</Link>.
+              London, United Kingdom • Premium Laundry & Dry Cleaning On Demand
+            </Text>
+            <Text style={footerContactStyle}>
+              Need assistance? Email our concierge team at{' '}
+              <Link href="mailto:support@laundelle.co.uk" style={footerLinkStyle}>
+                support@laundelle.co.uk
+              </Link>{' '}
+              or visit{' '}
+              <Link href={cleanAppUrl} style={footerLinkStyle}>
+                laundelle.co.uk
+              </Link>
             </Text>
             <Text style={copyrightStyle}>
-              &copy; {new Date().getFullYear()} Laundelle Technologies Ltd. All rights reserved.<br />
-              London, United Kingdom
+              &copy; {new Date().getFullYear()} Laundelle Technologies Ltd. All rights reserved.
             </Text>
           </Section>
         </Container>
@@ -157,12 +200,15 @@ export const EmailVerificationEmail: React.FC<EmailVerificationEmailProps> = ({
   );
 };
 
-// Inline Styles for cross-client Outlook & Gmail compatibility
+// ==========================================
+// STYLES (MATCHING LAUNDELLE WEBSITE DESIGN)
+// ==========================================
+
 const mainStyle: React.CSSProperties = {
-  backgroundColor: '#f1f5f9',
-  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  backgroundColor: '#f8fafc',
+  fontFamily: 'Manrope, "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   margin: '0',
-  padding: '24px 0',
+  padding: '32px 12px',
 };
 
 const containerStyle: React.CSSProperties = {
@@ -171,207 +217,278 @@ const containerStyle: React.CSSProperties = {
   backgroundColor: '#ffffff',
   borderRadius: '24px',
   overflow: 'hidden',
-  boxShadow: '0 4px 20px rgba(15, 23, 42, 0.08)',
+  boxShadow: '0 12px 36px rgba(0, 41, 83, 0.08), 0 2px 6px rgba(0, 41, 83, 0.04)',
   border: '1px solid #e2e8f0',
 };
 
 const headerSectionStyle: React.CSSProperties = {
-  backgroundColor: '#0d2259',
-  padding: '32px 24px',
+  backgroundColor: '#002953', // Laundelle Deep Navy
+  padding: '36px 24px 28px 24px',
   textAlign: 'center',
-  borderBottom: '4px solid #0284c7',
 };
 
-const brandSubtitleStyle: React.CSSProperties = {
-  color: '#38bdf8',
+const headerEyebrowStyle: React.CSSProperties = {
+  color: '#01BEFE', // Laundelle Cyan
   fontSize: '11px',
   fontWeight: 800,
   letterSpacing: '2.5px',
-  margin: '0 0 6px 0',
+  margin: '0 0 10px 0',
   textTransform: 'uppercase',
 };
 
-const brandTitleStyle: React.CSSProperties = {
-  color: '#ffffff',
-  fontSize: '30px',
-  fontWeight: 900,
-  letterSpacing: '4px',
-  margin: '0 0 6px 0',
+const logoImgStyle: React.CSSProperties = {
+  display: 'block',
+  margin: '0 auto 10px auto',
+  maxWidth: '180px',
+  height: 'auto',
+  filter: 'brightness(0) invert(1)', // White logo matching navy top header
 };
 
 const taglineStyle: React.CSSProperties = {
-  color: '#cbd5e1',
+  color: '#CAF0F8', // Laundelle Ice Cyan
   fontSize: '12px',
   fontWeight: 500,
+  letterSpacing: '0.4px',
   margin: '0',
+};
+
+const accentBarCyanStyle: React.CSSProperties = {
+  height: '4px',
+  backgroundColor: '#01BEFE', // Laundelle Cyan accent stripe
+  width: '100%',
 };
 
 const cardSectionStyle: React.CSSProperties = {
   padding: '36px 32px',
   textAlign: 'center',
+  backgroundColor: '#ffffff',
 };
 
-const shieldContainerStyle: React.CSSProperties = {
-  textAlign: 'center',
-  margin: '0 0 16px 0',
-};
-
-const shieldCircleStyle: React.CSSProperties = {
+const badgePillStyle: React.CSSProperties = {
   display: 'inline-block',
-  width: '56px',
-  height: '56px',
-  lineHeight: '56px',
-  borderRadius: '50%',
-  backgroundColor: '#e0f2fe',
-  fontSize: '28px',
-  textAlign: 'center',
+  backgroundColor: '#EBF8FF',
+  color: '#002953',
+  border: '1px solid #BAE6FD',
+  borderRadius: '9999px',
+  padding: '6px 16px',
+  fontSize: '11px',
+  fontWeight: 800,
+  letterSpacing: '1px',
+  textTransform: 'uppercase',
 };
 
 const headingStyle: React.CSSProperties = {
-  color: '#0f172a',
-  fontSize: '24px',
-  fontWeight: 800,
-  margin: '0 0 16px 0',
+  color: '#002953',
+  fontSize: '26px',
+  fontWeight: 900,
+  letterSpacing: '-0.5px',
+  margin: '16px 0 16px 0',
+  lineHeight: '1.25',
+};
+
+const greetingStyle: React.CSSProperties = {
+  color: '#002953',
+  fontSize: '15px',
+  fontWeight: 700,
+  margin: '0 0 12px 0',
+  textAlign: 'left',
 };
 
 const paragraphStyle: React.CSSProperties = {
   color: '#334155',
   fontSize: '14px',
-  lineHeight: '1.6',
-  margin: '0 0 12px 0',
+  lineHeight: '1.65',
+  margin: '0 0 20px 0',
   textAlign: 'left',
 };
 
-const providerBannerStyle: React.CSSProperties = {
-  backgroundColor: '#f8fafc',
-  border: '1px solid #e2e8f0',
-  borderRadius: '16px',
-  padding: '16px 12px',
-  margin: '20px 0',
+const emailChipSectionStyle: React.CSSProperties = {
+  backgroundColor: '#F8FAFC',
+  border: '1px solid #E2E8F0',
+  borderRadius: '14px',
+  padding: '14px 16px',
+  margin: '0 0 24px 0',
+};
+
+const emailChipTdStyle: React.CSSProperties = {
   textAlign: 'center',
 };
 
-const providerHeadingStyle: React.CSSProperties = {
-  color: '#0f172a',
-  fontSize: '11px',
+const emailChipLabelStyle: React.CSSProperties = {
+  color: '#64748B',
+  fontSize: '10px',
   fontWeight: 800,
-  letterSpacing: '1px',
+  letterSpacing: '1.5px',
   margin: '0 0 4px 0',
+  textTransform: 'uppercase',
 };
 
-const providerDescStyle: React.CSSProperties = {
-  color: '#64748b',
-  fontSize: '11px',
-  margin: '0 0 8px 0',
-};
-
-const providerPillTdStyle: React.CSSProperties = {
-  padding: '4px',
-};
-
-const providerPillStyle: React.CSSProperties = {
-  display: 'inline-block',
-  backgroundColor: '#ffffff',
-  border: '1px solid #cbd5e1',
-  borderRadius: '12px',
-  padding: '4px 10px',
-  fontSize: '11px',
-  fontWeight: 600,
-  color: '#1e293b',
+const emailChipValueStyle: React.CSSProperties = {
+  color: '#002953',
+  fontSize: '16px',
+  fontWeight: 800,
+  margin: '0',
+  fontFamily: 'monospace, sans-serif',
 };
 
 const ctaSectionStyle: React.CSSProperties = {
-  margin: '28px 0 16px 0',
+  margin: '28px 0 20px 0',
 };
 
 const primaryButtonStyle: React.CSSProperties = {
   display: 'inline-block',
-  backgroundColor: '#0284c7',
-  color: '#ffffff',
-  fontSize: '16px',
+  backgroundColor: '#002953',
+  color: '#FFFFFF',
+  padding: '16px 36px',
+  borderRadius: '12px',
+  fontSize: '15px',
   fontWeight: 800,
   textDecoration: 'none',
-  padding: '16px 36px',
-  borderRadius: '14px',
-  boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
-  textAlign: 'center',
+  border: '2px solid #01BEFE',
+  boxShadow: '0 4px 16px rgba(0, 41, 83, 0.25)',
+  letterSpacing: '0.3px',
 };
 
-const expiryTextStyle: React.CSSProperties = {
-  color: '#64748b',
-  fontSize: '12px',
-  margin: '8px 0 0 0',
-};
-
-const dividerStyle: React.CSSProperties = {
-  borderColor: '#e2e8f0',
-  margin: '24px 0',
-};
-
-const fallbackSectionStyle: React.CSSProperties = {
-  textAlign: 'left',
-  margin: '16px 0',
-};
-
-const fallbackNoticeStyle: React.CSSProperties = {
-  color: '#64748b',
-  fontSize: '11px',
-  margin: '0 0 6px 0',
-};
-
-const urlBoxStyle: React.CSSProperties = {
-  backgroundColor: '#f8fafc',
-  border: '1px solid #cbd5e1',
-  borderRadius: '8px',
-  padding: '8px 12px',
-  wordBreak: 'break-all',
-};
-
-const urlTextStyle: React.CSSProperties = {
-  color: '#0284c7',
-  fontSize: '11px',
-  textDecoration: 'none',
-};
-
-const securityNoticeStyle: React.CSSProperties = {
-  backgroundColor: '#fef2f2',
-  border: '1px solid #fecaca',
+const infoNoticeBoxStyle: React.CSSProperties = {
+  backgroundColor: '#F0F9FF',
+  border: '1px solid #BAE6FD',
   borderRadius: '12px',
-  padding: '12px 14px',
-  margin: '20px 0 0 0',
-  textAlign: 'left',
+  padding: '12px 16px',
+  margin: '0 0 24px 0',
 };
 
-const securityTextStyle: React.CSSProperties = {
-  color: '#991b1b',
-  fontSize: '11px',
+const infoNoticeTextStyle: React.CSSProperties = {
+  color: '#0369A1',
+  fontSize: '12px',
   lineHeight: '1.5',
   margin: '0',
 };
 
-const footerSectionStyle: React.CSSProperties = {
-  backgroundColor: '#f8fafc',
-  padding: '24px 28px',
-  textAlign: 'center',
-  borderTop: '1px solid #e2e8f0',
+const dividerStyle: React.CSSProperties = {
+  borderColor: '#E2E8F0',
+  borderWidth: '1px',
+  borderStyle: 'solid',
+  margin: '28px 0',
 };
 
-const footerTextStyle: React.CSSProperties = {
-  color: '#64748b',
+const fallbackSectionStyle: React.CSSProperties = {
+  textAlign: 'left',
+};
+
+const fallbackNoticeStyle: React.CSSProperties = {
+  color: '#64748B',
   fontSize: '12px',
-  lineHeight: '1.6',
-  margin: '0 0 10px 0',
+  lineHeight: '1.5',
+  margin: '0 0 8px 0',
 };
 
-const footerLinkStyle: React.CSSProperties = {
-  color: '#0284c7',
-  textDecoration: 'underline',
+const urlBoxStyle: React.CSSProperties = {
+  backgroundColor: '#F8FAFC',
+  border: '1px solid #E2E8F0',
+  borderRadius: '8px',
+  padding: '10px 12px',
+  wordBreak: 'break-all',
 };
 
-const copyrightStyle: React.CSSProperties = {
-  color: '#94a3b8',
+const urlTextStyle: React.CSSProperties = {
+  color: '#002953',
   fontSize: '11px',
+  textDecoration: 'underline',
+  fontFamily: 'monospace',
+};
+
+const pillarsSectionStyle: React.CSSProperties = {
+  margin: '8px 0 24px 0',
+  textAlign: 'center',
+};
+
+const pillarsHeadingStyle: React.CSSProperties = {
+  color: '#002953',
+  fontSize: '11px',
+  fontWeight: 800,
+  letterSpacing: '1.5px',
+  margin: '0 0 16px 0',
+  textTransform: 'uppercase',
+};
+
+const pillarTdStyle: React.CSSProperties = {
+  padding: '8px 10px',
+  textAlign: 'center',
+  verticalAlign: 'top',
+};
+
+const pillarIconBoxStyle: React.CSSProperties = {
+  fontSize: '22px',
+  marginBottom: '6px',
+};
+
+const pillarTitleStyle: React.CSSProperties = {
+  color: '#002953',
+  fontSize: '13px',
+  fontWeight: 800,
+  margin: '0 0 4px 0',
+};
+
+const pillarDescStyle: React.CSSProperties = {
+  color: '#64748B',
+  fontSize: '11px',
+  lineHeight: '1.45',
   margin: '0',
 };
 
-export default EmailVerificationEmail;
+const securityFooterSectionStyle: React.CSSProperties = {
+  backgroundColor: '#F8FAFC',
+  borderRadius: '10px',
+  padding: '12px 14px',
+  marginTop: '8px',
+};
+
+const securityFooterTextStyle: React.CSSProperties = {
+  color: '#94A3B8',
+  fontSize: '11px',
+  lineHeight: '1.5',
+  margin: '0',
+  textAlign: 'center',
+};
+
+const footerSectionStyle: React.CSSProperties = {
+  backgroundColor: '#002953',
+  padding: '28px 24px',
+  textAlign: 'center',
+  borderTop: '1px solid #01BEFE',
+};
+
+const footerBrandStyle: React.CSSProperties = {
+  color: '#01BEFE',
+  fontSize: '11px',
+  fontWeight: 800,
+  letterSpacing: '2px',
+  margin: '0 0 6px 0',
+  textTransform: 'uppercase',
+};
+
+const footerTextStyle: React.CSSProperties = {
+  color: '#CAF0F8',
+  fontSize: '12px',
+  margin: '0 0 8px 0',
+  fontWeight: 500,
+};
+
+const footerContactStyle: React.CSSProperties = {
+  color: '#94A3B8',
+  fontSize: '11px',
+  lineHeight: '1.6',
+  margin: '0 0 12px 0',
+};
+
+const footerLinkStyle: React.CSSProperties = {
+  color: '#01BEFE',
+  textDecoration: 'underline',
+  fontWeight: 600,
+};
+
+const copyrightStyle: React.CSSProperties = {
+  color: '#64748B',
+  fontSize: '11px',
+  margin: '0',
+};

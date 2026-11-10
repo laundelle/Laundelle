@@ -1,10 +1,10 @@
 import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { hashPassword, signJwt, verifyPassword, isLegacyHash, revokeToken, JwtPayload } from '@/lib/auth';
-import { BadRequestError, UnauthorizedError, ForbiddenError } from '@/lib/api';
+import { BadRequestError, UnauthorizedError, ForbiddenError, NotFoundError } from '@/lib/api';
 import { AuditService } from '@/services/AuditService';
 import crypto from 'crypto';
-
+import { generateSecret as generateTotpSecret, verifySync as verifyTotpSync } from 'otplib';
 import { generateCustomerId, generateStaffId } from '@laundelle/ids';
 import { OrderService } from '@/services/OrderService';
 import { Auth0Service } from '@/services/Auth0Service';
@@ -36,6 +36,9 @@ export class AuthService {
         const internalDbId = new ObjectId().toHexString();
         const customerId = generateCustomerId();
         const now = new Date().toISOString();
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const verificationTokenHash = crypto.createHash('sha256').update(verificationToken).digest('hex');
+        const verificationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
         const newUser = {
             _id: internalDbId as any,
@@ -43,6 +46,15 @@ export class AuthService {
             customerId: customerId,
             id: customerId,
             email: formatted,
+            verificationTokenHash,
+            verificationTokenExpiresAt,
+            email_verified: false,
+            verification_email_sent: true,
+            verification_email_sent_at: now,
+            welcome_email_sent: false,
+            first_login_at: now,
+            last_login_at: now,
+            login_count: 1,
             password: hashPassword(password),
             full_name: fullName.trim(),
             phone: String(phone).trim(),
@@ -70,10 +82,7 @@ export class AuthService {
 
         await db.collection('users').insertOne(newUser);
 
-        // Link any prior guest orders to the newly registered customer
-        await OrderService.linkGuestOrdersToCustomer(formatted, customerId, internalDbId).catch(err => {
-            console.error('[AuthService] Error linking guest orders on signup:', err);
-        });
+        // Security requirement: Guest orders are strictly linked AFTER email verification, not on unverified signup.
 
         // Write an audit event
         await AuditService.recordEvent({
@@ -85,27 +94,20 @@ export class AuthService {
             ipAddress: clientIp
         });
 
-        // Send Welcome email (with WELCOME20 coupon) & Verification email asynchronously
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.CUSTOMER_APP_URL || 'https://laundelle.com';
-        sendWelcomeEmail({
-            to: formatted,
-            customerName: newUser.full_name,
-            couponCode: 'WELCOME20',
-            discountPercent: 20,
-            appUrl
-        }).catch(err => console.error('[AuthService] Welcome email error:', err?.message || err));
-
+        // First send Verification email only. Welcome email will be dispatched once verified.
+        const canonicalBase = (body?.appUrl || process.env.CUSTOMER_APP_URL || process.env.PUBLIC_CUSTOMER_URL || process.env.VERIFICATION_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
         sendVerificationEmail({
             to: formatted,
             customerName: newUser.full_name,
-            verificationUrl: `${appUrl}/verify-email?email=${encodeURIComponent(formatted)}&token=${customerId}`,
-            appUrl
+            verificationUrl: `${canonicalBase}/verify-email?email=${encodeURIComponent(formatted)}&token=${verificationToken}`,
+            appUrl: canonicalBase
         }).catch(err => console.error('[AuthService] Verification email error:', err?.message || err));
 
-        const token = signJwt({ sub: internalDbId, email: formatted, role: 'customer' });
+        const token = signJwt({ sub: internalDbId, email: formatted, role: 'customer', emailVerified: false });
         
         return {
             token,
+            ...(process.env.NODE_ENV === 'test' ? { rawVerificationToken: verificationToken } : {}),
             user: {
                 id: customerId,
                 publicId: customerId,
@@ -114,7 +116,8 @@ export class AuthService {
                 email: formatted,
                 name: newUser.full_name,
                 phone: newUser.phone,
-                role: 'customer'
+                role: 'customer',
+                emailVerified: false
             }
         };
     }
@@ -219,7 +222,18 @@ export class AuthService {
             ipAddress: clientIp
         });
 
-        const token = signJwt({ sub: String(user._id), email: formatted, role: user.role || 'customer' });
+        const isEmailVerified = Boolean(user.email_verified);
+        if (user.role === 'customer' && isEmailVerified) {
+            await OrderService.linkGuestOrdersToCustomer(
+                formatted,
+                user.customerId || user.publicId || String(user._id),
+                String(user._id)
+            ).catch(err => {
+                console.error('[AuthService] Error recovering guest order links on customer login:', err);
+            });
+        }
+
+        const token = signJwt({ sub: String(user._id), email: formatted, role: user.role || 'customer', emailVerified: isEmailVerified });
         
         let resolvedPlantId = user.plantId || user.plant_id || null;
         let resolvedPlantName = user.plantName || user.plant_name || null;
@@ -261,6 +275,7 @@ export class AuthService {
                 email: user.email, 
                 name: user.full_name, 
                 role: user.role || 'customer',
+                emailVerified: isEmailVerified,
                 plantId: resolvedPlantId,
                 plant_id: resolvedPlantId,
                 plantName: resolvedPlantName || (resolvedPlantId ? `Plant Unit (${resolvedPlantId})` : null),
@@ -319,13 +334,26 @@ export class AuthService {
     }
 
     /**
-     * Verifies Admin MFA TOTP / static code.
+     * Verifies Admin MFA using RFC 6238 TOTP (via otplib).
+     * The user's mfaSecret must be a base32-encoded TOTP seed generated by generateMfaSecret().
      */
     static verifyAdminMfa(user: any, mfaCode: string): boolean {
         if (!user.mfaEnabled) return true;
         if (!user.mfaSecret || !mfaCode) return false;
-        const expected = String(user.mfaSecret).trim();
-        return String(mfaCode).trim() === expected;
+        try {
+            const res = verifyTotpSync({ token: String(mfaCode).trim(), secret: String(user.mfaSecret).trim() });
+            return Boolean(res && (res as any).valid === true);
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Generates a new base32 TOTP secret for MFA provisioning.
+     * Store the returned value in user.mfaSecret (never expose it after provisioning).
+     */
+    static generateMfaSecret(): string {
+        return generateTotpSecret();
     }
 
     /**
@@ -426,13 +454,10 @@ export class AuthService {
                     candidateRoles.push(...m2mRoles);
                 }
                 if (m2mUser) {
+                    // Strictly use administrator-controlled appMetadata. NEVER grant roles from user-controlled metadata.
                     const appR = m2mUser.appMetadata?.roles || m2mUser.appMetadata?.role;
                     if (Array.isArray(appR)) candidateRoles.push(...appR);
                     else if (typeof appR === 'string') candidateRoles.push(appR);
-
-                    const userR = m2mUser.userMetadata?.roles || m2mUser.userMetadata?.role;
-                    if (Array.isArray(userR)) candidateRoles.push(...userR);
-                    else if (typeof userR === 'string') candidateRoles.push(userR);
                 }
             } catch (m2mErr) {
                 console.warn('[AuthService] Auth0 Management API role check notice:', m2mErr);
@@ -515,6 +540,17 @@ export class AuthService {
                         existingByEmail.auth0UserId = sub;
                         existingByEmail.auth0_sub = sub;
                     }
+                } else {
+                    // Customer account linking: bind this Auth0 subject (e.g. Google OAuth) to existing customer record
+                    const isLinked = existingByEmail.auth0UserId || existingByEmail.auth0_sub;
+                    if (!isLinked || existingByEmail.auth0UserId !== sub) {
+                        await db.collection('users').updateOne(
+                            { _id: existingByEmail._id },
+                            { $set: { auth0UserId: sub, auth0_sub: sub, updated_at: now } }
+                        );
+                        existingByEmail.auth0UserId = sub;
+                        existingByEmail.auth0_sub = sub;
+                    }
                 }
                 user = existingByEmail;
             }
@@ -531,6 +567,10 @@ export class AuthService {
             const isStaff = !isCustomerPortal && Boolean(resolvedStaffRole);
             const role = isStaff ? (resolvedStaffRole as string) : 'customer';
             const fullName = (name || formatted.split('@')[0] || (role === 'customer' ? 'Customer' : 'Staff Member')).trim();
+
+            const verificationToken = crypto.randomBytes(32).toString('hex');
+            const verificationTokenHash = crypto.createHash('sha256').update(verificationToken).digest('hex');
+            const verificationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
             const newUser: any = {
                 _id: internalDbId as any,
@@ -549,7 +589,15 @@ export class AuthService {
                 reward_points: 0,
                 customer_status: 'active',
                 status: 'active',
-                email_verified: true,
+                email_verified: isStaff ? true : false,
+                verificationTokenHash: !isStaff ? verificationTokenHash : undefined,
+                verificationTokenExpiresAt: !isStaff ? verificationTokenExpiresAt : undefined,
+                verification_email_sent: !isStaff,
+                verification_email_sent_at: !isStaff ? now : undefined,
+                welcome_email_sent: false,
+                first_login_at: now,
+                last_login_at: now,
+                login_count: 1,
                 addresses: [],
                 preferences: {
                     detergent: 'Standard',
@@ -570,12 +618,6 @@ export class AuthService {
             await db.collection('users').insertOne(newUser);
             user = newUser;
 
-            if (role === 'customer') {
-                await OrderService.linkGuestOrdersToCustomer(formatted, customerId, String(internalDbId)).catch(err => {
-                    console.error('[AuthService] Error linking guest orders on Auth0 registration:', err);
-                });
-            }
-
             await AuditService.recordEvent({
                 entityType: 'user',
                 entityId: role === 'customer' ? customerId : String(internalDbId),
@@ -584,8 +626,68 @@ export class AuthService {
                 actorRole: role,
                 ipAddress: clientIp
             });
+
+            // Dispatch first-login Verification Email for customer accounts
+            if (role === 'customer' || isCustomerPortal) {
+                const canonicalBase = (body?.appUrl || process.env.CUSTOMER_APP_URL || process.env.PUBLIC_CUSTOMER_URL || process.env.VERIFICATION_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+                const customerDisplayName = user.full_name || name || formatted.split('@')[0] || 'Valued Customer';
+                const verificationUrl = `${canonicalBase}/verify-email?email=${encodeURIComponent(formatted)}&token=${verificationToken}`;
+
+                sendVerificationEmail({
+                    to: formatted,
+                    customerName: customerDisplayName,
+                    verificationUrl,
+                    appUrl: canonicalBase
+                }).catch(err => console.error('[AuthService] First login verification email error:', err?.message || err));
+            }
         } else {
-            const updateDoc: any = { updated_at: now, last_login_at: now };
+            const updateDoc: any = {
+                updated_at: now,
+                last_login_at: now,
+            };
+            if (!user.first_login_at) {
+                updateDoc.first_login_at = user.created_at || now;
+            }
+            updateDoc.login_count = (user.login_count || 1) + 1;
+
+            // If customer account is NOT verified, dispatch verification email so they can complete verification
+            if (user.role === 'customer' && !user.email_verified) {
+                const verificationToken = crypto.randomBytes(32).toString('hex');
+                const verificationTokenHash = crypto.createHash('sha256').update(verificationToken).digest('hex');
+                const verificationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+                updateDoc.verificationTokenHash = verificationTokenHash;
+                updateDoc.verificationTokenExpiresAt = verificationTokenExpiresAt;
+                updateDoc.verification_email_sent = true;
+                updateDoc.verification_email_sent_at = now;
+
+                const canonicalBase = (body?.appUrl || process.env.CUSTOMER_APP_URL || process.env.PUBLIC_CUSTOMER_URL || process.env.VERIFICATION_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+                const customerDisplayName = user.full_name || name || formatted.split('@')[0] || 'Valued Customer';
+                const verificationUrl = `${canonicalBase}/verify-email?email=${encodeURIComponent(formatted)}&token=${verificationToken}`;
+
+                sendVerificationEmail({
+                    to: formatted,
+                    customerName: customerDisplayName,
+                    verificationUrl,
+                    appUrl: canonicalBase
+                }).catch(err => console.error('[AuthService] Existing user verification email error:', err?.message || err));
+            } else if (user.role === 'customer' && user.email_verified && !user.welcome_email_sent) {
+                // If verified and welcome email was not sent yet, send welcome email
+                const canonicalBase = (body?.appUrl || process.env.CUSTOMER_APP_URL || process.env.PUBLIC_CUSTOMER_URL || process.env.VERIFICATION_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+                const customerDisplayName = user.full_name || name || formatted.split('@')[0] || 'Valued Customer';
+                sendWelcomeEmail({
+                    to: formatted,
+                    customerName: customerDisplayName,
+                    couponCode: 'WELCOME20',
+                    discountPercent: 20,
+                    appUrl: canonicalBase
+                }).then(async () => {
+                    await db.collection('users').updateOne(
+                        { _id: user._id },
+                        { $set: { welcome_email_sent: true, welcome_email_sent_at: new Date().toISOString() } }
+                    );
+                    user.welcome_email_sent = true;
+                }).catch(err => console.error('[AuthService] Welcome email send error:', err?.message || err));
+            }
             const unsetDoc: any = {};
 
             const existingIsStaff = ['super_admin', 'admin', 'plant_manager', 'manager', 'driver', 'processor'].includes(user.role);
@@ -637,7 +739,7 @@ export class AuthService {
                 }
             }
 
-            if (user.role === 'customer') {
+            if (user.role === 'customer' && (user.email_verified || verifiedToken.emailVerified === true)) {
                 await OrderService.linkGuestOrdersToCustomer(
                     formatted,
                     user.customerId || user.publicId || String(user._id),
@@ -669,47 +771,6 @@ export class AuthService {
                     { _id: user._id } as any,
                     updateOps
                 );
-            }
-        }
-
-        // Dispatch Welcome Email (WELCOME20) and Email Verification Mail for customers signing in via Google / Auth0
-        if (user.role === 'customer' || isCustomerPortal) {
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.CUSTOMER_APP_URL || 'https://laundelle.com';
-            const customerDisplayName = user.full_name || name || formatted.split('@')[0] || 'Valued Customer';
-            const customerIdentifier = user.customerId || user.publicId || String(user._id);
-
-            // 1. Welcome Email with WELCOME20 coupon
-            if (!user.welcome_email_sent) {
-                sendWelcomeEmail({
-                    to: formatted,
-                    customerName: customerDisplayName,
-                    couponCode: 'WELCOME20',
-                    discountPercent: 20,
-                    appUrl
-                }).then(async (res) => {
-                    await db.collection('users').updateOne(
-                        { _id: user._id } as any,
-                        { $set: { welcome_email_sent: true, welcome_email_sent_at: new Date().toISOString() } }
-                    );
-                    user.welcome_email_sent = true;
-                }).catch(err => console.error('[AuthService] Google login welcome email error:', err?.message || err));
-            }
-
-            // 2. Email Verification Mail (Universal account verification button)
-            if (!user.verification_email_sent) {
-                const verificationUrl = `${appUrl}/verify-email?email=${encodeURIComponent(formatted)}&token=${customerIdentifier}&provider=google`;
-                sendVerificationEmail({
-                    to: formatted,
-                    customerName: customerDisplayName,
-                    verificationUrl,
-                    appUrl
-                }).then(async (res) => {
-                    await db.collection('users').updateOne(
-                        { _id: user._id } as any,
-                        { $set: { verification_email_sent: true, verification_email_sent_at: new Date().toISOString() } }
-                    );
-                    user.verification_email_sent = true;
-                }).catch(err => console.error('[AuthService] Google login verification email error:', err?.message || err));
             }
         }
 
@@ -752,7 +813,218 @@ export class AuthService {
                 name: user.full_name,
                 phone,
                 role,
+                emailVerified: Boolean(user.email_verified),
                 plantId: user.plant_id || user.plantId
+            }
+        };
+    }
+
+    /**
+     * Safely migrates existing plaintext verification tokens in MongoDB to SHA-256 hashes
+     * and permanently strips plaintext token fields.
+     */
+    static async migrateLegacyVerificationTokens(): Promise<{ migratedCount: number }> {
+        const db = await getDb();
+        const cursor = db.collection('users').find({
+            email_verified: { $ne: true },
+            $or: [
+                { verificationToken: { $exists: true, $ne: '' } },
+                { verification_token: { $exists: true, $ne: '' } }
+            ],
+            verificationTokenHash: { $in: [null, '', undefined] }
+        });
+
+        let migratedCount = 0;
+        while (await cursor.hasNext()) {
+            const doc = await cursor.next();
+            if (!doc) break;
+            const plainToken = doc.verificationToken || doc.verification_token;
+            if (plainToken && typeof plainToken === 'string') {
+                const hash = crypto.createHash('sha256').update(plainToken.trim()).digest('hex');
+                const expiresAt = doc.verificationTokenExpiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+                await db.collection('users').updateOne(
+                    { _id: doc._id },
+                    {
+                        $set: {
+                            verificationTokenHash: hash,
+                            verificationTokenExpiresAt: expiresAt
+                        },
+                        $unset: {
+                            verificationToken: '',
+                            verification_token: ''
+                        }
+                    }
+                );
+                migratedCount++;
+            }
+        }
+        return { migratedCount };
+    }
+
+    /**
+     * Verifies a customer's email address using their verification token.
+     * Updates MongoDB and Auth0 to mark email as verified, links prior guest orders,
+     * creates an authenticated session, and returns session credentials for seamless one-click login.
+     */
+    static async verifyEmail(email: string, token: string, appUrl?: string) {
+        if (!email || !token || typeof token !== 'string') {
+            throw new BadRequestError('Email and verification token are required.');
+        }
+
+        const cleanToken = token.trim();
+        // Public identifiers (customerId, publicId, _id) are strictly prohibited as verification credentials
+        if (cleanToken.length < 16 || cleanToken.startsWith('CUST-') || cleanToken.startsWith('STF-') || cleanToken.startsWith('ORD-')) {
+            throw new BadRequestError('Invalid or expired verification token.');
+        }
+
+        const db = await getDb();
+        const formatted = email.toLowerCase().trim();
+        const now = new Date().toISOString();
+        const tokenHash = crypto.createHash('sha256').update(cleanToken).digest('hex');
+
+        // On-the-fly migration for any legacy unverified user before token query
+        const legacyUser = await db.collection('users').findOne({
+            email: formatted,
+            email_verified: { $ne: true },
+            verificationTokenHash: { $in: [null, '', undefined] },
+            $or: [
+                { verificationToken: { $exists: true, $ne: '' } },
+                { verification_token: { $exists: true, $ne: '' } }
+            ]
+        });
+        if (legacyUser) {
+            const raw = legacyUser.verificationToken || legacyUser.verification_token;
+            if (raw && typeof raw === 'string') {
+                const legacyHash = crypto.createHash('sha256').update(raw.trim()).digest('hex');
+                const legacyExpiresAt = legacyUser.verificationTokenExpiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+                await db.collection('users').updateOne(
+                    { _id: legacyUser._id },
+                    {
+                        $set: { verificationTokenHash: legacyHash, verificationTokenExpiresAt: legacyExpiresAt },
+                        $unset: { verificationToken: '', verification_token: '' }
+                    }
+                );
+            }
+        }
+
+        // Single atomic conditional database operation to verify and consume token
+        // Strictly queries verificationTokenHash (plaintext tokens are permanently non-accepted)
+        const user = await db.collection('users').findOneAndUpdate(
+            {
+                email: formatted,
+                verificationTokenHash: tokenHash,
+                verificationTokenExpiresAt: { $gt: now, $exists: true, $ne: null },
+                email_verified: { $ne: true }
+            },
+            {
+                $set: {
+                    email_verified: true,
+                    status: 'active',
+                    customer_status: 'active',
+                    verified_at: now,
+                    updated_at: now,
+                    verification_email_sent: true,
+                    verification_email_sent_at: now
+                },
+                $unset: {
+                    verificationToken: '',
+                    verification_token: '',
+                    verificationTokenHash: '',
+                    verificationTokenExpiresAt: ''
+                }
+            },
+            { returnDocument: 'after' }
+        );
+
+        if (!user) {
+            const existing = await db.collection('users').findOne({ email: formatted });
+            if (!existing) {
+                throw new NotFoundError('No account found associated with this email address.');
+            }
+            if (existing.email_verified) {
+                throw new BadRequestError('This email is already verified. Please proceed to log in.');
+            }
+            if (existing.verificationTokenExpiresAt && new Date(existing.verificationTokenExpiresAt).getTime() <= Date.now()) {
+                throw new BadRequestError('This email verification link has expired. Please sign in or request a new link.');
+            }
+            throw new BadRequestError('Invalid or expired verification token.');
+        }
+
+        // Link prior guest orders to customer profile strictly after verified email ownership
+        const publicId = user.publicId || user.customerId || user.id || String(user._id);
+        const internalId = String(user._id);
+        let linkedGuestOrders = 0;
+        try {
+            linkedGuestOrders = await OrderService.linkGuestOrdersToCustomer(formatted, publicId, internalId);
+        } catch (linkErr) {
+            console.error('[AuthService] Error linking guest orders on email verification:', linkErr);
+        }
+
+        // Update Auth0 user record if configured
+        const auth0Id = user.auth0UserId || user.auth0_sub;
+        if (auth0Id && Auth0Service.isConfigured()) {
+            try {
+                await Auth0Service.updateUser(auth0Id, { emailVerified: true });
+            } catch (auth0Err: any) {
+                console.warn('[AuthService] Notice: Could not update email_verified in Auth0:', auth0Err?.message || auth0Err);
+            }
+        }
+
+        const role = user.role || 'customer';
+        const isStaff = ['driver', 'processor', 'manager', 'admin', 'super_admin'].includes(role);
+
+        const jwtToken = signJwt({
+            sub: internalId,
+            auth0UserId: auth0Id,
+            email: user.email,
+            role,
+            emailVerified: true
+        });
+
+        await AuditService.recordEvent({
+            entityType: 'user',
+            entityId: publicId,
+            action: 'email_verified',
+            actorId: publicId,
+            actorRole: role,
+            metadata: { email: user.email, linkedGuestOrders }
+        });
+
+        // Dispatch Welcome Email now that the account is verified successfully!
+        if (!user.welcome_email_sent) {
+            const canonicalBase = (appUrl || process.env.CUSTOMER_APP_URL || process.env.PUBLIC_CUSTOMER_URL || process.env.VERIFICATION_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+            const customerDisplayName = user.full_name || user.name || formatted.split('@')[0] || 'Valued Customer';
+            try {
+                await sendWelcomeEmail({
+                    to: formatted,
+                    customerName: customerDisplayName,
+                    couponCode: 'WELCOME20',
+                    discountPercent: 20,
+                    appUrl: canonicalBase
+                });
+                await db.collection('users').updateOne(
+                    { _id: user._id },
+                    { $set: { welcome_email_sent: true, welcome_email_sent_at: new Date().toISOString() } }
+                );
+            } catch (err: any) {
+                console.error('[AuthService] Welcome email error on email verification:', err?.message || err);
+            }
+        }
+
+        return {
+            success: true,
+            token: jwtToken,
+            user: {
+                id: publicId,
+                publicId,
+                customerId: !isStaff ? publicId : undefined,
+                staffId: isStaff ? publicId : undefined,
+                internalId,
+                email: user.email,
+                name: user.full_name,
+                phone: user.phone || '',
+                role,
+                emailVerified: true
             }
         };
     }

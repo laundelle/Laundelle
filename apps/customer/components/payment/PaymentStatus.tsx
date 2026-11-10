@@ -42,9 +42,9 @@ interface ConfettiPiece {
 }
 
 const CONFETTI_COLORS = [
-  '#2563EB', // Blue
-  '#3B82F6', // Sky Blue
-  '#60A5FA', // Light Blue
+  '#01BEFE', // Blue
+  '#01BEFE', // Sky Blue
+  '#01BEFE', // Light Blue
   '#93C5FD', // Ice Blue
   '#22C55E', // Green
   '#FACC15', // Yellow
@@ -299,7 +299,7 @@ export const PaymentStatus: React.FC<PaymentStatusProps> = ({
         <div
           aria-hidden="true"
           className={`absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none opacity-40 ${
-            isSuccess ? 'bg-[#3B82F6]/30' : isProcessing ? 'bg-sky-400/25' : 'bg-red-400/25'
+            isSuccess ? 'bg-[#01BEFE]/30' : isProcessing ? 'bg-sky-400/25' : 'bg-red-400/25'
           }`}
         />
 
@@ -309,9 +309,9 @@ export const PaymentStatus: React.FC<PaymentStatusProps> = ({
             <div
               className={`animate-icon-entrance relative w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center shadow-lg transition-transform ${
                 isSuccess
-                  ? 'bg-gradient-to-b from-[#eff6ff] to-[#dbeafe] text-[#2563EB] shadow-blue-500/20'
+                  ? 'bg-gradient-to-b from-[#e6f8ff] to-[#dbeafe] text-[#01BEFE] shadow-blue-500/20'
                   : isProcessing
-                  ? 'bg-gradient-to-b from-[#f0f9ff] to-[#e0f2fe] text-[#0284c7] shadow-sky-500/20'
+                  ? 'bg-gradient-to-b from-[#f0f9ff] to-[#e0f2fe] text-[#01BEFE] shadow-sky-500/20'
                   : 'bg-gradient-to-b from-[#fef2f2] to-[#fee2e2] text-[#DC2626] shadow-red-500/20'
               }`}
               style={{
@@ -335,20 +335,20 @@ export const PaymentStatus: React.FC<PaymentStatusProps> = ({
                   aria-hidden="true"
                 >
                   <circle
-                    className="circle-svg-stroke text-[#2563EB]"
+                    className="circle-svg-stroke text-[#01BEFE]"
                     cx="50"
                     cy="50"
                     r="44"
                     stroke="currentColor"
                   />
                   <path
-                    className="check-svg-stroke text-[#2563EB]"
+                    className="check-svg-stroke text-[#01BEFE]"
                     d="M30 52 L44 66 L70 36"
                     stroke="currentColor"
                   />
                 </svg>
               ) : isProcessing ? (
-                <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 animate-spin text-[#0284c7]" />
+                <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 animate-spin text-[#01BEFE]" />
               ) : (
                 // SVG Animated Red Circle & X Strokes
                 <svg
@@ -388,11 +388,11 @@ export const PaymentStatus: React.FC<PaymentStatusProps> = ({
         <div className="space-y-2 mb-6">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-wider uppercase">
             {isSuccess ? (
-              <span className="bg-[#eff6ff] text-[#1d4ed8] px-3 py-1 rounded-full border border-blue-200/60 shadow-xs">
+              <span className="bg-[#e6f8ff] text-[#01BEFE] px-3 py-1 rounded-full border border-blue-200/60 shadow-xs">
                 Payment Complete
               </span>
             ) : isProcessing ? (
-              <span className="bg-[#f0f9ff] text-[#0369a1] px-3 py-1 rounded-full border border-sky-200/60 shadow-xs flex items-center gap-1.5">
+              <span className="bg-[#f0f9ff] text-[#01BEFE] px-3 py-1 rounded-full border border-sky-200/60 shadow-xs flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
                 Processing Payment
               </span>
@@ -403,7 +403,7 @@ export const PaymentStatus: React.FC<PaymentStatusProps> = ({
             )}
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#082b78] tracking-tight font-heading">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#002953] tracking-tight font-heading">
             {isSuccess
               ? 'Payment Successful'
               : isProcessing
@@ -426,7 +426,7 @@ export const PaymentStatus: React.FC<PaymentStatusProps> = ({
           {displayOrderId && (
             <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-slate-500 font-medium">Order ID</span>
-              <div className="flex items-center gap-1.5 font-mono font-bold text-[#082b78]">
+              <div className="flex items-center gap-1.5 font-mono font-bold text-[#002953]">
                 <span>{displayOrderId}</span>
                 <button
                   type="button"
@@ -488,7 +488,7 @@ export const PaymentStatus: React.FC<PaymentStatusProps> = ({
                 <button
                   type="button"
                   onClick={onViewOrder}
-                  className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-[#082b78] hover:bg-[#06205c] active:scale-[0.99] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#082b78]/15 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-[#002953] hover:bg-[#002953] active:scale-[0.99] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#002953]/15 flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <span>View My Order</span>
                   <ArrowRight className="w-4 h-4" />
@@ -519,7 +519,7 @@ export const PaymentStatus: React.FC<PaymentStatusProps> = ({
                 <button
                   type="button"
                   onClick={onRetryPayment}
-                  className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-[#082b78] hover:bg-[#06205c] active:scale-[0.99] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#082b78]/15 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-[#002953] hover:bg-[#002953] active:scale-[0.99] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#002953]/15 flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <RotateCcw className="w-4 h-4" />
                   <span>Try Payment Again</span>
@@ -554,7 +554,7 @@ export const PaymentStatus: React.FC<PaymentStatusProps> = ({
                 }
               })
             }
-            className="text-[#082b78] hover:underline font-semibold cursor-pointer"
+            className="text-[#002953] hover:underline font-semibold cursor-pointer"
           >
             Contact Laundelle Concierge
           </button>

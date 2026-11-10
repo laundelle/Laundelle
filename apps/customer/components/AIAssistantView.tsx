@@ -36,7 +36,7 @@ interface ChatMessage {
 }
 
 // Crisp Clothes Hanger Icon matching reference screenshot
-const HangerIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5 text-[#0066ff]" }) => (
+const HangerIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5 text-[#01BEFE]" }) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -83,23 +83,23 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
     {
       id: 'q1',
       text: 'What services do you offer?',
-      icon: <HangerIcon className="w-5 h-5 text-[#0066ff] shrink-0" />,
+      icon: <HangerIcon className="w-5 h-5 text-[#01BEFE] shrink-0" />,
     },
     {
       id: 'q2',
       text: 'How do I book a service?',
-      icon: <CalendarCheck2 className="w-5 h-5 text-[#0066ff] shrink-0" />,
+      icon: <CalendarCheck2 className="w-5 h-5 text-[#01BEFE] shrink-0" />,
     },
     {
       id: 'q3',
       text: 'Where is my order?',
-      icon: <Package className="w-5 h-5 text-[#0066ff] shrink-0" />,
+      icon: <Package className="w-5 h-5 text-[#01BEFE] shrink-0" />,
     },
     {
       id: 'q4',
       text: 'What are your prices?',
       icon: (
-        <span className="w-5 h-5 rounded-full bg-[#0066ff] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+        <span className="w-5 h-5 rounded-full bg-[#01BEFE] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
           %
         </span>
       ),
@@ -107,12 +107,12 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
     {
       id: 'q5',
       text: 'Do you have any offers?',
-      icon: <Star className="w-5 h-5 text-[#0066ff] fill-[#0066ff] shrink-0" />,
+      icon: <Star className="w-5 h-5 text-[#01BEFE] fill-[#01BEFE] shrink-0" />,
     },
     {
       id: 'q6',
       text: 'I need customer support',
-      icon: <Headphones className="w-5 h-5 text-[#0066ff] shrink-0" />,
+      icon: <Headphones className="w-5 h-5 text-[#01BEFE] shrink-0" />,
     },
   ];
 
@@ -175,22 +175,22 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
                   <p className="font-medium">Booking with Laundelle is simple in 3 easy steps:</p>
                   <div className="space-y-2 text-[13.5px]">
                     <div className="flex items-start gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-[#0066ff] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                      <span className="w-5 h-5 rounded-full bg-[#01BEFE] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
                       <span><strong>Select your service</strong> & choose Wash & Fold, Dry Cleaning, or Ironing.</span>
                     </div>
                     <div className="flex items-start gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-[#0066ff] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                      <span className="w-5 h-5 rounded-full bg-[#01BEFE] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
                       <span><strong>Pick a collection slot</strong> that fits your schedule. Our drivers come straight to your doorstep.</span>
                     </div>
                     <div className="flex items-start gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-[#0066ff] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                      <span className="w-5 h-5 rounded-full bg-[#01BEFE] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
                       <span><strong>Receive fresh, crisp clothes</strong> delivered back in under 24 hours.</span>
                     </div>
                   </div>
                   <div className="pt-2">
                     <button
                       onClick={onOpenSchedulePickup}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0066ff] text-white text-xs font-semibold hover:bg-blue-700 transition shadow-xs cursor-pointer"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#01BEFE] text-white text-xs font-semibold hover:bg-[#00a6e0] transition shadow-xs cursor-pointer"
                     >
                       <span>Schedule a Pickup Now</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -281,7 +281,7 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
                   <p className="font-semibold text-gray-900">🎉 Today's Exclusive Offers:</p>
                   <div className="p-3 bg-white rounded-xl border border-blue-200 shadow-2xs space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-[#0066ff] tracking-wider text-xs bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">FIRSTWASH20</span>
+                      <span className="font-bold text-[#01BEFE] tracking-wider text-xs bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">FIRSTWASH20</span>
                       <span className="text-xs font-semibold text-green-600">Save 20%</span>
                     </div>
                     <p className="text-xs text-gray-600">20% off your very first laundry or dry cleaning order.</p>
@@ -405,8 +405,8 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
       <div className="w-full max-w-full h-full bg-white border-0 rounded-none px-3 py-2 sm:px-8 sm:py-4 lg:px-12 lg:py-5 shadow-none flex flex-col overflow-hidden relative">
         {/* Top Centered Session Date Badge */}
         <div className="shrink-0 flex justify-center mb-1.5 sm:mb-4">
-          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 sm:px-4 sm:py-1.5 rounded-full bg-[#f0f5ff] border border-[#e0ecfc] text-[#4b5563] text-[10px] sm:text-xs font-medium shadow-2xs">
-            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#0066ff]" />
+          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 sm:px-4 sm:py-1.5 rounded-full bg-[#f8fafc] border border-[#e2e8f0] text-[#4b5563] text-[10px] sm:text-xs font-medium shadow-2xs">
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#01BEFE]" />
             <span>Today</span>
           </div>
         </div>
@@ -416,7 +416,7 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
           {/* 1. First Bot Greeting Bubble */}
           <div className="flex items-start gap-2 sm:gap-3.5 max-w-full sm:max-w-3xl">
             {/* Laundellee Avatar: increased size for clear visibility */}
-            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 border border-white/90 shadow-xs relative bg-[#e0eeff] flex items-center justify-center">
+            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 border border-white/90 shadow-xs relative bg-[#e6f8ff] flex items-center justify-center">
               <Image
                 src={getOptimizedImageUrl(LAUNDELLE_IMAGES.aiGirlFace, { width: 120, quality: 'auto', format: 'auto' })}
                 alt="Laundellee"
@@ -428,7 +428,7 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
 
             {/* Bubble Content - fits content, max 700px */}
             <div className="space-y-2 sm:space-y-4 w-fit max-w-[90%] sm:max-w-[700px]">
-              <div className="bg-[#f0f5ff] text-[#1e293b] rounded-xl sm:rounded-[18px] rounded-tl-xs px-2.5 py-2 sm:px-5 sm:py-4 shadow-2xs space-y-1 sm:space-y-2 leading-relaxed text-[11px] sm:text-[14.5px] min-h-[40px] sm:min-h-[60px] w-fit">
+              <div className="bg-[#f8fafc] text-[#1e293b] rounded-xl sm:rounded-[18px] rounded-tl-xs px-2.5 py-2 sm:px-5 sm:py-4 shadow-2xs space-y-1 sm:space-y-2 leading-relaxed text-[11px] sm:text-[14.5px] min-h-[40px] sm:min-h-[60px] w-fit">
                 <p className="font-normal">Hi there! 👋</p>
                 <p className="font-bold text-gray-900 text-[12px] sm:text-[15px]">I'm Laundellee, your AI Assistant.</p>
                 <p className="text-gray-700 text-[11px] sm:text-[14px]">
@@ -449,10 +449,10 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
                     <button
                       key={q.id}
                       onClick={() => handleSendMessage(q.text)}
-                      className="bg-white border border-[#dbeafe] hover:border-[#0066ff]/60 hover:shadow-xs rounded-lg sm:rounded-2xl px-2.5 py-1.5 sm:px-4 sm:py-3.5 flex items-center gap-2 sm:gap-3 text-left text-[11px] sm:text-[13.5px] font-normal text-gray-800 transition-all cursor-pointer group"
+                      className="bg-white border border-[#dbeafe] hover:border-[#01BEFE]/60 hover:shadow-xs rounded-lg sm:rounded-2xl px-2.5 py-1.5 sm:px-4 sm:py-3.5 flex items-center gap-2 sm:gap-3 text-left text-[11px] sm:text-[13.5px] font-normal text-gray-800 transition-all cursor-pointer group"
                     >
                       <span className="scale-80 sm:scale-100 origin-left shrink-0">{q.icon}</span>
-                      <span className="leading-snug group-hover:text-[#0066ff] transition-colors">{q.text}</span>
+                      <span className="leading-snug group-hover:text-[#01BEFE] transition-colors">{q.text}</span>
                     </button>
                   ))}
                 </div>
@@ -469,7 +469,7 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
                 <div key={msg.id} className="flex flex-col items-end gap-0.5 sm:gap-1 pt-1 sm:pt-2">
                   <div className="flex items-center gap-1.5 sm:gap-3 justify-end max-w-full">
                     {/* User bubble: smaller font and padding on mobile */}
-                    <div className="bg-[#0066ff] text-white px-2.5 py-1.5 sm:px-[18px] sm:py-[14px] rounded-xl sm:rounded-[18px] rounded-br-xs text-[11px] sm:text-[14.5px] font-normal shadow-2xs w-fit max-w-[85%] sm:max-w-[550px] lg:max-w-[600px] leading-relaxed">
+                    <div className="bg-[#01BEFE] text-white px-2.5 py-1.5 sm:px-[18px] sm:py-[14px] rounded-xl sm:rounded-[18px] rounded-br-xs text-[11px] sm:text-[14.5px] font-normal shadow-2xs w-fit max-w-[85%] sm:max-w-[550px] lg:max-w-[600px] leading-relaxed">
                       {msg.text}
                     </div>
                     {/* User Avatar */}
@@ -480,7 +480,7 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
                   {/* Timestamp with double checkmark */}
                   <div className="flex items-center gap-1 text-[9px] sm:text-[11px] text-gray-400 pr-8 sm:pr-12">
                     <span>{msg.time}</span>
-                    <span className="text-[#0066ff] font-bold text-[10px] sm:text-xs tracking-tighter">✓✓</span>
+                    <span className="text-[#01BEFE] font-bold text-[10px] sm:text-xs tracking-tighter">✓✓</span>
                   </div>
                 </div>
               );
@@ -490,7 +490,7 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
             return (
               <div key={msg.id} className="flex items-start gap-2 sm:gap-3.5 max-w-full pt-1">
                 {/* Laundellee Avatar: increased size for clear visibility */}
-                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 border border-white/90 shadow-xs relative bg-[#e0eeff] flex items-center justify-center">
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 border border-white/90 shadow-xs relative bg-[#e6f8ff] flex items-center justify-center">
                   <Image
                     src={getOptimizedImageUrl(LAUNDELLE_IMAGES.aiGirlFace, { width: 120, quality: 'auto', format: 'auto' })}
                     alt="Laundellee"
@@ -501,25 +501,25 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
                 </div>
 
                 <div className="space-y-0.5 sm:space-y-1 w-fit max-w-[90%] sm:max-w-[650px] lg:max-w-[700px]">
-                  <div className="bg-[#f0f5ff] text-[#1e293b] rounded-xl sm:rounded-[18px] rounded-tl-xs px-2.5 py-2 sm:px-5 sm:py-4 shadow-2xs space-y-1.5 sm:space-y-2.5 leading-relaxed text-[11px] sm:text-[14.5px] min-h-[38px] sm:min-h-[60px] w-fit inline-block">
+                  <div className="bg-[#f8fafc] text-[#1e293b] rounded-xl sm:rounded-[18px] rounded-tl-xs px-2.5 py-2 sm:px-5 sm:py-4 shadow-2xs space-y-1.5 sm:space-y-2.5 leading-relaxed text-[11px] sm:text-[14.5px] min-h-[38px] sm:min-h-[60px] w-fit inline-block">
                     {msg.isInitialServiceResponse ? (
                       <>
                         <p className="text-gray-800 font-medium">We offer a wide range of laundry and fabric care services:</p>
                         <div className="space-y-1 sm:space-y-2 pt-0.5 text-[10.5px] sm:text-[14px]">
                           <div className="flex items-start gap-1.5 sm:gap-2.5">
-                            <CheckCircle2 className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-[#0066ff] fill-[#0066ff]/15 shrink-0 mt-0.5" />
+                            <CheckCircle2 className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-[#01BEFE] fill-[#01BEFE]/15 shrink-0 mt-0.5" />
                             <span><strong>Wash & Fold</strong> – Everyday laundry, fresh and clean</span>
                           </div>
                           <div className="flex items-start gap-1.5 sm:gap-2.5">
-                            <CheckCircle2 className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-[#0066ff] fill-[#0066ff]/15 shrink-0 mt-0.5" />
+                            <CheckCircle2 className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-[#01BEFE] fill-[#01BEFE]/15 shrink-0 mt-0.5" />
                             <span><strong>Dry Cleaning</strong> – For your delicate and premium clothes</span>
                           </div>
                           <div className="flex items-start gap-1.5 sm:gap-2.5">
-                            <CheckCircle2 className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-[#0066ff] fill-[#0066ff]/15 shrink-0 mt-0.5" />
+                            <CheckCircle2 className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-[#01BEFE] fill-[#01BEFE]/15 shrink-0 mt-0.5" />
                             <span><strong>Steam Ironing</strong> – Crisp, neat and ready to wear</span>
                           </div>
                           <div className="flex items-start gap-1.5 sm:gap-2.5">
-                            <CheckCircle2 className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-[#0066ff] fill-[#0066ff]/15 shrink-0 mt-0.5" />
+                            <CheckCircle2 className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-[#01BEFE] fill-[#01BEFE]/15 shrink-0 mt-0.5" />
                             <span><strong>Special Care</strong> – Sarees, leather, bedding, curtains and more</span>
                           </div>
                         </div>
@@ -545,7 +545,7 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
           {/* Typing Indicator */}
           {isTyping && (
             <div className="flex items-start gap-2 sm:gap-3.5 max-w-md pt-1">
-              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 border border-white/90 shadow-xs relative bg-[#e0eeff] flex items-center justify-center">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 border border-white/90 shadow-xs relative bg-[#e6f8ff] flex items-center justify-center">
                 <Image
                   src={getOptimizedImageUrl(LAUNDELLE_IMAGES.aiGirlFace, { width: 120, quality: 'auto', format: 'auto' })}
                   alt="Laundellee"
@@ -554,10 +554,10 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
                   className="object-cover object-center scale-125"
                 />
               </div>
-              <div className="bg-[#f0f5ff] rounded-xl sm:rounded-[18px] rounded-tl-xs px-2.5 py-1.5 sm:px-4 sm:py-3 shadow-2xs flex items-center gap-1 text-[10px] sm:text-xs text-gray-500">
-                <span className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-[#0066ff] animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-[#0066ff] animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-[#0066ff] animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="bg-[#f8fafc] rounded-xl sm:rounded-[18px] rounded-tl-xs px-2.5 py-1.5 sm:px-4 sm:py-3 shadow-2xs flex items-center gap-1 text-[10px] sm:text-xs text-gray-500">
+                <span className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-[#01BEFE] animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-[#01BEFE] animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-[#01BEFE] animate-bounce" style={{ animationDelay: '300ms' }} />
                 <span className="pl-0.5 text-gray-500 text-[10px] sm:text-xs">Laundellee is typing...</span>
               </div>
             </div>
@@ -636,8 +636,8 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
               type="submit"
               disabled={!inputText.trim() && !attachedFileName}
               className={`w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all shadow-xs cursor-pointer ${inputText.trim() || attachedFileName
-                  ? 'bg-[#0066ff] hover:bg-blue-700 text-white hover:scale-105 active:scale-95'
-                  : 'bg-[#0066ff] text-white hover:bg-blue-700'
+                  ? 'bg-[#01BEFE] hover:bg-[#00a6e0] text-white hover:scale-105 active:scale-95'
+                  : 'bg-[#01BEFE] text-white hover:bg-[#00a6e0]'
                 }`}
               title="Send message"
             >

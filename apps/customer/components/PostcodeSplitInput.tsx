@@ -247,7 +247,7 @@ export const PostcodeSplitInput: React.FC<PostcodeSplitInputProps> = ({
             }}
             className={`w-full min-h-[44px] px-3 py-2 bg-white rounded-xl border transition-all flex items-center justify-between gap-2 cursor-pointer shadow-xs ${
               isOpen
-                ? 'border-[#082b78] ring-2 ring-[#082b78]/15'
+                ? 'border-[#002953] ring-2 ring-[#002953]/15'
                 : selectedOutward
                 ? 'border-blue-300 bg-blue-50/30'
                 : 'border-slate-300 hover:border-slate-400'
@@ -255,10 +255,10 @@ export const PostcodeSplitInput: React.FC<PostcodeSplitInputProps> = ({
           >
             {selectedOutward ? (
               <div className="flex items-center gap-2 min-w-0">
-                <span className="w-7 h-7 rounded-lg bg-[#082b78] text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-2xs">
+                <span className="w-7 h-7 rounded-lg bg-[#002953] text-white flex items-center justify-center font-mono font-medium text-xs shrink-0 shadow-2xs">
                   {selectedOutward.slice(0, 2)}
                 </span>
-                <span className="font-mono font-black text-sm text-[#082b78] tracking-wider">
+                <span className="font-mono font-medium text-base text-[#002953] tracking-wider">
                   {selectedOutward}
                 </span>
                 <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
@@ -300,10 +300,10 @@ export const PostcodeSplitInput: React.FC<PostcodeSplitInputProps> = ({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
                     placeholder="Search outward code (e.g. PR1, M1, BD2)..."
-                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold uppercase placeholder:font-sans placeholder:normal-case placeholder:font-normal focus:outline-none focus:border-[#082b78]"
+                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold uppercase placeholder:font-sans placeholder:normal-case placeholder:font-normal focus:outline-none focus:border-[#002953]"
                   />
                   {loadingSearch && (
-                    <Loader2 className="w-3.5 h-3.5 text-[#082b78] animate-spin absolute right-2.5 top-1/2 -translate-y-1/2" />
+                    <Loader2 className="w-3.5 h-3.5 text-[#002953] animate-spin absolute right-2.5 top-1/2 -translate-y-1/2" />
                   )}
                 </div>
                 <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 px-1">
@@ -324,13 +324,13 @@ export const PostcodeSplitInput: React.FC<PostcodeSplitInputProps> = ({
                         onClick={() => handleSelectOutward(district)}
                         className={`w-full px-3.5 py-2.5 text-left flex items-center justify-between transition-colors cursor-pointer ${
                           isSelected
-                            ? 'bg-blue-50 text-[#082b78] font-extrabold'
+                            ? 'bg-blue-50 text-[#002953] font-extrabold'
                             : 'hover:bg-slate-50 text-slate-800'
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
                           <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-mono font-bold text-xs ${
-                            isSelected ? 'bg-[#082b78] text-white' : 'bg-slate-100 text-slate-700'
+                            isSelected ? 'bg-[#002953] text-white' : 'bg-slate-100 text-slate-700'
                           }`}>
                             <MapPin className="w-3.5 h-3.5" />
                           </div>
@@ -345,7 +345,7 @@ export const PostcodeSplitInput: React.FC<PostcodeSplitInputProps> = ({
                             <Check className="w-3.5 h-3.5 stroke-[3]" /> Selected
                           </span>
                         ) : (
-                          <span className="text-xs font-bold text-[#082b78] opacity-70 hover:opacity-100">
+                          <span className="text-xs font-bold text-[#002953] opacity-70 hover:opacity-100">
                             Select
                           </span>
                         )}
@@ -375,7 +375,7 @@ export const PostcodeSplitInput: React.FC<PostcodeSplitInputProps> = ({
               onChange={(e) => setInwardCode(e.target.value.toUpperCase())}
               placeholder="e.g. 2AB"
               maxLength={4}
-              className="w-full h-[44px] px-3.5 py-2 bg-white rounded-xl border border-slate-300 font-mono font-bold text-sm text-slate-800 uppercase focus:outline-none focus:border-[#082b78] focus:ring-2 focus:ring-[#082b78]/15 shadow-xs"
+              className="w-full h-[44px] px-3.5 py-2 bg-white rounded-xl border border-slate-300 font-mono font-medium text-base text-slate-800 uppercase focus:outline-none focus:border-[#002953] focus:ring-2 focus:ring-[#002953]/15 shadow-xs"
             />
             {inwardCode && (
               <button
@@ -441,7 +441,7 @@ export const PostcodeSplitInput: React.FC<PostcodeSplitInputProps> = ({
             </div>
           </div>
 
-          <div className="shrink-0 text-right font-mono font-black text-xs text-[#082b78] bg-white/80 px-2 py-1 rounded-lg border border-slate-200">
+          <div className="shrink-0 text-right font-mono font-black text-xs text-[#002953] bg-white/80 px-2 py-1 rounded-lg border border-slate-200">
             {fullPostcode}
           </div>
         </div>

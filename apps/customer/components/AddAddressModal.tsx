@@ -220,7 +220,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
         {/* Header */}
         <div className="flex items-start justify-between gap-3 border-b border-gray-100 pb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#eef4ff] text-[#1d5bd8] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0">
               <MapPin className="w-5 h-5" />
             </div>
             <div>
@@ -248,7 +248,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
             type="button"
             onClick={handleGetLocation}
             disabled={isLocating}
-            className="w-full py-3 px-4 bg-[#082b78] hover:bg-[#072465] text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-60"
+            className="w-full py-3 px-4 bg-[#002953] hover:bg-[#002953] text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-60"
           >
             {isLocating ? (
               <>
@@ -257,7 +257,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
               </>
             ) : (
               <>
-                <Navigation className="w-4 h-4 text-[#60a5fa]" />
+                <Navigation className="w-4 h-4 text-[#01BEFE]" />
                 <span>Get current location</span>
               </>
             )}
@@ -279,7 +279,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
                     href={`https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[10px] font-bold text-[#1d5bd8] hover:underline flex items-center gap-0.5"
+                    className="text-[10px] font-bold text-[#01BEFE] hover:underline flex items-center gap-0.5"
                   >
                     <span>Map</span>
                     <ExternalLink className="w-2.5 h-2.5" />
@@ -291,7 +291,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-[11px] font-semibold text-gray-600">
                     <span>Nearby postcodes</span>
-                    <span className="text-[10px] text-[#1d5bd8] font-medium">Click to select</span>
+                    <span className="text-[10px] text-[#01BEFE] font-medium">Click to select</span>
                   </div>
 
                   {/* Clean table matching reference design */}
@@ -310,18 +310,18 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
                           }}
                           className={`w-full py-2.5 px-3.5 text-left text-xs font-mono font-semibold flex items-center justify-between transition-colors cursor-pointer ${
                             isSelected
-                              ? 'bg-[#eff6ff] text-[#082b78] font-bold'
+                              ? 'bg-[#e6f8ff] text-[#002953] font-bold'
                               : 'hover:bg-gray-50 text-gray-800'
                           }`}
                         >
                           <span className="tracking-wider">{item.postcode}</span>
                           {isSelected ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] text-[#082b78] font-sans font-bold">
-                              <Check className="w-3.5 h-3.5 text-[#1d5bd8] stroke-[3]" />
+                            <span className="inline-flex items-center gap-1 text-[11px] text-[#002953] font-sans font-bold">
+                              <Check className="w-3.5 h-3.5 text-[#01BEFE] stroke-[3]" />
                               <span>Selected</span>
                             </span>
                           ) : (
-                            <span className="text-[10px] text-gray-400 font-sans font-normal hover:text-[#1d5bd8]">
+                            <span className="text-[10px] text-gray-400 font-sans font-normal hover:text-[#01BEFE]">
                               Select
                             </span>
                           )}
@@ -346,7 +346,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
                   href={`https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[11px] font-bold text-[#1d5bd8] hover:underline flex items-center gap-1"
+                  className="text-[11px] font-bold text-[#01BEFE] hover:underline flex items-center gap-1"
                 >
                   <span>Preview on Map</span>
                   <ExternalLink className="w-3 h-3" />
@@ -392,7 +392,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
                   onClick={() => setLabelType(type as any)}
                   className={`py-2 px-1 rounded-xl font-bold flex flex-col items-center justify-center gap-1 border transition-all cursor-pointer ${
                     labelType === type
-                      ? 'bg-[#082b78] text-white border-[#082b78] shadow-xs'
+                      ? 'bg-[#002953] text-white border-[#002953] shadow-xs'
                       : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
                   }`}
                 >
@@ -407,7 +407,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
                 value={customLabel}
                 onChange={(e) => setCustomLabel(e.target.value)}
                 placeholder="e.g. Studio, Parents' House, Dorm"
-                className="mt-2 w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8]"
+                className="mt-2 w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE]"
                 required
               />
             )}
@@ -423,7 +423,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
               value={flatNo}
               onChange={(e) => setFlatNo(e.target.value)}
               placeholder="e.g. Flat 4B, Wellington Court"
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8]"
+              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE]"
               required
             />
           </div>
@@ -438,7 +438,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
               value={street}
               onChange={(e) => setStreet(e.target.value)}
               placeholder="e.g. 42 Butler Street"
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8]"
+              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE]"
               required
             />
           </div>
@@ -453,7 +453,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
               value={landmark}
               onChange={(e) => setLandmark(e.target.value)}
               placeholder="e.g. Opposite Central Station, Blue entrance gate"
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8]"
+              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE]"
             />
           </div>
 
@@ -468,7 +468,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="e.g. Preston"
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8]"
+                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE]"
                 required
               />
             </div>
@@ -481,7 +481,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
                 <button
                   type="button"
                   onClick={handleGetLocation}
-                  className="text-[11px] font-semibold text-[#1d5bd8] hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-[11px] font-semibold text-[#01BEFE] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <span>📍 Use current location</span>
                 </button>
@@ -504,7 +504,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
               placeholder="e.g. Ring flat 4B bell twice, or leave with front desk"
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8]"
+              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE]"
             />
           </div>
 
@@ -514,7 +514,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
               type="checkbox"
               checked={isDefault}
               onChange={(e) => setIsDefault(e.target.checked)}
-              className="w-4 h-4 rounded-md accent-[#082b78]"
+              className="w-4 h-4 rounded-md accent-[#002953]"
             />
             <span className="text-xs text-gray-700 font-medium">
               Set as primary collection & delivery address
@@ -532,7 +532,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-xl bg-[#082b78] hover:bg-[#072465] text-white font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-6 py-2.5 rounded-xl bg-[#002953] hover:bg-[#002953] text-white font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>{initialAddress ? 'Update Address' : 'Save & Select Address'}</span>

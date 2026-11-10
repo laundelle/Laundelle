@@ -157,7 +157,7 @@ export const OrderRatingModal: React.FC<OrderRatingModalProps> = ({
         aria-labelledby="rating-modal-title"
       >
         {/* Top Header Banner */}
-        <div className="relative bg-gradient-to-r from-[#0d2259] via-[#102e78] to-[#1e4ab8] text-white px-5 sm:px-7 py-5 shrink-0 overflow-hidden">
+        <div className="relative bg-gradient-to-r from-[#002953] via-[#002953] to-[#01BEFE] text-white px-5 sm:px-7 py-5 shrink-0 overflow-hidden">
           <div className="absolute right-0 top-0 translate-x-10 -translate-y-6 w-36 h-36 bg-blue-400/10 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between gap-3 relative z-10">
             <div className="flex items-center gap-3">
@@ -293,7 +293,7 @@ export const OrderRatingModal: React.FC<OrderRatingModalProps> = ({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <label htmlFor="order-feedback" className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <MessageSquare className="w-3.5 h-3.5 text-[#102e78]" />
+                    <MessageSquare className="w-3.5 h-3.5 text-[#002953]" />
                     <span>Customer Feedback (Optional)</span>
                   </label>
                   <span className="text-[11px] text-slate-400">
@@ -312,7 +312,7 @@ export const OrderRatingModal: React.FC<OrderRatingModalProps> = ({
                         type="button"
                         onClick={() => handleToggleTag(tag)}
                         className={`text-[11px] font-medium px-2.5 py-1 rounded-full border transition-all cursor-pointer ${isSelected
-                            ? 'bg-blue-50 border-blue-300 text-[#102e78] font-bold shadow-2xs'
+                            ? 'bg-blue-50 border-blue-300 text-[#002953] font-bold shadow-2xs'
                             : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                           }`}
                       >
@@ -330,7 +330,7 @@ export const OrderRatingModal: React.FC<OrderRatingModalProps> = ({
                     value={feedbackText}
                     onChange={(e) => setFeedbackText(e.target.value)}
                     placeholder="Tell us about the wash quality, driver delivery, packaging, or any suggestions you have..."
-                    className="w-full rounded-2xl border border-slate-200 p-3.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#102e78]/20 focus:border-[#102e78] transition-all bg-white"
+                    className="w-full rounded-2xl border border-slate-200 p-3.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#002953]/20 focus:border-[#002953] transition-all bg-white"
                   />
                 </div>
               </div>
@@ -343,7 +343,7 @@ export const OrderRatingModal: React.FC<OrderRatingModalProps> = ({
                   className="w-full flex items-center justify-between p-4 bg-slate-50/70 hover:bg-slate-100/70 transition-colors text-left cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#102e78] flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#002953] flex items-center justify-center">
                       <ShoppingBag className="w-4 h-4" />
                     </div>
                     <div>
@@ -355,7 +355,7 @@ export const OrderRatingModal: React.FC<OrderRatingModalProps> = ({
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-xs font-semibold text-[#102e78]">
+                  <div className="flex items-center gap-1 text-xs font-semibold text-[#002953]">
                     <span>{showFullOrderDetails ? 'Hide' : 'View Full Details'}</span>
                     {showFullOrderDetails ? (
                       <ChevronUp className="w-4 h-4" />
@@ -393,7 +393,7 @@ export const OrderRatingModal: React.FC<OrderRatingModalProps> = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="p-3 rounded-xl border border-slate-100 bg-white space-y-1">
                         <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[11px]">
-                          <Calendar className="w-3.5 h-3.5 text-[#102e78]" />
+                          <Calendar className="w-3.5 h-3.5 text-[#002953]" />
                           <span>Collection / Pickup</span>
                         </div>
                         <p className="text-slate-600 font-medium">
@@ -422,7 +422,7 @@ export const OrderRatingModal: React.FC<OrderRatingModalProps> = ({
                     {order.driver && (
                       <div className="flex items-center justify-between p-3 rounded-xl bg-blue-50/60 border border-blue-100 text-[11px]">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-[#102e78] text-white flex items-center justify-center font-bold text-[10px]">
+                          <div className="w-7 h-7 rounded-full bg-[#002953] text-white flex items-center justify-center font-bold text-[10px]">
                             {order.driver.name ? order.driver.name[0] : 'D'}
                           </div>
                           <div>
@@ -482,7 +482,7 @@ export const OrderRatingModal: React.FC<OrderRatingModalProps> = ({
                       </div>
                       <div className="flex justify-between font-bold text-slate-900 text-xs pt-1 border-t border-slate-100">
                         <span>Total Paid</span>
-                        <span className="text-[#102e78]">£{formatCurrency(grandTotal)}</span>
+                        <span className="text-[#002953]">£{formatCurrency(grandTotal)}</span>
                       </div>
                     </div>
                   </div>
@@ -507,7 +507,7 @@ export const OrderRatingModal: React.FC<OrderRatingModalProps> = ({
               type="button"
               disabled={submitting}
               onClick={handleSubmit}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#102e78] to-[#1e4ab8] hover:from-[#0c235c] hover:to-[#15388F] text-white text-xs font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#002953] to-[#01BEFE] hover:from-[#002953] hover:to-[#002953] text-white text-xs font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-50"
             >
               {submitting ? (
                 <>

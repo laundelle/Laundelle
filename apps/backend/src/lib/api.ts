@@ -532,6 +532,33 @@ export function assertPlantIsolation(
 
 
 // ---------------------------------------------------------------------------
+// Client IP Extraction Utility
+// ---------------------------------------------------------------------------
+
+/**
+ * Safely extracts client IP address, prioritizing trusted infrastructure headers
+ * (e.g. x-vercel-forwarded-for from Vercel Edge) and sanitizing header values.
+ */
+export function getClientIp(req: NextRequest): string {
+    const vercelForwarded = req.headers.get('x-vercel-forwarded-for')?.trim();
+    if (vercelForwarded) {
+        return vercelForwarded.split(',')[0].trim();
+    }
+    const realIp = req.headers.get('x-real-ip')?.trim();
+    if (realIp) {
+        return realIp;
+    }
+    const forwardedFor = req.headers.get('x-forwarded-for')?.trim();
+    if (forwardedFor) {
+        const ips = forwardedFor.split(',').map(s => s.trim()).filter(Boolean);
+        if (ips.length > 0) {
+            return ips[0];
+        }
+    }
+    return 'unknown';
+}
+
+// ---------------------------------------------------------------------------
 // Error Handler Wrapper for Route Handlers
 // ---------------------------------------------------------------------------
 

@@ -93,7 +93,7 @@ export const RescheduleCancelModal: React.FC<RescheduleCancelModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in">
       <div className="bg-white rounded-3xl w-full max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-hidden shadow-2xl transition-all border border-gray-100 flex flex-col my-auto">
         {/* Header */}
-        <div className={`p-5 sm:p-6 text-white shrink-0 ${mode === 'cancel' ? 'bg-red-600' : 'bg-[#03045E]'} relative`}>
+        <div className={`p-5 sm:p-6 text-white shrink-0 ${mode === 'cancel' ? 'bg-red-600' : 'bg-[#002953]'} relative`}>
           <button
             onClick={onClose}
             className="absolute top-5 right-5 text-white/80 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
@@ -144,7 +144,7 @@ export const RescheduleCancelModal: React.FC<RescheduleCancelModalProps> = ({
                       onClick={() => setSelectedDate(d)}
                       className={`p-2.5 sm:p-3 rounded-xl text-[11px] sm:text-xs font-bold border transition-all cursor-pointer ${
                         selectedDate === d
-                          ? 'border-[#03045E] bg-[#CAF0F8] text-[#03045E] shadow-xs'
+                          ? 'border-[#002953] bg-[#01BEFE]/15 text-[#002953] shadow-xs'
                           : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                       }`}
                     >
@@ -169,7 +169,7 @@ export const RescheduleCancelModal: React.FC<RescheduleCancelModalProps> = ({
                         disabled
                           ? 'opacity-40 border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
                           : selectedSlot === slot
-                          ? 'border-[#03045E] bg-[#CAF0F8] text-[#03045E] shadow-xs cursor-pointer'
+                          ? 'border-[#002953] bg-[#01BEFE]/15 text-[#002953] shadow-xs cursor-pointer'
                           : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700 cursor-pointer'
                       }`}
                     >
@@ -183,7 +183,7 @@ export const RescheduleCancelModal: React.FC<RescheduleCancelModalProps> = ({
               <div className="pt-2">
                 <button
                   onClick={() => onConfirmReschedule(order.id, selectedDate, selectedSlot, isDeliveryReschedule ? 'reschedule_delivery' : 'reschedule_pickup')}
-                  className="w-full bg-[#03045E] hover:bg-[#023E8A] text-white py-3.5 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
+                  className="w-full bg-[#002953] hover:bg-[#002953] text-white py-3.5 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
                 >
                   {isDeliveryReschedule ? 'Save New Delivery Window' : 'Save New Collection Time'}
                 </button>

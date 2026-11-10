@@ -1,19 +1,27 @@
 import { NextRequest } from 'next/server';
-import { withErrorHandler, successResponse, requireAuth, BadRequestError } from '@/lib/api';
+import { withErrorHandler, successResponse, requireAuthAsync, resolveLaundelleUser, BadRequestError, UnauthorizedError } from '@/lib/api';
 import { OfflineSyncService } from '@/services/OfflineSyncService';
 
 export const POST = withErrorHandler(async (req: NextRequest) => {
-  requireAuth(req);
+  const token = await requireAuthAsync(req);
+  const dbUser = await resolveLaundelleUser(token);
+  if (!dbUser) {
+    throw new UnauthorizedError('Authenticated user profile not found.');
+  }
+
   const body = await req.json();
 
   if (body.action === 'GENERATE') {
-    if (!body.orderId || !body.deviceId || !body.pin) {
-      throw new BadRequestError('orderId, deviceId, and pin are required to generate offline PIN voucher.');
+    if (!body.orderId || !body.deviceId) {
+      throw new BadRequestError('orderId and deviceId are required to generate offline PIN voucher.');
     }
 
-    const voucher = OfflineSyncService.generateOfflinePinVoucher({
+    const voucher = await OfflineSyncService.generateOfflinePinVoucher({
       orderId: body.orderId,
       deviceId: body.deviceId,
+      actorId: dbUser.publicId || dbUser.staffId || String(dbUser._id),
+      actorRole: dbUser.role || token.role,
+      operation: body.operation || 'delivery',
       plainPin: body.pin,
       validityHours: body.validityHours
     });
@@ -24,8 +32,13 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
       throw new BadRequestError('voucher and enteredPin are required for offline PIN verification.');
     }
 
-    const isValid = OfflineSyncService.verifyOfflinePinVoucher(body.voucher, body.enteredPin);
-    return successResponse({ valid: isValid });
+    const result = await OfflineSyncService.verifyOfflinePinVoucher(
+      body.voucher,
+      body.enteredPin,
+      body.operation,
+      body.deviceId
+    );
+    return successResponse(result);
   } else {
     throw new BadRequestError('Invalid action. Expected GENERATE or VERIFY.');
   }

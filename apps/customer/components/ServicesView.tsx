@@ -35,8 +35,6 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [showAiImage, setShowAiImage] = useState<boolean>(false);
-  const [isAiMinimized, setIsAiMinimized] = useState<boolean>(false);
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -105,38 +103,11 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
     return matchesCategory && matchesSearch;
   });
 
-  // Scroll listener: Trigger AI image when 3 services scrolled on Mobile (card 2), or 3 rows on PC (card 8)
-  useEffect(() => {
-    const handleScroll = () => {
-      const isMobile = window.innerWidth < 1024;
-      // 3 services on Mobile (0-indexed: card 2), 3 rows on PC (3 items/row = card 8)
-      const targetCardIndex = isMobile ? 2 : 8;
-      const targetCard = document.getElementById(`service-card-${targetCardIndex}`);
-
-      if (targetCard) {
-        const rect = targetCard.getBoundingClientRect();
-        if (rect.top <= window.innerHeight * 0.85) {
-          setShowAiImage(true);
-        }
-      } else {
-        const threshold = isMobile ? 600 : 1000;
-        if (window.scrollY >= threshold) {
-          setShowAiImage(true);
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [filteredServices]);
-
   return (
     <div className="w-full px-3 sm:px-6 lg:px-8 py-6 space-y-6 pb-24">
       {/* Header (Full Width Blue Box that scrolls up naturally) */}
       <ScrollReveal yOffset={18} className="w-full">
-        <div className="w-full bg-[#03045E] text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 relative overflow-hidden shadow-xl min-h-[170px] sm:min-h-[260px] flex items-center">
+        <div className="w-full bg-[#002953] text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 relative overflow-hidden shadow-xl min-h-[170px] sm:min-h-[260px] flex items-center">
           {/* Right Fading Image Container */}
           <div className="absolute top-0 right-0 bottom-0 w-[55%] sm:w-1/2 md:w-1/2 pointer-events-none overflow-hidden select-none z-0">
             <div
@@ -148,13 +119,13 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
               }}
             />
             {/* Smooth Soft Left Transition Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#03045E] via-[#03045E]/15 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#002953] via-[#002953]/15 to-transparent" />
           </div>
 
           {/* Text Content */}
           <div className="relative z-10 w-full flex justify-start">
             <div className="max-w-[50%] sm:max-w-xl md:max-w-2xl space-y-2 sm:space-y-3">
-              <h1 className="text-xl sm:text-4xl md:text-5xl font-heading font-extrabold tracking-tight text-white leading-tight drop-shadow-xs">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-serif font-semibold tracking-tight text-white leading-tight drop-shadow-xs">
                 Our Services & Transparent Pricing
               </h1>
               <p className="hidden sm:block text-xs sm:text-sm text-white/85 leading-relaxed max-w-xs sm:max-w-xl">
@@ -164,7 +135,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
           </div>
 
           {/* Decorative Ambient Background Glow */}
-          <div className="absolute right-[-40px] top-[-40px] w-72 h-72 bg-[#00B4D8]/20 rounded-full blur-3xl pointer-events-none z-0" />
+          <div className="absolute right-[-40px] top-[-40px] w-72 h-72 bg-[#01BEFE]/20 rounded-full blur-3xl pointer-events-none z-0" />
         </div>
       </ScrollReveal>
 
@@ -173,23 +144,23 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
         <div className="w-full bg-white/80 backdrop-blur-xl border border-white/90 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-1.5 sm:p-2 flex items-center gap-2 sm:gap-3">
           {/* 80% Search Bar */}
           <div className="relative w-[78%] sm:w-[80%] flex items-center">
-            <Search className="w-4 h-4 text-[#1D4ED8] absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-[#01BEFE] absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search suit, saree, blanket, wash & fold..."
-              className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-white/60 hover:bg-white/90 focus:bg-white border border-slate-200/60 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-[#1D4ED8]/30 focus:outline-none transition-all shadow-2xs"
+              className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-white/60 hover:bg-white/90 focus:bg-white border border-slate-200/60 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-[#01BEFE]/30 focus:outline-none transition-all shadow-2xs"
             />
           </div>
 
           {/* 20% Category Filter Dropdown */}
           <div className="relative w-[22%] sm:w-[20%] min-w-[105px] flex items-center">
-            <Filter className="w-4 h-4 text-[#1D4ED8] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:block" />
+            <Filter className="w-4 h-4 text-[#01BEFE] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:block" />
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full pl-3 sm:pl-9 pr-8 py-2.5 sm:py-3 bg-white/60 hover:bg-white/90 focus:bg-white border border-slate-200/60 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-extrabold text-[#0F172A] focus:ring-2 focus:ring-[#1D4ED8]/30 focus:outline-none appearance-none cursor-pointer truncate transition-all shadow-2xs"
+              className="w-full pl-3 sm:pl-9 pr-8 py-2.5 sm:py-3 bg-white/60 hover:bg-white/90 focus:bg-white border border-slate-200/60 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-extrabold text-[#002953] focus:ring-2 focus:ring-[#01BEFE]/30 focus:outline-none appearance-none cursor-pointer truncate transition-all shadow-2xs"
             >
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id} className="bg-white text-slate-800 font-semibold">
@@ -230,8 +201,8 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                   data-service-name={service.name.toLowerCase()}
                   className={`bg-white rounded-3xl p-2.5 sm:p-3 pb-4 sm:pb-5 shadow-sm hover:shadow-xl transition-all duration-500 border group flex flex-col justify-between h-full relative ${
                     highlightedServiceId === service.id
-                      ? 'ring-4 ring-[#1D4ED8] shadow-[0_0_40px_rgba(29,78,216,0.4)] border-[#1D4ED8] scale-[1.02]'
-                      : 'border-slate-200/90 hover:border-[#1D4ED8]/40'
+                      ? 'ring-4 ring-[#01BEFE] shadow-[0_0_40px_rgba(29,78,216,0.4)] border-[#01BEFE] scale-[1.02]'
+                      : 'border-slate-200/90 hover:border-[#01BEFE]/40'
                   }`}
                 >
                   {/* TOP VISUAL SIDE (Reduced Margins for a Bigger Image) */}
@@ -248,7 +219,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
 
                     {/* Highlighted Selected Service Indicator Badge */}
                     {highlightedServiceId === service.id && (
-                      <div className="absolute top-3 right-3 bg-[#1D4ED8] text-white text-[10px] sm:text-xs font-black px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-20 animate-bounce">
+                      <div className="absolute top-3 right-3 bg-[#01BEFE] text-white text-[10px] sm:text-xs font-black px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-20 animate-bounce">
                         <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
                         <span>SELECTED SERVICE</span>
                       </div>
@@ -256,12 +227,12 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
 
                     {/* Bottom Popular / Category Pill Tag */}
                     {isPopular ? (
-                      <div className="absolute bottom-3 left-3 bg-[#1D4ED8] text-white text-[10px] sm:text-xs font-extrabold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 z-10 tracking-wide">
+                      <div className="absolute bottom-3 left-3 bg-[#01BEFE] text-white text-[10px] sm:text-xs font-extrabold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 z-10 tracking-wide">
                         <Star className="w-3 h-3 fill-white text-white" />
                         <span>MOST POPULAR</span>
                       </div>
                     ) : (
-                      <div className="absolute bottom-3 left-3 bg-[#03045E] text-white text-[10px] sm:text-xs font-extrabold px-3 py-1 rounded-full shadow-md flex items-center gap-1 z-10 tracking-wide">
+                      <div className="absolute bottom-3 left-3 bg-[#002953] text-white text-[10px] sm:text-xs font-extrabold px-3 py-1 rounded-full shadow-md flex items-center gap-1 z-10 tracking-wide">
                         <span>{service.categoryLabel || 'POPULAR'}</span>
                       </div>
                     )}
@@ -271,13 +242,13 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                   <div className="flex-1 flex flex-col justify-between px-2 pt-3 space-y-3.5 min-w-0">
                     <div className="space-y-1.5">
                       {/* Service Name */}
-                      <h3 className="text-base sm:text-lg font-extrabold text-[#0F172A] tracking-tight leading-tight group-hover:text-[#1D4ED8] transition-colors line-clamp-1">
+                      <h3 className="text-lg sm:text-xl font-sans font-semibold text-[#002953] tracking-tight leading-tight group-hover:text-[#01BEFE] transition-colors line-clamp-1">
                         {service.name}
                       </h3>
 
                       {/* Turnaround Time */}
-                      <div className="flex items-center gap-1.5 text-[#1D4ED8] text-xs font-bold">
-                        <Clock className="w-3.5 h-3.5 text-[#1D4ED8] shrink-0" />
+                      <div className="flex items-center gap-1.5 text-[#01BEFE] text-xs font-bold">
+                        <Clock className="w-3.5 h-3.5 text-[#01BEFE] shrink-0" />
                         <span>{turnaround}</span>
                       </div>
 
@@ -290,8 +261,8 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                     {/* Feature Badges Row (Clear layout without border lines) */}
                     <div className="flex items-center justify-between gap-1 py-1.5 overflow-x-auto scrollbar-none">
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="w-7 h-7 rounded-full bg-[#EFF6FF] text-[#1D4ED8] flex items-center justify-center shrink-0">
-                          <Droplets className="w-3.5 h-3.5 text-[#1D4ED8]" />
+                        <div className="w-7 h-7 rounded-full bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0">
+                          <Droplets className="w-3.5 h-3.5 text-[#01BEFE]" />
                         </div>
                         <span className="text-[10px] sm:text-[11px] font-bold text-slate-700 leading-tight">
                           Deep Clean
@@ -299,8 +270,8 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                       </div>
 
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="w-7 h-7 rounded-full bg-[#EFF6FF] text-[#1D4ED8] flex items-center justify-center shrink-0">
-                          <Shirt className="w-3.5 h-3.5 text-[#1D4ED8]" />
+                        <div className="w-7 h-7 rounded-full bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0">
+                          <Shirt className="w-3.5 h-3.5 text-[#01BEFE]" />
                         </div>
                         <span className="text-[10px] sm:text-[11px] font-bold text-slate-700 leading-tight">
                           Neatly Folded
@@ -308,8 +279,8 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                       </div>
 
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="w-7 h-7 rounded-full bg-[#EFF6FF] text-[#1D4ED8] flex items-center justify-center shrink-0">
-                          <ShieldCheck className="w-3.5 h-3.5 text-[#1D4ED8]" />
+                        <div className="w-7 h-7 rounded-full bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0">
+                          <ShieldCheck className="w-3.5 h-3.5 text-[#01BEFE]" />
                         </div>
                         <span className="text-[10px] sm:text-[11px] font-bold text-slate-700 leading-tight">
                           Hygienic Care
@@ -320,7 +291,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                     {/* Price & ADD Action Row */}
                     <div className="flex items-center justify-between pt-1 gap-2 mt-auto">
                       <div className="flex items-baseline">
-                        <span className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">
+                        <span className="text-xl sm:text-2xl font-black text-[#002953] tracking-tight">
                           £{typeof service.price === 'number' ? service.price.toFixed(2) : service.price}
                         </span>
                         <span className="text-xs text-slate-400 font-semibold ml-1 whitespace-nowrap">
@@ -330,7 +301,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
 
                       <button
                         onClick={() => onCustomizeService && onCustomizeService(service)}
-                        className="bg-gradient-to-r from-[#1D4ED8] to-[#0284C7] hover:from-[#1E40AF] hover:to-[#0369A1] active:scale-95 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
+                        className="bg-gradient-to-r from-[#01BEFE] to-[#0284C7] hover:from-[#01BEFE] hover:to-[#0369A1] active:scale-95 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
                       >
                         <ShoppingBag className="w-3.5 h-3.5 text-white" />
                         <span>ADD</span>
@@ -352,10 +323,10 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
         <ScrollReveal yOffset={28} className="w-full">
           <div className="space-y-6">
             <div className="text-center space-y-2 max-w-2xl mx-auto">
-              <span className="px-3 py-1 rounded-full bg-[#EFF6FF] text-[#1D4ED8] text-xs font-black uppercase tracking-wider inline-block">
+              <span className="px-3 py-1 rounded-full bg-[#e6f8ff] text-[#01BEFE] text-xs font-black uppercase tracking-wider inline-block">
                 Unrivaled Quality Standard
               </span>
-              <h3 className="text-2xl sm:text-3xl font-heading font-black text-[#03045E] tracking-tight">
+              <h3 className="text-2xl sm:text-3xl font-heading font-black text-[#002953] tracking-tight">
                 Why Normal Laundries Can't Match Us
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 font-medium">
@@ -403,20 +374,20 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                     className="h-full"
                   >
                     <div
-                      className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-200/80 hover:border-[#1D4ED8]/40 group flex flex-col justify-between space-y-4 hover:-translate-y-1 h-full"
+                      className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-200/80 hover:border-[#01BEFE]/40 group flex flex-col justify-between space-y-4 hover:-translate-y-1 h-full"
                     >
                       <div className="space-y-3">
                         <div className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${card.color} text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
                           <Icon className="w-6 h-6" />
                         </div>
-                        <h4 className="text-base font-extrabold text-[#0F172A] group-hover:text-[#1D4ED8] transition-colors">
+                        <h4 className="text-base font-extrabold text-[#002953] group-hover:text-[#01BEFE] transition-colors">
                           {card.title}
                         </h4>
                         <p className="text-xs text-slate-500 leading-relaxed font-medium">
                           {card.desc}
                         </p>
                       </div>
-                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-extrabold text-[#1D4ED8]">
+                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-extrabold text-[#01BEFE]">
                         <span>{card.stat}</span>
                         <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                       </div>
@@ -430,7 +401,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
 
         {/* SECTION 3: CRAZY FLOATING VIP BANNER */}
         <ScrollReveal yOffset={24} className="w-full">
-          <div className="rounded-3xl bg-gradient-to-r from-[#03045E] via-[#023E8A] to-[#0077B6] p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
+          <div className="rounded-3xl bg-gradient-to-r from-[#002953] via-[#002953] to-[#01BEFE] p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
             <div className="space-y-2 text-center md:text-left z-10">
               <div className="flex items-center justify-center md:justify-start gap-2">
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
@@ -438,7 +409,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span className="text-xs font-bold text-[#CAF0F8] ml-1">4.97 / 5 across 12,000+ garments</span>
+                <span className="text-xs font-bold text-[#01BEFE] ml-1">4.97 / 5 across 12,000+ garments</span>
               </div>
               <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                 Ready for fresh, crisp, effortless laundry?
@@ -452,9 +423,9 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
               <button
                 type="button"
                 onClick={onOpenCart}
-                className="flex-1 md:flex-none bg-white hover:bg-slate-50 text-[#03045E] font-black text-xs sm:text-sm px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2"
+                className="flex-1 md:flex-none bg-white hover:bg-slate-50 text-[#002953] font-black text-xs sm:text-sm px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2"
               >
-                <ShoppingBag className="w-4 h-4 text-[#1D4ED8]" />
+                <ShoppingBag className="w-4 h-4 text-[#01BEFE]" />
                 <span>View Cart & Checkout</span>
               </button>
             </div>
@@ -462,63 +433,6 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
         </ScrollReveal>
       </div>
 
-      {/* ---------------------------------------------------- */}
-      {/* FLOATING AI ASSISTANT PROMPT - BOTTOM RIGHT         */}
-      {/* ---------------------------------------------------- */}
-      {showAiImage && !isAiMinimized && (
-        <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300 max-w-[320px]">
-          <div
-            onClick={() => onNavigate && onNavigate('assistant')}
-            className="group relative bg-white/95 backdrop-blur-md text-gray-900 rounded-2xl shadow-xl hover:shadow-2xl border border-blue-100 p-3.5 pr-9 flex items-center gap-3 cursor-pointer transition-all duration-200 hover:scale-102 active:scale-98"
-            title="Ask our AI Assistant"
-          >
-            {/* Close / Dismiss Button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsAiMinimized(true);
-              }}
-              className="absolute top-2 right-2 w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-700 flex items-center justify-center cursor-pointer transition-colors"
-              title="Dismiss"
-              aria-label="Dismiss"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-
-            {/* AI Icon */}
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#03045E] to-[#0077B6] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#0077B6]/20 group-hover:scale-105 transition-transform">
-              <Sparkles className="w-5 h-5 text-[#48CAE4] animate-pulse" />
-            </div>
-
-            {/* Message */}
-            <div className="text-left">
-              <p className="text-xs text-gray-500 font-medium leading-tight">
-                Can't find what you want?
-              </p>
-              <p className="text-xs font-bold text-[#03045E] group-hover:text-[#0077B6] transition-colors flex items-center gap-1 mt-0.5">
-                <span>Ask AI</span>
-                <ArrowRight className="w-3 h-3 text-[#0077B6] group-hover:translate-x-0.5 transition-transform" />
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Reopen Floating Pill if dismissed */}
-      {showAiImage && isAiMinimized && (
-        <button
-          type="button"
-          onClick={() => {
-            if (onNavigate) onNavigate('assistant');
-          }}
-          className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 bg-[#03045E] hover:bg-[#023E8A] text-white py-2.5 px-4 rounded-full font-bold text-xs shadow-xl flex items-center gap-2 border border-sky-300/30 cursor-pointer transition-all hover:scale-105 active:scale-95"
-          title="Ask AI"
-        >
-          <Sparkles className="w-4 h-4 text-[#48CAE4] animate-pulse" />
-          <span>Ask AI</span>
-        </button>
-      )}
     </div>
   );
 };

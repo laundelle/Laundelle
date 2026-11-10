@@ -342,9 +342,9 @@ export const ProcessorQRScanView: React.FC<ProcessorQRScanViewProps> = ({ onNavi
           customerName: (orderData.customerName && orderData.customerName !== 'Valued Customer' && orderData.customerName !== 'Customer')
             ? orderData.customerName
             : (orderData.customer_name && orderData.customer_name !== 'Valued Customer' && orderData.customer_name !== 'Customer')
-            ? orderData.customer_name
-            : (orderData.contactDetails ? `${orderData.contactDetails.firstName || ''} ${orderData.contactDetails.lastName || ''}`.trim() : '')
-            || 'Customer',
+              ? orderData.customer_name
+              : (orderData.contactDetails ? `${orderData.contactDetails.firstName || ''} ${orderData.contactDetails.lastName || ''}`.trim() : '')
+              || 'Customer',
           customerPhone: orderData.customerPhone || orderData.phone || '',
           service: orderData.service || orderData.serviceType || 'Standard Laundry Service',
           weight: String(orderData.actualWeightKg || orderData.weightKg || orderData.weight || '5.0'),
@@ -374,9 +374,9 @@ export const ProcessorQRScanView: React.FC<ProcessorQRScanViewProps> = ({ onNavi
         customerName: (orderData.customerName && orderData.customerName !== 'Valued Customer' && orderData.customerName !== 'Customer')
           ? orderData.customerName
           : (orderData.customer_name && orderData.customer_name !== 'Valued Customer' && orderData.customer_name !== 'Customer')
-          ? orderData.customer_name
-          : (orderData.contactDetails ? `${orderData.contactDetails.firstName || ''} ${orderData.contactDetails.lastName || ''}`.trim() : '')
-          || 'Customer',
+            ? orderData.customer_name
+            : (orderData.contactDetails ? `${orderData.contactDetails.firstName || ''} ${orderData.contactDetails.lastName || ''}`.trim() : '')
+            || 'Customer',
         customerPhone: orderData.customerPhone || '',
         service: orderData.service || 'Standard Laundry Service',
         weight: String(orderData.weightKg || orderData.weight || '5.0'),
@@ -530,7 +530,8 @@ export const ProcessorQRScanView: React.FC<ProcessorQRScanViewProps> = ({ onNavi
   return (
     <div className="w-full min-h-screen pb-16">
       {/* ─── Injected Styles ──────────────────────────────────────────────── */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .scanner-viewport-bg {
           background-image:
             linear-gradient(180deg, rgba(3, 14, 30, 0.25), rgba(3, 14, 30, 0.65)),
@@ -572,34 +573,6 @@ export const ProcessorQRScanView: React.FC<ProcessorQRScanViewProps> = ({ onNavi
           </button>
         </div>
       )}
-
-      {/* ─── Page Title & Action Strip ─────────────────────────────────────── */}
-      <section className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-              Scan Intake
-            </h2>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200/60">
-              <Building2 className="w-3.5 h-3.5 text-blue-600" />
-              <span>{currentProcessorPlant.name}</span>
-            </span>
-          </div>
-          <p className="mt-0.5 text-xs text-slate-500">
-            Scan bag QR tag or enter ID manually to intake orders for processing.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setShowHowToScanModal(true)}
-          className="inline-flex w-fit items-center gap-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200/80 px-3 py-1.5 text-xs font-medium text-slate-700 transition-all cursor-pointer shadow-2xs shrink-0"
-        >
-          <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
-          <span>How to scan</span>
-        </button>
-      </section>
-
       {/* ─── Camera QR Scanner Window ───────────────────────────────────────── */}
       <div className="relative h-[360px] sm:h-[420px] overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 shadow-2xs">
         {/* Optical live camera view or paused backdrop */}

@@ -38,37 +38,41 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
     const buttonRect = e.currentTarget.getBoundingClientRect();
     const cartIcon = document.getElementById('cart-icon');
 
+    // Default to bottom-right floating cart location (responsive for mobile & desktop)
+    let targetX = window.innerWidth - 44;
+    let targetY = window.innerHeight - 90;
+
     if (cartIcon) {
       const cartRect = cartIcon.getBoundingClientRect();
-
-      const flyingElement = document.createElement('div');
-      flyingElement.className = 'fixed z-[9999] bg-[#082b78] rounded-full shadow-xl flex items-center justify-center text-white';
-      flyingElement.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
-
-      flyingElement.style.width = '44px';
-      flyingElement.style.height = '44px';
-      flyingElement.style.left = `${buttonRect.left + buttonRect.width / 2 - 22}px`;
-      flyingElement.style.top = `${buttonRect.top + buttonRect.height / 2 - 22}px`;
-      flyingElement.style.transition = 'all 1.1s cubic-bezier(0.25, 1, 0.5, 1)';
-
-      document.body.appendChild(flyingElement);
-
-      void flyingElement.offsetWidth;
-
-      flyingElement.style.left = `${cartRect.left + cartRect.width / 2 - 22}px`;
-      flyingElement.style.top = `${cartRect.top + cartRect.height / 2 - 22}px`;
-      flyingElement.style.transform = 'scale(0.8)';
-      flyingElement.style.opacity = '0.9';
-
-      setTimeout(() => {
-        if (document.body.contains(flyingElement)) {
-          document.body.removeChild(flyingElement);
-        }
-        onAddToCart(service, modalQty, selectedOption, specialInstruction);
-      }, 1100);
-    } else {
-      onAddToCart(service, modalQty, selectedOption, specialInstruction);
+      targetX = cartRect.left + cartRect.width / 2;
+      targetY = cartRect.top + cartRect.height / 2;
     }
+
+    const flyingElement = document.createElement('div');
+    flyingElement.className = 'fixed z-[9999] bg-[#002953] border-2 border-[#01BEFE] rounded-full shadow-2xl flex items-center justify-center text-white pointer-events-none';
+    flyingElement.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#01BEFE" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
+
+    flyingElement.style.width = '44px';
+    flyingElement.style.height = '44px';
+    flyingElement.style.left = `${buttonRect.left + buttonRect.width / 2 - 22}px`;
+    flyingElement.style.top = `${buttonRect.top + buttonRect.height / 2 - 22}px`;
+    flyingElement.style.transition = 'all 0.85s cubic-bezier(0.25, 1, 0.5, 1)';
+
+    document.body.appendChild(flyingElement);
+
+    void flyingElement.offsetWidth;
+
+    flyingElement.style.left = `${targetX - 22}px`;
+    flyingElement.style.top = `${targetY - 22}px`;
+    flyingElement.style.transform = 'scale(0.85)';
+    flyingElement.style.opacity = '0.95';
+
+    setTimeout(() => {
+      if (document.body.contains(flyingElement)) {
+        document.body.removeChild(flyingElement);
+      }
+      onAddToCart(service, modalQty, selectedOption, specialInstruction);
+    }, 850);
 
     onClose();
   };
@@ -110,9 +114,9 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
           <div className="col-span-5 flex flex-col justify-between space-y-4 sm:space-y-5">
             <div>
               {/* Category Pill Badge */}
-              <div className="inline-flex items-center gap-2 rounded-lg bg-[#eef4ff] px-3 py-1.5 text-[11px] sm:text-xs font-bold tracking-wider text-[#1d5bd8] uppercase">
+              <div className="inline-flex items-center gap-2 rounded-lg bg-[#e6f8ff] px-3 py-1.5 text-[11px] sm:text-xs font-bold tracking-wider text-[#01BEFE] uppercase">
                 <svg
-                  className="w-3.5 h-3.5 text-[#1d5bd8]"
+                  className="w-3.5 h-3.5 text-[#01BEFE]"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -212,7 +216,7 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
                       type="button"
                       onClick={() => setSelectedOption(variant.id)}
                       className={`relative flex flex-col items-center justify-center p-3 rounded-xl transition-all cursor-pointer text-center min-h-[90px] sm:min-h-[96px] ${isSelected
-                        ? 'border-2 border-[#1d5bd8] bg-[#f8fbff] shadow-2xs'
+                        ? 'border-2 border-[#01BEFE] bg-[#f8fafc] shadow-2xs'
                         : 'border border-gray-200 bg-white hover:border-gray-300'
                         }`}
                     >
@@ -226,7 +230,7 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
                       {/* Icon */}
                       <div className="w-8 h-8 rounded-full flex items-center justify-center mb-1.5">
                         {variant.type === 'shirt' ? (
-                          <div className="w-8 h-8 rounded-full bg-[#eef4ff] text-[#1d5bd8] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center">
                             <Shirt className="w-4 h-4" />
                           </div>
                         ) : variant.type === 'hanger' ? (
@@ -244,7 +248,7 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
                       </div>
 
                       {/* Label */}
-                      <span className={`text-[11px] sm:text-xs font-bold leading-tight ${isSelected ? 'text-[#1d5bd8]' : 'text-gray-800'
+                      <span className={`text-[11px] sm:text-xs font-bold leading-tight ${isSelected ? 'text-[#01BEFE]' : 'text-gray-800'
                         }`}>
                         {variant.label}
                       </span>
@@ -268,7 +272,7 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
                   value={specialInstruction}
                   onChange={(e) => setSpecialInstruction(e.target.value)}
                   placeholder="e.g. Mild starch, stain on lapel, cold water only..."
-                  className="w-full rounded-xl border border-gray-200 p-3 pb-6 text-xs text-gray-800 placeholder:text-gray-400 focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8] focus:outline-none resize-none transition-all"
+                  className="w-full rounded-xl border border-gray-200 p-3 pb-6 text-xs text-gray-800 placeholder:text-gray-400 focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE] focus:outline-none resize-none transition-all"
                 />
                 <span className="absolute bottom-2 right-3 text-[10px] text-gray-400 font-medium select-none">
                   {specialInstruction.length}/120
@@ -277,8 +281,8 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
             </div>
 
             {/* Info Callout Note */}
-            <div className="rounded-xl bg-[#f0f5ff] p-2.5 sm:p-3 flex items-center gap-2 text-xs text-[#1d5bd8] border border-[#e2edff]">
-              <Info className="w-4 h-4 shrink-0 text-[#1d5bd8]" />
+            <div className="rounded-xl bg-[#f8fafc] p-2.5 sm:p-3 flex items-center gap-2 text-xs text-[#01BEFE] border border-[#e2edff]">
+              <Info className="w-4 h-4 shrink-0 text-[#01BEFE]" />
               <span className="text-[11px] sm:text-xs leading-tight">
                 Our team will follow your instructions carefully.
               </span>
@@ -298,7 +302,7 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
               <button
                 type="button"
                 onClick={handleConfirmAdd}
-                className="flex-1 flex items-center justify-center gap-2 h-[50px] px-5 sm:px-6 rounded-xl bg-navy hover:bg-[#072465] text-white text-xs sm:text-sm font-bold shadow-[0_6px_20px_rgba(8,43,120,0.18)] hover:shadow-lg transition-all cursor-pointer active:scale-98"
+                className="flex-1 flex items-center justify-center gap-2 h-[50px] px-5 sm:px-6 rounded-xl bg-navy hover:bg-[#002953] text-white text-xs sm:text-sm font-bold shadow-[0_6px_20px_rgba(8,43,120,0.18)] hover:shadow-lg transition-all cursor-pointer active:scale-98"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>Add £{totalPrice.toFixed(2)} to Cart</span>
@@ -326,9 +330,9 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
           {/* Service Title, Category & Price Header Details */}
           <div className="space-y-1.5 pt-0.5">
             {/* Category Badge */}
-            <div className="inline-flex items-center gap-1.5 rounded-lg bg-[#eef4ff] px-2.5 py-1 text-[11px] font-bold text-[#1d5bd8] uppercase tracking-wide">
+            <div className="inline-flex items-center gap-1.5 rounded-lg bg-[#e6f8ff] px-2.5 py-1 text-[11px] font-bold text-[#01BEFE] uppercase tracking-wide">
               <svg
-                className="w-3.5 h-3.5 text-[#1d5bd8]"
+                className="w-3.5 h-3.5 text-[#01BEFE]"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -415,10 +419,10 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
             <button
               type="button"
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="w-full h-[52px] px-3.5 rounded-xl border border-gray-200 bg-white flex items-center justify-between shadow-2xs text-left cursor-pointer hover:border-gray-300 focus:outline-none focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8] transition-all"
+              className="w-full h-[52px] px-3.5 rounded-xl border border-gray-200 bg-white flex items-center justify-between shadow-2xs text-left cursor-pointer hover:border-gray-300 focus:outline-none focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE] transition-all"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#eef4ff] text-[#1d5bd8] flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0">
                   {variantsToDisplay.find((v) => v.id === selectedOption)?.type === 'shirt' ? (
                     <Shirt className="w-4 h-4" />
                   ) : variantsToDisplay.find((v) => v.id === selectedOption)?.type === 'hanger' ? (
@@ -460,12 +464,12 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
                         setDropdownOpen(false);
                       }}
                       className={`w-full flex items-center justify-between p-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${isSelected
-                        ? 'bg-[#eef4ff] text-[#1d5bd8] font-bold'
+                        ? 'bg-[#e6f8ff] text-[#01BEFE] font-bold'
                         : 'text-gray-700 hover:bg-gray-50'
                         }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${isSelected ? 'bg-white text-[#1d5bd8]' : 'bg-gray-100 text-gray-500'
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${isSelected ? 'bg-white text-[#01BEFE]' : 'bg-gray-100 text-gray-500'
                           }`}>
                           {variant.type === 'shirt' ? (
                             <Shirt className="w-3.5 h-3.5" />
@@ -480,7 +484,7 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
                         </div>
                         <span>{variant.label}</span>
                       </div>
-                      {isSelected && <Check className="w-4 h-4 text-[#1d5bd8] stroke-[2.5]" />}
+                      {isSelected && <Check className="w-4 h-4 text-[#01BEFE] stroke-[2.5]" />}
                     </button>
                   );
                 })}
@@ -500,7 +504,7 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
                 value={specialInstruction}
                 onChange={(e) => setSpecialInstruction(e.target.value)}
                 placeholder="e.g. Mild starch, stain on lapel, cold water only..."
-                className="w-full rounded-xl border border-gray-200 p-3 pb-6 text-xs text-gray-800 placeholder:text-gray-400 focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8] focus:outline-none resize-none"
+                className="w-full rounded-xl border border-gray-200 p-3 pb-6 text-xs text-gray-800 placeholder:text-gray-400 focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE] focus:outline-none resize-none"
               />
               <span className="absolute bottom-2 right-3 text-[10px] text-gray-400 font-medium select-none">
                 {specialInstruction.length}/120
@@ -509,8 +513,8 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
           </div>
 
           {/* Info Callout Note */}
-          <div className="rounded-xl bg-[#f0f5ff] p-2.5 xs:p-3 flex items-center gap-2 text-xs text-[#1d5bd8] border border-[#e2edff]">
-            <Info className="w-4 h-4 shrink-0 text-[#1d5bd8]" />
+          <div className="rounded-xl bg-[#f8fafc] p-2.5 xs:p-3 flex items-center gap-2 text-xs text-[#01BEFE] border border-[#e2edff]">
+            <Info className="w-4 h-4 shrink-0 text-[#01BEFE]" />
             <span className="text-[11px] leading-tight">
               Our team will follow your instructions carefully.
             </span>
@@ -532,7 +536,7 @@ export const ServiceCustomizeModal: React.FC<ServiceCustomizeModalProps> = ({ se
             <button
               type="button"
               onClick={handleConfirmAdd}
-              className="w-full h-12 rounded-xl bg-navy hover:bg-[#072465] text-white text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
+              className="w-full h-12 rounded-xl bg-navy hover:bg-[#002953] text-white text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
             >
               <ShoppingBag className="w-4 h-4" />
               <span>Add £{totalPrice.toFixed(2)} to Cart</span>

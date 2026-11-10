@@ -25,6 +25,41 @@ import { generateSecureNumericPin, generatePinSalt, hashOrderPin, encryptOrderPi
 const MAX_ORDER_AMOUNT_GBP = 9999;
 const MIN_ORDER_AMOUNT_GBP = 0.50;
 
+function sanitizeOrderPayload(payload: any) {
+    if (!payload || typeof payload !== 'object') return null;
+    return {
+        address: typeof payload.address === 'string' ? payload.address.slice(0, 300) : undefined,
+        postcode: typeof payload.postcode === 'string' ? payload.postcode.slice(0, 20) : undefined,
+        customerName: typeof payload.customerName === 'string' ? payload.customerName.slice(0, 100) : undefined,
+        customerEmail: typeof payload.customerEmail === 'string' ? payload.customerEmail.slice(0, 150) : undefined,
+        customerPhone: typeof payload.customerPhone === 'string' ? payload.customerPhone.slice(0, 30) : undefined,
+        contactDetails: payload.contactDetails && typeof payload.contactDetails === 'object' ? {
+            firstName: typeof payload.contactDetails.firstName === 'string' ? payload.contactDetails.firstName.slice(0, 50) : '',
+            lastName: typeof payload.contactDetails.lastName === 'string' ? payload.contactDetails.lastName.slice(0, 50) : '',
+            email: typeof payload.contactDetails.email === 'string' ? payload.contactDetails.email.slice(0, 150) : '',
+            phone: typeof payload.contactDetails.phone === 'string' ? payload.contactDetails.phone.slice(0, 30) : '',
+        } : undefined,
+        items: Array.isArray(payload.items) ? payload.items.slice(0, 100).map((it: any) => ({
+            id: typeof it.id === 'string' ? it.id : undefined,
+            name: typeof it.name === 'string' ? it.name.slice(0, 100) : 'Item',
+            price: typeof it.price === 'number' ? it.price : 0,
+            quantity: typeof it.quantity === 'number' ? it.quantity : 1,
+            category: typeof it.category === 'string' ? it.category.slice(0, 50) : undefined,
+            serviceType: typeof it.serviceType === 'string' ? it.serviceType.slice(0, 50) : undefined,
+        })) : [],
+        pickupDate: typeof payload.pickupDate === 'string' ? payload.pickupDate.slice(0, 30) : undefined,
+        pickupSlot: typeof payload.pickupSlot === 'string' ? payload.pickupSlot.slice(0, 30) : undefined,
+        pickupTime: typeof payload.pickupTime === 'string' ? payload.pickupTime.slice(0, 30) : undefined,
+        deliveryDate: typeof payload.deliveryDate === 'string' ? payload.deliveryDate.slice(0, 30) : undefined,
+        deliverySlot: typeof payload.deliverySlot === 'string' ? payload.deliverySlot.slice(0, 30) : undefined,
+        deliveryTime: typeof payload.deliveryTime === 'string' ? payload.deliveryTime.slice(0, 30) : undefined,
+        pickupInstructionType: typeof payload.pickupInstructionType === 'string' ? payload.pickupInstructionType.slice(0, 50) : 'IN_PERSON',
+        pickupInstructionNotes: typeof payload.pickupInstructionNotes === 'string' ? payload.pickupInstructionNotes.slice(0, 500) : '',
+        deliveryInstructionType: typeof payload.deliveryInstructionType === 'string' ? payload.deliveryInstructionType.slice(0, 50) : 'IN_PERSON',
+        deliveryInstructionNotes: typeof payload.deliveryInstructionNotes === 'string' ? payload.deliveryInstructionNotes.slice(0, 500) : '',
+    };
+}
+
 export async function POST(req: NextRequest) {
     try {
         const authUser = await getAuthenticatedUserAsync(req);
@@ -147,11 +182,13 @@ export async function POST(req: NextRequest) {
 
         const checkoutId = `chk_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
+        const safePayload = sanitizeOrderPayload(orderPayload) || { amount: serverAmount, items, customerEmail };
+
         await db.collection('pending_checkouts').insertOne({
             _id: checkoutId as any,
             userId: effectiveUserId,
             orderPayload: {
-                ...(orderPayload || { amount: serverAmount, items, customerEmail }),
+                ...safePayload,
                 id: targetOrderId,
                 publicId: targetOrderId,
                 userId: effectiveUserId,
@@ -167,7 +204,7 @@ export async function POST(req: NextRequest) {
         // If the customer leaves mid-way or closes the gateway, the order is safely visible in their orders page.
         if (orderPayload) {
             const initialOrderDoc = {
-                ...orderPayload,
+                ...safePayload,
                 id: targetOrderId,
                 publicId: targetOrderId,
                 userId: effectiveUserId,
@@ -179,15 +216,11 @@ export async function POST(req: NextRequest) {
                 paymentStatus: 'Pending',
                 payment_status: 'Pending',
                 isPaid: false,
-                pickup_pin: null,
-                pickup_otp: null,
                 pickup_pin_hash: null,
                 pickup_pin_salt: null,
                 pickup_pin_enc: null,
                 pickup_pin_attempts: 0,
                 pickup_pin_locked: false,
-                delivery_pin: null,
-                delivery_otp: null,
                 delivery_pin_hash: null,
                 delivery_pin_salt: null,
                 delivery_pin_enc: null,

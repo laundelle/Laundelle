@@ -1,4 +1,5 @@
 import { getDb } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 import { DataRetentionPolicy, PrivacyRequest, PrivacyRequestType, PrivacyRequestStatus } from '@laundelle/types';
 import { BadRequestError, NotFoundError, ForbiddenError } from '@/lib/api';
 import { AuditService } from './AuditService';
@@ -75,7 +76,9 @@ export class PrivacyService {
     const { userId, requestType, reason } = params;
     const db = await getDb();
 
-    const user = await db.collection('users').findOne({ _id: userId } as any);
+    const user = await db.collection('users').findOne(
+      buildEntityLookupQuery(userId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+    );
     if (!user) throw new NotFoundError('User account not found.');
 
     const reqId = generatePrivacyRequestId();
@@ -121,7 +124,9 @@ export class PrivacyService {
    */
   static async executeAccountAnonymization(userId: string, privacyRequestId?: string): Promise<{ success: boolean; anonymizedAt: string }> {
     const db = await getDb();
-    const user = await db.collection('users').findOne({ $or: [{ id: userId }, { _id: userId }] } as any);
+    const user = await db.collection('users').findOne(
+      buildEntityLookupQuery(userId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+    );
     if (!user) throw new NotFoundError('User not found for anonymization.');
 
     const now = new Date().toISOString();
@@ -130,7 +135,7 @@ export class PrivacyService {
 
     // 1. Redact User profile
     await db.collection('users').updateOne(
-      { $or: [{ id: userId }, { _id: userId }] } as any,
+      { _id: user._id },
       {
         $set: {
           fullName: 'Anonymized Customer',
@@ -150,8 +155,17 @@ export class PrivacyService {
     );
 
     // 2. Anonymize personal details in historical Orders, while preserving financial amounts
+    const userDbId = String(user._id);
+    const userIdentifiers = [userDbId, user.publicId, user.customerId, user.id, user.auth0UserId, user.auth0_sub, userId].filter(Boolean);
     await db.collection('orders').updateMany(
-      { $or: [{ customer_id: userId }, { userId }] } as any,
+      {
+        $or: [
+          { customer_id: { $in: userIdentifiers } },
+          { customerId: { $in: userIdentifiers } },
+          { userId: { $in: userIdentifiers } },
+          { user_id: { $in: userIdentifiers } }
+        ]
+      } as any,
       {
         $set: {
           customerName: 'Anonymized Customer',

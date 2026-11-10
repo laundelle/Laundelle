@@ -171,17 +171,17 @@ const BeforeAfterCard: React.FC<BeforeAfterCardProps> = ({ item, onBookPickup, o
       {/* Top Header Row: Category Badge + Move Slider Pill */}
       <div>
         <div className="flex items-center justify-between gap-2">
-          <span className="px-3 py-1 rounded-full bg-[#eef6ff] text-[#0066f5] text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider">
+          <span className="px-3 py-1 rounded-full bg-[#01BEFE]/15] text-[#01BEFE] text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider">
             {item.category}
           </span>
-          <div className="px-2.5 py-1 rounded-full border border-blue-200/90 bg-white text-[#0066f5] text-[10px] sm:text-[11px] font-bold flex items-center gap-1.5 shadow-2xs select-none">
-            <ArrowLeftRight className="w-3 h-3 text-[#0066f5]" />
+          <div className="px-2.5 py-1 rounded-full border border-blue-200/90 bg-white text-[#01BEFE] text-[10px] sm:text-[11px] font-bold flex items-center gap-1.5 shadow-2xs select-none">
+            <ArrowLeftRight className="w-3 h-3 text-[#01BEFE]" />
             <span>Move slider</span>
           </div>
         </div>
 
         {/* Card Title */}
-        <h3 className="text-lg sm:text-xl font-black text-[#0a192f] tracking-tight mt-3 mb-4">
+        <h3 className="text-lg sm:text-xl font-black text-[#002953] tracking-tight mt-3 mb-4">
           {item.title}
         </h3>
 
@@ -231,7 +231,7 @@ const BeforeAfterCard: React.FC<BeforeAfterCardProps> = ({ item, onBookPickup, o
           </span>
 
           {/* Bottom Right AFTER Tag */}
-          <span className="absolute bottom-3 right-3 z-10 text-[10px] font-extrabold uppercase tracking-wider text-white bg-[#0066f5] px-2.5 py-1 rounded-md pointer-events-none select-none shadow-sm">
+          <span className="absolute bottom-3 right-3 z-10 text-[10px] font-extrabold uppercase tracking-wider text-white bg-[#01BEFE] px-2.5 py-1 rounded-md pointer-events-none select-none shadow-sm">
             AFTER
           </span>
 
@@ -244,8 +244,8 @@ const BeforeAfterCard: React.FC<BeforeAfterCardProps> = ({ item, onBookPickup, o
             <div className="w-[2px] h-full bg-white shadow-[0_0_8px_rgba(0,0,0,0.4)]" />
 
             {/* Circular Handle Knob with Arrow */}
-            <div className="absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white text-[#0066f5] shadow-xl flex items-center justify-center border border-blue-200 pointer-events-auto cursor-grab active:cursor-grabbing hover:scale-108 transition-transform">
-              <ArrowLeftRight className="w-3.5 h-3.5 text-[#0066f5] stroke-[2.4]" />
+            <div className="absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white text-[#01BEFE] shadow-xl flex items-center justify-center border border-blue-200 pointer-events-auto cursor-grab active:cursor-grabbing hover:scale-108 transition-transform">
+              <ArrowLeftRight className="w-3.5 h-3.5 text-[#01BEFE] stroke-[2.4]" />
             </div>
           </div>
         </div>
@@ -253,15 +253,15 @@ const BeforeAfterCard: React.FC<BeforeAfterCardProps> = ({ item, onBookPickup, o
         {/* Feature Row Below Image */}
         <div className="mt-4 sm:mt-5 flex items-start gap-3.5">
           {/* Circular Icon Container */}
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#eff6ff] text-[#0066f5] flex items-center justify-center shrink-0 border border-blue-100/90 shadow-2xs mt-0.5">
-            {item.iconType === 'shirt' && <Shirt className="w-5 h-5 text-[#0066f5] stroke-[1.8]" />}
-            {item.iconType === 'sneaker' && <SneakerIcon className="w-5 h-5 text-[#0066f5]" />}
-            {item.iconType === 'silk' && <Droplets className="w-5 h-5 text-[#0066f5] stroke-[1.8]" />}
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#01BEFE]/15 text-[#01BEFE] flex items-center justify-center shrink-0 border border-blue-100/90 shadow-2xs mt-0.5">
+            {item.iconType === 'shirt' && <Shirt className="w-5 h-5 text-[#01BEFE] stroke-[1.8]" />}
+            {item.iconType === 'sneaker' && <SneakerIcon className="w-5 h-5 text-[#01BEFE]" />}
+            {item.iconType === 'silk' && <Droplets className="w-5 h-5 text-[#01BEFE] stroke-[1.8]" />}
           </div>
 
           {/* Title and Description */}
           <div className="min-w-0">
-            <h4 className="text-sm font-extrabold text-[#0a192f] leading-snug">
+            <h4 className="text-sm font-extrabold text-[#002953] leading-snug">
               {item.subtitle}
             </h4>
             <p className="text-xs text-gray-500 font-medium leading-relaxed mt-1">
@@ -285,7 +285,7 @@ const BeforeAfterCard: React.FC<BeforeAfterCardProps> = ({ item, onBookPickup, o
               onBookPickup();
             }
           }}
-          className="bg-[#0066f5] hover:bg-[#0052cc] active:scale-95 text-white px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center gap-1.5 shrink-0"
+          className="bg-[#01BEFE] hover:bg-[#00a6e0] active:scale-95 text-white px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center gap-1.5 shrink-0"
         >
           <span>Book</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -309,7 +309,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
   const displayItems = items.slice(0, 3);
 
   return (
-    <section className="w-full bg-gradient-to-b from-[#f3f8fe] via-[#f7fbfe] to-[#edf5ff] py-12 sm:py-16 px-4 sm:px-8 md:px-12 lg:px-16 overflow-hidden relative border-y border-blue-100/60">
+    <section className="w-full bg-white py-12 sm:py-16 px-4 sm:px-8 md:px-12 lg:px-16 overflow-hidden relative border-y border-blue-100/60">
       {/* Soft Ambient Light Glows */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-200/25 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-sky-200/20 rounded-full blur-3xl pointer-events-none" />
@@ -321,19 +321,19 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
           <div className="max-w-2xl">
             {/* Top Eyebrow with Dash */}
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-6 h-0.5 bg-[#0066f5] rounded-full inline-block" />
-              <span className="text-xs font-black uppercase tracking-[0.18em] text-[#0066f5]">
+              <span className="w-6 h-0.5 bg-[#01BEFE] rounded-full inline-block" />
+              <span className="text-xs font-black uppercase tracking-[0.18em] text-[#01BEFE]">
                 Interactive Garment Transformation
               </span>
             </div>
 
             {/* Main Title */}
-            <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-black text-[#0a192f] tracking-tight leading-[1.12]">
-              Before &amp; After <span className="text-[#0066f5]">Clean Gallery</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-serif font-semibold text-[#002953] tracking-tight leading-[1.15]">
+              Before &amp; After <span className="text-[#01BEFE]">Clean Gallery</span>
             </h2>
 
             {/* Subtitle */}
-            <p className="text-sm sm:text-base text-gray-500 font-medium leading-relaxed mt-3">
+            <p className="text-sm sm:text-base text-gray-500 font-normal leading-relaxed mt-3">
               Drag the interactive slider on any card to compare stained and dull fabrics against our spotlessly revived finish.
             </p>
           </div>
@@ -341,20 +341,20 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
           {/* Right Column: Decorative 'Same Clothes Brighter Days' Badge */}
           <div className="hidden md:flex items-center gap-3.5 select-none shrink-0 self-end md:self-center">
             {/* Light Blue Circle with T-shirt and Sparkles */}
-            <div className="relative w-16 h-16 rounded-full bg-[#dbeafe]/80 border border-blue-200/60 flex items-center justify-center shadow-xs">
-              <Shirt className="w-8 h-8 text-[#0066f5] fill-[#bfdbfe]/60 stroke-[1.8]" />
-              <Sparkles className="w-4 h-4 text-[#0066f5] absolute -top-1 -right-0.5 animate-pulse" />
+            <div className="relative w-16 h-16 rounded-full bg-[#01BEFE]/15 border border-blue-200/60 flex items-center justify-center shadow-xs">
+              <Shirt className="w-8 h-8 text-[#01BEFE] fill-[#01BEFE]/20 stroke-[1.8]" />
+              <Sparkles className="w-4 h-4 text-[#01BEFE] absolute -top-1 -right-0.5 animate-pulse" />
             </div>
 
             {/* Playful Handwritten Slogan */}
-            <div className="flex flex-col -rotate-3 text-[#0066f5]">
+            <div className="flex flex-col -rotate-3 text-[#01BEFE]">
               <span className="font-serif italic font-extrabold text-base leading-tight">
                 Same Clothes
               </span>
               <span className="font-serif italic font-extrabold text-base leading-tight">
                 Brighter Days
               </span>
-              <svg className="w-20 h-3 text-[#0066f5] -mt-0.5" viewBox="0 0 70 10" fill="none">
+              <svg className="w-20 h-3 text-[#01BEFE] -mt-0.5" viewBox="0 0 70 10" fill="none">
                 <path
                   d="M2 3C22 9 48 9 68 3"
                   stroke="currentColor"

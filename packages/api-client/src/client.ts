@@ -210,6 +210,11 @@ export class LaundelleApiClient {
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
         body: JSON.stringify(payload),
       }),
+    verifyEmail: (payload: { email: string; token: string }) =>
+      this.request('/api/v1/auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
   };
 
   // Orders

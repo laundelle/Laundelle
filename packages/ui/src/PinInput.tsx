@@ -160,20 +160,20 @@ export const PinInput: React.FC<PinInputProps> = ({
               aria-invalid={error ? true : undefined}
               className={`
           box-border shrink-0
-          text-center font-mono font-semibold
+          text-center font-mono font-medium
           outline-none
           transition-[border-color,background-color,box-shadow]
           duration-150 ease-out
-          selection:bg-[#0077B6]/15
+          selection:bg-[#01BEFE]/15
           ${length === 4
-                  ? 'h-14 w-12 sm:h-15 sm:w-14 text-2xl rounded-xl'
-                  : 'h-12 w-10 sm:h-14 sm:w-12 text-xl sm:text-2xl rounded-lg sm:rounded-xl'
+                  ? 'h-14 w-12 sm:h-15 sm:w-14 text-lg sm:text-xl rounded-xl'
+                  : 'h-12 w-10 sm:h-14 sm:w-12 text-base sm:text-lg rounded-lg sm:rounded-xl'
                 }
           ${error
                   ? 'border border-red-400 bg-red-50 text-red-700 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
                   : isFilled
-                    ? 'border border-[#0077B6]/50 bg-[#F0F9FF] text-[#03045E] focus:border-[#0077B6] focus:bg-white focus:ring-4 focus:ring-[#0077B6]/10'
-                    : 'border border-slate-200 bg-white text-[#03045E] hover:border-slate-300 focus:border-[#0077B6] focus:ring-4 focus:ring-[#0077B6]/10'
+                    ? 'border border-[#01BEFE]/50 bg-[#e6f8ff] text-[#002953] focus:border-[#01BEFE] focus:bg-white focus:ring-4 focus:ring-[#01BEFE]/15'
+                    : 'border border-slate-200 bg-white text-[#002953] hover:border-slate-300 focus:border-[#01BEFE] focus:ring-4 focus:ring-[#01BEFE]/15'
                 }
           disabled:cursor-not-allowed disabled:opacity-50
         `}

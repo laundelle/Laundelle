@@ -35,25 +35,25 @@ export default function PrivacyPolicyPage() {
           <p>We collect only the minimum data necessary to deliver exceptional, reliable garment care and doorstep logistics:</p>
           <div className="space-y-3 pt-1">
             <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
-              <h5 className="font-bold text-xs uppercase tracking-wider text-[#03045E]">1. Identity &amp; Contact Data</h5>
+              <h5 className="font-bold text-xs uppercase tracking-wider text-[#002953]">1. Identity &amp; Contact Data</h5>
               <p className="text-xs text-slate-600 mt-1">
                 Your full name, mobile telephone number, email address, and authentication credentials. Used for booking confirmations, OTP verification, and status alerts.
               </p>
             </div>
             <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
-              <h5 className="font-bold text-xs uppercase tracking-wider text-[#03045E]">2. Doorstep Delivery &amp; Postcode Data</h5>
+              <h5 className="font-bold text-xs uppercase tracking-wider text-[#002953]">2. Doorstep Delivery &amp; Postcode Data</h5>
               <p className="text-xs text-slate-600 mt-1">
                 Your collection and delivery addresses, building entrance codes, concierge instructions, floor numbers, and geolocation coordinates required for courier navigation.
               </p>
             </div>
             <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
-              <h5 className="font-bold text-xs uppercase tracking-wider text-[#03045E]">3. Payment &amp; Transaction Details</h5>
+              <h5 className="font-bold text-xs uppercase tracking-wider text-[#002953]">3. Payment &amp; Transaction Details</h5>
               <p className="text-xs text-slate-600 mt-1">
                 All card transactions are processed directly by our PCI-DSS Level 1 certified partner <strong>Stripe</strong>. We do not store raw card numbers, CVVs, or bank credentials on our servers. We store only anonymized payment tokens, card brand, last 4 digits, and billing timestamps.
               </p>
             </div>
             <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
-              <h5 className="font-bold text-xs uppercase tracking-wider text-[#03045E]">4. Laundry Preferences &amp; Garment Notes</h5>
+              <h5 className="font-bold text-xs uppercase tracking-wider text-[#002953]">4. Laundry Preferences &amp; Garment Notes</h5>
               <p className="text-xs text-slate-600 mt-1">
                 Hypoallergenic detergent choices, fabric softener preferences, shirt starch levels, folding instructions, and itemized garment intake logs.
               </p>
@@ -115,7 +115,7 @@ export default function PrivacyPolicyPage() {
             In accordance with UK statutory financial regulations, transaction and invoice records are preserved for <strong>6 years</strong> following the financial year end to satisfy HMRC accounting compliance. Inactive guest sessions and transient temporary files are automatically pruned after 90 days.
           </p>
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 mt-2 space-y-1">
-            <h5 className="font-bold text-[#03045E] text-xs">Technical Security Measures:</h5>
+            <h5 className="font-bold text-[#002953] text-xs">Technical Security Measures:</h5>
             <p className="text-xs text-slate-600">
               We employ HTTPS/TLS 1.3 encryption across all network transfers, role-based access control (RBAC) restricting staff permissions, bcrypt password hashing, and continuous vulnerability scanning.
             </p>
@@ -131,24 +131,24 @@ export default function PrivacyPolicyPage() {
           <p>Under the UK Data Protection Act and UK GDPR, you hold comprehensive rights regarding your personal data:</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-2">
             <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
-              <span className="font-bold text-[#03045E] block text-xs">Right to Access (SAR)</span>
+              <span className="font-bold text-[#002953] block text-xs">Right to Access (SAR)</span>
               <span className="text-[11px] text-slate-600">Request a full digital copy of all personal records we hold about you.</span>
             </div>
             <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
-              <span className="font-bold text-[#03045E] block text-xs">Right to Erasure</span>
+              <span className="font-bold text-[#002953] block text-xs">Right to Erasure</span>
               <span className="text-[11px] text-slate-600">Request deletion of your profile and data (&quot;Right to be Forgotten&quot;).</span>
             </div>
             <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
-              <span className="font-bold text-[#03045E] block text-xs">Right to Rectification</span>
+              <span className="font-bold text-[#002953] block text-xs">Right to Rectification</span>
               <span className="text-[11px] text-slate-600">Correct inaccurate or outdated contact, address, or payment details.</span>
             </div>
             <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
-              <span className="font-bold text-[#03045E] block text-xs">Right to Data Portability</span>
+              <span className="font-bold text-[#002953] block text-xs">Right to Data Portability</span>
               <span className="text-[11px] text-slate-600">Receive your data in a structured, machine-readable JSON/CSV format.</span>
             </div>
           </div>
           <p>
-            To exercise any of these rights, email our Data Protection Officer at <a href="mailto:privacy@laundelle.co.uk" className="text-[#00B4D8] font-bold hover:underline">privacy@laundelle.co.uk</a>. We respond to all verified statutory requests within <strong>30 calendar days</strong> at zero administrative charge.
+            To exercise any of these rights, email our Data Protection Officer at <a href="mailto:privacy@laundelle.co.uk" className="text-[#01BEFE] font-bold hover:underline">privacy@laundelle.co.uk</a>. We respond to all verified statutory requests within <strong>30 calendar days</strong> at zero administrative charge.
           </p>
         </>
       ),
@@ -164,10 +164,10 @@ export default function PrivacyPolicyPage() {
           <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-xs text-slate-700 space-y-1">
             <p><strong>Laundelle Garment Care Ltd — Data Protection Office</strong></p>
             <p>123 Clean Street, Ocean City, London, UK - 500001</p>
-            <p>Email: <a href="mailto:privacy@laundelle.co.uk" className="text-[#00B4D8] hover:underline font-bold">privacy@laundelle.co.uk</a> | Phone: +44 20 1234 5678</p>
+            <p>Email: <a href="mailto:privacy@laundelle.co.uk" className="text-[#01BEFE] hover:underline font-bold">privacy@laundelle.co.uk</a> | Phone: +44 20 1234 5678</p>
           </div>
           <p className="pt-2 text-xs text-slate-500">
-            You also retain the statutory right to lodge a complaint with the UK supervisory authority: Information Commissioner&apos;s Office (ICO) at <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer" className="text-[#00B4D8] hover:underline font-semibold">ico.org.uk</a>.
+            You also retain the statutory right to lodge a complaint with the UK supervisory authority: Information Commissioner&apos;s Office (ICO) at <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer" className="text-[#01BEFE] hover:underline font-semibold">ico.org.uk</a>.
           </p>
         </>
       ),
@@ -178,17 +178,17 @@ export default function PrivacyPolicyPage() {
     {
       title: 'UK GDPR & DPA 2018 Compliant',
       desc: 'Rigorous data protection framework with full user rights and immediate compliance verification.',
-      icon: <ShieldCheck className="w-5 h-5 text-[#00B4D8]" />,
+      icon: <ShieldCheck className="w-5 h-5 text-[#01BEFE]" />,
     },
     {
       title: 'Zero Card Storage on Servers',
       desc: 'Direct tokenized billing through Stripe PCI-DSS Level 1 infrastructure protects your financial data.',
-      icon: <Lock className="w-5 h-5 text-[#00B4D8]" />,
+      icon: <Lock className="w-5 h-5 text-[#01BEFE]" />,
     },
     {
       title: 'Never Sold or Monetized',
       desc: 'Your personal information is used strictly to collect, clean, and deliver your laundry.',
-      icon: <UserCheck className="w-5 h-5 text-[#00B4D8]" />,
+      icon: <UserCheck className="w-5 h-5 text-[#01BEFE]" />,
     },
   ];
 

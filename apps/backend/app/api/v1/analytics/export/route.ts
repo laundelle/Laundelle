@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withErrorHandler, requireRole, BadRequestError } from '@/lib/api';
+import { withErrorHandler, requireRoleAsync, BadRequestError } from '@/lib/api';
 import { AnalyticsService } from '@/services/AnalyticsService';
 
 export const GET = withErrorHandler(async (req: NextRequest) => {
-  const user = requireRole(req, ['manager', 'admin', 'super_admin']);
+  const user = await requireRoleAsync(req, ['manager', 'plant_manager', 'admin', 'super_admin']);
   const type = (req.nextUrl.searchParams.get('type') || 'ORDERS').toUpperCase() as any;
   const startDate = req.nextUrl.searchParams.get('startDate') || undefined;
   const endDate = req.nextUrl.searchParams.get('endDate') || undefined;

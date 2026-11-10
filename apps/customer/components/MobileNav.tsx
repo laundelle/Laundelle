@@ -33,21 +33,21 @@ export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onNavigate, isL
               {/* Glass container behind the icon */}
               <div
                 className={`p-1.5 sm:p-2 rounded-2xl transition-all duration-200 flex items-center justify-center ${isActive
-                  ? 'bg-[#082b78]/10 backdrop-blur-md border border-[#082b78]/20 shadow-xs scale-105'
+                  ? 'bg-[#01BEFE]/15 backdrop-blur-md border border-[#01BEFE]/30 shadow-xs scale-105'
                   : 'bg-transparent group-hover:bg-gray-100/50'
                   }`}
               >
                 {React.cloneElement(t.icon as React.ReactElement<{ className?: string }>, {
                   className: `w-5 h-5 transition-all duration-200 ${isActive
-                    ? 'fill-current text-[#082b78]'
-                    : 'fill-none text-gray-500 group-hover:text-[#082b78]'
+                    ? 'fill-current text-[#01BEFE]'
+                    : 'fill-none text-gray-500 group-hover:text-[#002953]'
                     }`,
                 })}
               </div>
 
               {/* Label */}
               <span
-                className={`text-[10px] mt-1 tracking-tight leading-none truncate w-full text-center transition-colors ${isActive ? 'text-[#082b78] font-bold' : 'text-gray-500 font-medium'
+                className={`text-[10px] mt-1 tracking-tight leading-none truncate w-full text-center transition-colors font-sans ${isActive ? 'text-[#002953] font-semibold' : 'text-gray-500 font-medium'
                   }`}
               >
                 {t.label}

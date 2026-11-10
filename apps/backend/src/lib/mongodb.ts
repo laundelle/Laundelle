@@ -1,29 +1,73 @@
 import { MongoClient, Db } from 'mongodb';
+import dns from 'dns';
+import { validateProductionEnv } from './validateEnv';
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+// Validate critical secrets in production environment on module load
+validateProductionEnv();
+
+// Ensure DNS uses reliable public nameservers on Node.js to prevent querySrv ETIMEOUT
+try {
+    dns.setDefaultResultOrder?.('ipv4first');
+    dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch {
+    // Non-fatal if runtime sandbox prohibits custom DNS servers
+}
+
+let clientPromise: Promise<MongoClient> | null = null;
+
+async function connectClient(uri: string): Promise<MongoClient> {
+    const clientOptions = {
+        serverSelectionTimeoutMS: 10000,
+        connectTimeoutMS: 10000,
+        maxPoolSize: 50,
+    };
+
+    try {
+        const client = new MongoClient(uri, clientOptions);
+        return await client.connect();
+    } catch (err: any) {
+        const isSrvTimeout = err?.code === 'ETIMEOUT' || 
+                             err?.syscall === 'querySrv' || 
+                             String(err?.message || '').includes('querySrv');
+
+        // Automatic fallback: if SRV DNS lookup fails on serverless environments, fail over to MONGODB_DIRECT_URI if configured
+        const directUri = process.env.MONGODB_DIRECT_URI;
+        if (isSrvTimeout && directUri) {
+            console.warn('[MongoDB] querySrv ETIMEOUT on SRV URI. Failing over to MONGODB_DIRECT_URI...');
+            const fallbackClient = new MongoClient(directUri, clientOptions);
+            return await fallbackClient.connect();
+        }
+        throw err;
+    }
+}
 
 function getClientPromise(): Promise<MongoClient> {
-    if (clientPromise) return clientPromise;
-
     const uri = process.env.MONGODB_URI;
     if (!uri) {
         throw new Error('Please add your MONGODB_URI environment variable to your .env file.');
     }
 
     if (process.env.NODE_ENV === 'development') {
-        let globalWithMongo = global as typeof globalThis & {
-            _mongoClientPromise?: Promise<MongoClient>;
+        const globalWithMongo = global as typeof globalThis & {
+            _mongoClientPromise?: Promise<MongoClient> | null;
         };
 
         if (!globalWithMongo._mongoClientPromise) {
-            client = new MongoClient(uri);
-            globalWithMongo._mongoClientPromise = client.connect();
+            globalWithMongo._mongoClientPromise = connectClient(uri).catch((err) => {
+                // Clear cached rejected promise so subsequent requests can retry
+                globalWithMongo._mongoClientPromise = null;
+                clientPromise = null;
+                throw err;
+            });
         }
         clientPromise = globalWithMongo._mongoClientPromise;
     } else {
-        client = new MongoClient(uri);
-        clientPromise = client.connect();
+        if (!clientPromise) {
+            clientPromise = connectClient(uri).catch((err) => {
+                clientPromise = null;
+                throw err;
+            });
+        }
     }
     return clientPromise;
 }
@@ -72,4 +116,3 @@ export async function getDb(dbName = 'Laundry'): Promise<Db> {
 export async function getMongoClient(): Promise<MongoClient> {
     return getClientPromise();
 }
-

@@ -200,7 +200,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
           background: `
             radial-gradient(circle at 20% 20%, rgba(45, 145, 235, 0.08), transparent 30%),
             radial-gradient(circle at 85% 20%, rgba(45, 145, 235, 0.10), transparent 30%),
-            linear-gradient(135deg, #f8fcff 0%, #edf7ff 55%, #e4f2ff 100%)
+            linear-gradient(135deg, #f8fafc 0%, #f8fafc 55%, #e6f8ff 100%)
           `
         }}
       >
@@ -214,18 +214,18 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
             <div className="relative z-10 space-y-5">
               {/* Header Tag */}
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#0867c8] shadow-xs">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#01BEFE] shadow-xs">
                   <Headphones className="h-5 w-5" />
                 </div>
-                <span className="text-xs font-bold uppercase tracking-[0.22em] text-[#0867c8]">
+                <span className="text-xs font-bold uppercase tracking-[0.22em] text-[#01BEFE]">
                   Dedicated Customer Care
                 </span>
               </div>
 
               {/* Serif Title */}
-              <h1 className="max-w-3xl font-serif text-4xl font-bold leading-[1.08] text-[#092d67] sm:text-5xl lg:text-[56px] tracking-tight">
+              <h1 className="max-w-3xl font-serif text-4xl font-semibold leading-[1.08] text-[#002953] sm:text-5xl lg:text-[56px] tracking-tight">
                 How Can We Help <br />
-                <span className="text-[#1677d8]">You Today?</span>
+                <span className="text-[#01BEFE]">You Today?</span>
               </h1>
 
               {/* Description */}
@@ -238,7 +238,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                 <button
                   type="button"
                   onClick={() => scrollToSection(submitQueryRef)}
-                  className="px-6 py-3 rounded-full bg-[#0867c8] hover:bg-[#0755a8] text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center gap-2"
+                  className="px-6 py-3 rounded-full bg-[#01BEFE] hover:bg-[#01BEFE] text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center gap-2"
                 >
                   <Edit3 className="w-4 h-4" />
                   <span>Submit an Issue</span>
@@ -247,9 +247,9 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                 <button
                   type="button"
                   onClick={() => setIsLiveChatOpen(true)}
-                  className="px-6 py-3 rounded-full bg-white hover:bg-blue-50 text-[#092d67] border border-blue-200 text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-2"
+                  className="px-6 py-3 rounded-full bg-white hover:bg-blue-50 text-[#002953] border border-blue-200 text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-2"
                 >
-                  <MessageSquare className="w-4 h-4 text-[#1677d8]" />
+                  <MessageSquare className="w-4 h-4 text-[#01BEFE]" />
                   <span>Start Live Chat</span>
                 </button>
               </div>
@@ -258,10 +258,10 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
             {/* RIGHT HERO AGENT ILLUSTRATION */}
             <div className="relative min-h-[340px] lg:min-h-[420px] flex items-end justify-center">
               {/* Speech bubble */}
-              <div className="absolute left-2 sm:left-6 top-8 z-30 hidden rotate-[-4deg] rounded-3xl bg-white/95 px-6 py-3.5 font-serif text-lg sm:text-xl italic text-[#092d67] shadow-xl border border-white/60 sm:block">
+              <div className="absolute left-2 sm:left-6 top-8 z-30 hidden rotate-[-4deg] rounded-3xl bg-white/95 px-6 py-3.5 font-serif text-lg sm:text-xl italic text-[#002953] shadow-xl border border-white/60 sm:block">
                 Here to
                 <br />
-                <span className="text-[#1677d8] font-bold">Help Always</span>
+                <span className="text-[#01BEFE] font-bold">Help Always</span>
               </div>
 
               {/* Support Agent Arch & Photo Container */}
@@ -283,29 +283,29 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
               {/* Floating Information Badge */}
               <div className="absolute right-0 top-4 z-30 hidden space-y-4 rounded-3xl bg-white/85 p-5 backdrop-blur-md shadow-xl border border-white/80 md:block">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#1677d8]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#01BEFE]">
                     <Truck className="h-5 w-5" />
                   </div>
-                  <span className="text-xs font-semibold text-[#092d67] leading-tight">
+                  <span className="text-xs font-semibold text-[#002953] leading-tight">
                     7 Days
                     <br />a Week
                   </span>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#1677d8]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#01BEFE]">
                     <Clock className="h-5 w-5" />
                   </div>
-                  <span className="text-xs font-semibold text-[#092d67]">
+                  <span className="text-xs font-semibold text-[#002953]">
                     07:00 – 22:00
                   </span>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#1677d8]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#01BEFE]">
                     <Heart className="h-4 w-4 fill-current" />
                   </div>
-                  <span className="text-xs font-semibold text-[#092d67] leading-tight">
+                  <span className="text-xs font-semibold text-[#002953] leading-tight">
                     London Based
                     <br />
                     Care Team
@@ -326,11 +326,11 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                 onClick={() => scrollToSection(faqRef)}
                 className="w-full group text-left bg-white/90 backdrop-blur-md flex min-h-[145px] items-center gap-5 rounded-3xl border border-white p-6 shadow-[0_10px_40px_rgba(15,76,129,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer h-full"
               >
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-[#0867c8] group-hover:bg-[#0867c8] group-hover:text-white transition-colors">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-[#01BEFE] group-hover:bg-[#01BEFE] group-hover:text-white transition-colors">
                   <FileText className="h-7 w-7" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-serif text-lg font-bold leading-tight text-[#092d67]">
+                  <h3 className="font-serif text-lg font-bold leading-tight text-[#002953]">
                     Frequently
                     <br />
                     Asked Questions
@@ -338,7 +338,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                   <p className="mt-2 text-xs sm:text-sm text-slate-500">
                     Find quick answers to common queries.
                   </p>
-                  <span className="mt-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#0867c8] text-white text-xs shadow-xs group-hover:translate-x-1 transition-transform">
+                  <span className="mt-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#01BEFE] text-white text-xs shadow-xs group-hover:translate-x-1 transition-transform">
                     →
                   </span>
                 </div>
@@ -355,11 +355,11 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                 }}
                 className="w-full group text-left bg-white/90 backdrop-blur-md flex min-h-[145px] items-center gap-5 rounded-3xl border border-white p-6 shadow-[0_10px_40px_rgba(15,76,129,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer h-full"
               >
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-[#0867c8] group-hover:bg-[#0867c8] group-hover:text-white transition-colors">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-[#01BEFE] group-hover:bg-[#01BEFE] group-hover:text-white transition-colors">
                   <Edit3 className="h-7 w-7" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-serif text-lg font-bold leading-tight text-[#092d67]">
+                  <h3 className="font-serif text-lg font-bold leading-tight text-[#002953]">
                     Submit Order
                     <br />
                     Complaint / Query
@@ -367,7 +367,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                   <p className="mt-2 text-xs sm:text-sm text-slate-500">
                     Let us know and we'll make it right.
                   </p>
-                  <span className="mt-3 flex h-7 w-7 items-center justify-center rounded-full border border-blue-500 text-[#0867c8] text-xs font-bold group-hover:translate-x-1 transition-transform">
+                  <span className="mt-3 flex h-7 w-7 items-center justify-center rounded-full border border-blue-500 text-[#01BEFE] text-xs font-bold group-hover:translate-x-1 transition-transform">
                     →
                   </span>
                 </div>
@@ -379,7 +379,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
               <button
                 type="button"
                 onClick={() => setIsLiveChatOpen(true)}
-                className="w-full group text-left flex min-h-[145px] items-center gap-5 rounded-3xl border-4 border-white bg-gradient-to-br from-[#0867c8] via-[#1677d8] to-[#1976d2] p-6 text-white shadow-[0_10px_40px_rgba(15,76,129,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer h-full"
+                className="w-full group text-left flex min-h-[145px] items-center gap-5 rounded-3xl border-4 border-white bg-gradient-to-br from-[#01BEFE] via-[#01BEFE] to-[#01BEFE] p-6 text-white shadow-[0_10px_40px_rgba(15,76,129,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer h-full"
               >
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20">
                   <Headphones className="h-7 w-7 text-white" />
@@ -391,7 +391,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                   <p className="mt-2 text-xs sm:text-sm text-blue-100">
                     Talk to our friendly care team.
                   </p>
-                  <span className="mt-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#0867c8] text-xs font-bold group-hover:translate-x-1 transition-transform">
+                  <span className="mt-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#01BEFE] text-xs font-bold group-hover:translate-x-1 transition-transform">
                     →
                   </span>
                 </div>
@@ -418,10 +418,10 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
               {/* Header with Search */}
               <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center border-b border-gray-100 pb-5">
                 <div>
-                  <span className="inline-flex rounded-lg bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0867c8]">
+                  <span className="inline-flex rounded-lg bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#01BEFE]">
                     FAQ
                   </span>
-                  <h2 className="mt-2 font-serif text-2xl font-bold text-[#092d67] sm:text-3xl">
+                  <h2 className="mt-2 font-serif text-3xl font-semibold text-[#002953] sm:text-4xl">
                     Frequently Asked Questions
                   </h2>
                   <p className="mt-1 text-xs sm:text-sm text-slate-500">
@@ -464,13 +464,13 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                         <button
                           type="button"
                           onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                          className={`w-full flex items-center gap-3 px-4 py-3.5 text-left text-xs sm:text-sm font-semibold transition-colors cursor-pointer ${isOpen ? 'bg-blue-50/80 text-[#0867c8]' : 'text-[#092d67] hover:bg-blue-50/40'
+                          className={`w-full flex items-center gap-3 px-4 py-3.5 text-left text-xs sm:text-sm font-semibold transition-colors cursor-pointer ${isOpen ? 'bg-blue-50/80 text-[#01BEFE]' : 'text-[#002953] hover:bg-blue-50/40'
                             }`}
                         >
                           <span
                             className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${isOpen
-                              ? 'bg-[#0867c8] text-white'
-                              : 'bg-blue-100 text-[#0867c8]'
+                              ? 'bg-[#01BEFE] text-white'
+                              : 'bg-blue-100 text-[#01BEFE]'
                               }`}
                           >
                             {index + 1}
@@ -479,18 +479,18 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                           <span className="flex-1 font-medium">{faq.q}</span>
 
                           <ChevronDown
-                            className={`h-5 w-5 transition-transform duration-200 text-[#0867c8] shrink-0 ${isOpen ? 'rotate-180' : ''
+                            className={`h-5 w-5 transition-transform duration-200 text-[#01BEFE] shrink-0 ${isOpen ? 'rotate-180' : ''
                               }`}
                           />
                         </button>
 
                         {isOpen && (
                           <div className="flex gap-4 p-4 sm:p-5 bg-white border-t border-blue-50 animate-in fade-in">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#01BEFE]">
                               <Truck className="h-5 w-5" />
                             </div>
                             <div className="space-y-1">
-                              <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#0867c8] bg-blue-100/60 px-2 py-0.5 rounded-md">
+                              <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#01BEFE] bg-blue-100/60 px-2 py-0.5 rounded-md">
                                 {faq.category}
                               </span>
                               <p className="text-xs sm:text-sm leading-relaxed text-slate-600">
@@ -509,7 +509,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                     <button
                       type="button"
                       onClick={() => setFaqSearchQuery('')}
-                      className="text-xs font-bold text-[#0867c8] hover:underline"
+                      className="text-xs font-bold text-[#01BEFE] hover:underline"
                     >
                       Reset Search
                     </button>
@@ -528,11 +528,11 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
               <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-[0_8px_30px_rgba(15,76,129,0.07)]">
                 <div className="bg-blue-50/80 p-5">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0867c8] text-white shadow-md">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#01BEFE] text-white shadow-md">
                       <Headphones className="h-7 w-7" />
                     </div>
                     <div>
-                      <h3 className="font-serif text-lg font-bold text-[#092d67]">
+                      <h3 className="font-serif text-lg font-bold text-[#002953]">
                         Need Immediate Help?
                       </h3>
                       <p className="mt-1 text-xs text-slate-500">
@@ -548,12 +548,12 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                     href="tel:+442012345678"
                     className="flex items-center gap-4 p-4 transition-colors hover:bg-blue-50/60"
                   >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#01BEFE]">
                       <Phone className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="font-semibold text-[#092d67]">Call Us</p>
-                      <p className="font-bold text-[#0867c8]">+44 20 1234 5678</p>
+                      <p className="font-semibold text-[#002953]">Call Us</p>
+                      <p className="font-bold text-[#01BEFE]">+44 20 1234 5678</p>
                       <p className="text-[11px] text-slate-500">Mon – Sun, 07:00 – 22:00</p>
                     </div>
                   </a>
@@ -563,12 +563,12 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                     href="mailto:care@laundelle.co.uk"
                     className="flex items-center gap-4 p-4 transition-colors hover:bg-blue-50/60"
                   >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#01BEFE]">
                       <Mail className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="font-semibold text-[#092d67]">Email Us</p>
-                      <p className="font-bold text-[#0867c8]">care@laundelle.co.uk</p>
+                      <p className="font-semibold text-[#002953]">Email Us</p>
+                      <p className="font-bold text-[#01BEFE]">care@laundelle.co.uk</p>
                       <p className="text-[11px] text-slate-500">We aim to respond within 2 hours</p>
                     </div>
                   </a>
@@ -579,28 +579,28 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                     onClick={() => setIsLiveChatOpen(true)}
                     className="w-full flex items-center gap-4 p-4 text-left transition-colors hover:bg-blue-50/60 cursor-pointer"
                   >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#0867c8]">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[#01BEFE]">
                       <MessageSquare className="w-5 h-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-[#092d67]">Live Chat</p>
+                      <p className="font-semibold text-[#002953]">Live Chat</p>
                       <p className="text-xs text-slate-500">Chat with our team in real time</p>
-                      <p className="text-[11px] font-semibold text-[#0867c8]">
+                      <p className="text-[11px] font-semibold text-[#01BEFE]">
                         Available 7 days a week
                       </p>
                     </div>
-                    <span className="text-xl font-bold text-[#0867c8]">›</span>
+                    <span className="text-xl font-bold text-[#01BEFE]">›</span>
                   </button>
                 </div>
               </div>
 
               {/* Satisfaction Guarantee Card */}
               <div className="flex items-center gap-4 rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-[#0867c8] shadow-sm border border-blue-100">
-                  <ShieldCheck className="h-6 w-6 text-[#0867c8]" />
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-[#01BEFE] shadow-sm border border-blue-100">
+                  <ShieldCheck className="h-6 w-6 text-[#01BEFE]" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-xs sm:text-sm text-[#092d67]">
+                  <h3 className="font-semibold text-xs sm:text-sm text-[#002953]">
                     100% Satisfaction Guarantee
                   </h3>
                   <p className="mt-1 text-xs leading-relaxed text-slate-500">
@@ -608,16 +608,16 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                     with a free re-wash.
                   </p>
                 </div>
-                <span className="text-xl text-[#0867c8]">›</span>
+                <span className="text-xl text-[#01BEFE]">›</span>
               </div>
 
               {/* Inspirational Slogan Card */}
               <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-50 to-blue-100/70 p-6 border border-blue-100">
                 <div className="relative z-10 space-y-1">
-                  <p className="font-serif text-lg italic text-[#0867c8] leading-tight">
+                  <p className="font-serif text-lg italic text-[#01BEFE] leading-tight">
                     "Fresh Solutions
                   </p>
-                  <p className="font-serif text-lg italic text-[#0867c8] leading-tight font-bold">
+                  <p className="font-serif text-lg italic text-[#01BEFE] leading-tight font-bold">
                     for a Brighter You."
                   </p>
                   <p className="text-[11px] text-slate-500 pt-1">
@@ -647,12 +647,12 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
             <div className="relative z-10">
               {/* Header */}
               <div>
-                <span className="inline-flex items-center gap-2 rounded-lg bg-blue-100/70 px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#0867c8]">
+                <span className="inline-flex items-center gap-2 rounded-lg bg-blue-100/70 px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#01BEFE]">
                   <FileText className="h-4 w-4" />
                   <span>Submit a Query</span>
                 </span>
 
-                <h2 className="mt-3 font-serif text-2xl font-bold text-[#092d67] sm:text-3xl">
+                <h2 className="mt-3 font-serif text-3xl font-semibold text-[#002953] sm:text-4xl">
                   Submit an Order Issue or Garment Concern
                 </h2>
 
@@ -668,7 +668,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                   <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr]">
                     {/* Select Order */}
                     <div>
-                      <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#092d67]">
+                      <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#002953]">
                         Select Associated Order
                       </label>
                       <div className="relative">
@@ -684,13 +684,13 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#0867c8]" />
+                        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#01BEFE]" />
                       </div>
                     </div>
 
                     {/* Issue Type Selector */}
                     <div>
-                      <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#092d67]">
+                      <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#002953]">
                         Issue Type
                       </label>
                       <div className="flex flex-wrap gap-2">
@@ -702,7 +702,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                               type="button"
                               onClick={() => setIssueType(type)}
                               className={`rounded-lg px-4 py-2.5 text-xs font-medium transition cursor-pointer ${isSelected
-                                ? 'border border-blue-400 bg-blue-50 text-[#0867c8] font-bold shadow-2xs'
+                                ? 'border border-blue-400 bg-blue-50 text-[#01BEFE] font-bold shadow-2xs'
                                 : 'border border-blue-100 bg-white text-slate-600 hover:border-blue-300 hover:bg-blue-50/50'
                                 }`}
                             >
@@ -716,7 +716,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
 
                   {/* Description */}
                   <div>
-                    <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#092d67]">
+                    <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#002953]">
                       Description of Issue <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -747,7 +747,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                   <div className="grid items-center gap-6 lg:grid-cols-[1fr_auto]">
                     {/* Photo Upload Box */}
                     <div>
-                      <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#092d67]">
+                      <label className="mb-2 block text-xs sm:text-sm font-semibold text-[#002953]">
                         Attach Photos{' '}
                         <span className="font-normal text-slate-500 text-xs">
                           (Optional but recommended for fabric/stain reviews)
@@ -763,10 +763,10 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                           onChange={handlePhotoUploadSim}
                         />
                         <div className="py-2">
-                          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#0867c8]">
+                          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-[#01BEFE]">
                             <Upload className="h-5 w-5" />
                           </div>
-                          <p className="mt-2 text-xs sm:text-sm font-medium text-[#092d67]">
+                          <p className="mt-2 text-xs sm:text-sm font-medium text-[#002953]">
                             Click to upload photos
                           </p>
                           <p className="mt-1 text-[11px] text-slate-400">
@@ -828,12 +828,12 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                     <span className="text-xs font-bold uppercase tracking-widest text-emerald-700 block">
                       Ticket Raised Successfully
                     </span>
-                    <h3 className="text-2xl font-serif font-bold text-[#092d67]">
+                    <h3 className="text-2xl font-serif font-bold text-[#002953]">
                       Ticket #{submittedTicket.id}
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
                       Our customer care team has received your report for{' '}
-                      <strong className="text-[#092d67]">{submittedTicket.issueType}</strong>. A
+                      <strong className="text-[#002953]">{submittedTicket.issueType}</strong>. A
                       specialist will review your details and contact you within 2 business hours.
                     </p>
                   </div>
@@ -846,7 +846,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                         setDescription('');
                         setUploadedPhotos([]);
                       }}
-                      className="bg-[#0867c8] hover:bg-[#0755a8] text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                      className="bg-[#01BEFE] hover:bg-[#01BEFE] text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
                     >
                       Submit Another Query
                     </button>
@@ -869,7 +869,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
       {/* SUCCESS TOAST */}
       {/* ========================================================= */}
       {showToast && (
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-[#092d67] px-6 py-4 text-xs sm:text-sm font-medium text-white shadow-2xl animate-in slide-in-from-bottom-4 flex items-center gap-2">
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-[#002953] px-6 py-4 text-xs sm:text-sm font-medium text-white shadow-2xl animate-in slide-in-from-bottom-4 flex items-center gap-2">
           <CheckCircle2 className="w-5 h-5 text-emerald-400" />
           <span>Your query has been submitted successfully.</span>
         </div>
@@ -882,13 +882,13 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto animate-in fade-in">
           <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[560px] max-h-[85vh] sm:max-h-[90vh] border border-blue-100 my-auto">
             {/* Modal Header */}
-            <div className="bg-[#092d67] text-white p-4 flex items-center justify-between">
+            <div className="bg-[#002953] text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-[#5ca8f5]">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-[#01BEFE]">
                     <Headphones className="w-5 h-5" />
                   </div>
-                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#092d67]" />
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#002953]" />
                 </div>
                 <div>
                   <h4 className="text-xs sm:text-sm font-bold leading-tight">Laundelle Care Team</h4>
@@ -905,7 +905,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
             </div>
 
             {/* Chat Body Messages */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#f8fcff]">
+            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#f8fafc]">
               {chatMessages.map((msg, idx) => (
                 <div
                   key={idx}
@@ -914,7 +914,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
                 >
                   <div
                     className={`max-w-[85%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${msg.sender === 'user'
-                      ? 'bg-[#0867c8] text-white rounded-tr-none shadow-xs'
+                      ? 'bg-[#01BEFE] text-white rounded-tr-none shadow-xs'
                       : 'bg-white text-slate-800 border border-blue-100 rounded-tl-none shadow-xs'
                       }`}
                   >
@@ -939,7 +939,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ orders, onNavigate }) 
               />
               <button
                 type="submit"
-                className="bg-[#0867c8] hover:bg-[#0755a8] text-white p-2.5 rounded-xl transition-colors cursor-pointer"
+                className="bg-[#01BEFE] hover:bg-[#01BEFE] text-white p-2.5 rounded-xl transition-colors cursor-pointer"
               >
                 <Send className="w-4 h-4" />
               </button>

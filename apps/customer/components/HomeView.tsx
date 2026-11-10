@@ -151,87 +151,102 @@ export const HomeView: React.FC<HomeViewProps> = ({
   return (
     <div className="w-full overflow-hidden">
       {/* =========================================
-          HERO SECTION - LAUNDELLE BESPOKE HERO
+          HERO SECTION - POSTCODE AVAILABILITY CHECKER
       ========================================= */}
       <section className="relative isolate min-h-[660px] md:min-h-[700px] lg:min-h-[740px] overflow-hidden bg-[radial-gradient(circle_at_47%_48%,#fff_0,#f9fbff_38%,#eef2f8_100%)]">
         {/* Hero Text */}
         <div className="relative z-[5] w-full md:w-[60%] lg:w-[58%] px-0 pb-16 sm:pb-20 lg:pb-24 pl-6 sm:pl-10 lg:pl-[60px] pt-6 sm:pt-9 lg:pt-11 max-md:w-full max-md:px-[25px]">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2.5 rounded-[24px] bg-[#e9f1ff] px-[16px] py-[7px] text-[12px] sm:text-[13px] lg:text-[14px] font-medium tracking-[0.3px] text-[#0751c7] shadow-2xs">
-            <span className="text-[16px] sm:text-[18px] leading-none">✧</span>
-            <span>PREMIUM LAUNDRY &amp; GARMENT CARE</span>
-          </div>
 
           {/* Heading */}
-          <h1 className="mt-[16px] sm:mt-[18px] max-w-[650px] font-serif text-[42px] sm:text-[54px] md:text-[60px] lg:text-[68px] xl:text-[74px] font-bold leading-[1.04] tracking-[-1.5px] sm:tracking-[-2.5px] text-navy">
-            Laundry,<br />
-            <span className="text-[#3778df]">beautifully</span><br />
-            taken care of.
+          <h1 className="mt-[16px] sm:mt-[18px] max-w-[650px] font-serif text-[34px] sm:text-[46px] md:text-[52px] lg:text-[60px] font-semibold leading-[1.1] tracking-tight text-[#002953]">
+            Check If We Collect From Your Doorstep
           </h1>
 
           {/* Decorative Line */}
-          <div className="my-[18px] sm:my-[22px] mt-[20px] sm:mt-[24px] h-[3px] w-[72px] bg-[linear-gradient(90deg,#1d5fd0_0_68%,#9cbdf4_68%)] rounded-full"></div>
+          <div className="my-[18px] sm:my-[22px] mt-[20px] sm:mt-[24px] h-[3px] w-[72px] bg-[linear-gradient(90deg,#01BEFE_0_68%,#9cbdf4_68%)] rounded-full"></div>
 
           {/* Description */}
-          <p className="max-w-[580px] text-[15px] sm:text-[17px] lg:text-[19px] leading-[1.55] text-[#465469]">
-            Professional laundry, dry cleaning, and garment care—
-            picked up from your doorstep and returned fresh.
+          <p className="max-w-[580px] font-sans font-normal text-base sm:text-[17px] lg:text-[18px] leading-[1.6] text-gray-600">
+            Enter your UK postcode to verify instant availability for free doorstep collection, contactless handling, and 24–48h garment return.
           </p>
 
-          {/* Unified Action Buttons & Feature Strip Component */}
-          <div className="mt-[20px] sm:mt-[30px] max-w-[620px] w-full space-y-3 sm:space-y-4">
-            {/* 1st Row: Always 2 Columns (Side-by-Side on PC & Mobile) */}
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
-              {/* Column 1: Schedule a Pickup */}
-              <button
-                onClick={onOpenSchedulePickup}
-                className="group flex h-[46px] xs:h-[52px] sm:h-[64px] lg:h-[68px] w-full items-center justify-center gap-1.5 sm:gap-[12px] rounded-[6px] sm:rounded-[7px] bg-[#0b3489] px-2 sm:px-[22px] text-[12px] xs:text-[13px] sm:text-[17px] font-semibold text-white shadow-[0_6px_18px_rgba(11,52,137,0.13)] transition hover:bg-[#082b78] cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
-              >
-                <Truck className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-[22px] sm:h-[22px] text-white shrink-0 group-hover:scale-105 transition-transform" />
-                <span className="truncate">Schedule a Pickup</span>
-              </button>
+          {/* Postcode Availability Form & Quick Badges Component */}
+          <div className="mt-[20px] sm:mt-[28px] max-w-[600px] w-full space-y-3.5 sm:space-y-4">
+            {/* Postcode Input & Check Availability Button */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleCheckPostcode();
+              }}
+              className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-3 bg-white/95 backdrop-blur-md p-2 rounded-[12px] sm:rounded-[14px] border border-gray-200/90 shadow-[0_8px_30px_rgba(26,48,88,0.08)]"
+            >
+              <div className="relative flex-1 w-full">
+                <MapPin className="w-5 h-5 text-[#01BEFE] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={postcodeQuery}
+                  onChange={(e) => {
+                    setPostcodeQuery(e.target.value.toUpperCase());
+                    if (postcodeStatus !== 'idle') setPostcodeStatus('idle');
+                  }}
+                  placeholder="e.g. PR1 2AB or M1"
+                  maxLength={10}
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50 focus:bg-white border border-slate-200 rounded-[10px] font-mono font-medium text-base text-[#002953] uppercase placeholder:font-sans placeholder:normal-case placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:border-[#01BEFE] focus:ring-2 focus:ring-[#01BEFE]/20 transition-all"
+                />
+              </div>
 
-              {/* Column 2: Explore Services */}
               <button
-                onClick={() => onNavigate('services')}
-                className="group flex h-[46px] xs:h-[52px] sm:h-[64px] lg:h-[68px] w-full items-center justify-center gap-1.5 sm:gap-[12px] rounded-[6px] sm:rounded-[7px] border-[1.5px] border-[#2d65c9] bg-white px-2 sm:px-[22px] text-[12px] xs:text-[13px] sm:text-[17px] font-semibold text-[#092e7c] transition hover:bg-[#f5f8ff] cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+                type="submit"
+                disabled={postcodeStatus === 'checking' || !postcodeQuery.trim()}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#01BEFE] hover:bg-[#00a6e0] disabled:opacity-50 text-white font-sans font-semibold text-[15px] sm:text-[16px] px-6 py-3 rounded-[10px] shadow-[0_4px_14px_rgba(1,190,254,0.35)] transition cursor-pointer active:scale-98 shrink-0 hover:-translate-y-0.5"
               >
-                <span className="truncate">Explore Services</span>
-                <ArrowRight className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-[#092e7c] shrink-0 group-hover:translate-x-1 transition-transform" />
+                {postcodeStatus === 'checking' ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Checking...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Check Availability</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
+            </form>
+
+            {/* Popular Serviced Areas Chips */}
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[12px] sm:text-[13px] font-sans text-slate-500 pt-0.5">
+              <span className="font-semibold text-slate-700">Popular serviced areas:</span>
+              {['PR1', 'PR2', 'M1', 'M4', 'BD1', 'L1', 'NW1'].map((district) => (
+                <button
+                  key={district}
+                  type="button"
+                  onClick={() => handleCheckPostcode(district)}
+                  className="px-2.5 py-1 rounded-[6px] bg-white hover:bg-[#01BEFE]/15 hover:text-[#002953] text-[#002953] font-mono font-medium text-[12px] sm:text-[13px] border border-slate-200 transition-colors cursor-pointer shadow-2xs"
+                >
+                  {district}
+                </button>
+              ))}
             </div>
 
-            {/* 2nd Row: Always 4 Columns (Side-by-Side on PC & Mobile) */}
-            <div className="w-full rounded-[10px] sm:rounded-[12px] bg-white/95 backdrop-blur-md px-1.5 xs:px-2.5 sm:px-5 lg:px-6 py-2 sm:py-3.5 shadow-[0_10px_35px_rgba(26,48,88,0.11)] border border-gray-100/90 grid grid-cols-4 items-center">
-              {/* Premium Quality Care */}
-              <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-1 sm:gap-3 border-r border-[#d7dce4] px-1 sm:px-3">
-                <ShieldCheck className="w-4 h-4 xs:w-5 xs:h-5 sm:w-[28px] sm:h-[28px] text-[#0954c7] shrink-0" strokeWidth={2.2} />
-                <span className="text-[8px] xs:text-[9.5px] sm:text-[13px] lg:text-[14px] leading-[1.1] sm:leading-[1.25] font-medium text-navy">
-                  Premium<br className="hidden sm:inline" /> Quality Care
+            {/* Micro Trust Indicators Strip */}
+            <div className="w-full rounded-[10px] sm:rounded-[12px] bg-white/95 backdrop-blur-md px-3 sm:px-5 py-3 shadow-[0_10px_35px_rgba(26,48,88,0.07)] border border-gray-100/90 grid grid-cols-3 items-center divide-x divide-[#d7dce4]">
+              <div className="flex flex-col sm:flex-row items-center justify-center text-center sm:text-left gap-1 sm:gap-2 px-1 sm:px-2">
+                <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-[#01BEFE] shrink-0" strokeWidth={2.2} />
+                <span className="text-[10px] xs:text-[11px] sm:text-[13px] font-medium text-[#002953] leading-tight">
+                  Fast Doorstep Pickup
                 </span>
               </div>
-
-              {/* On-Time Delivery */}
-              <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-1 sm:gap-3 border-r border-[#d7dce4] px-1 sm:px-3">
-                <Clock className="w-4 h-4 xs:w-5 xs:h-5 sm:w-[26px] sm:h-[26px] text-[#0954c7] shrink-0" strokeWidth={2.2} />
-                <span className="text-[8px] xs:text-[9.5px] sm:text-[13px] lg:text-[14px] leading-[1.1] sm:leading-[1.25] font-medium text-navy">
-                  On-Time<br className="hidden sm:inline" /> Delivery
+              <div className="flex flex-col sm:flex-row items-center justify-center text-center sm:text-left gap-1 sm:gap-2 px-1 sm:px-2">
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-[#01BEFE] shrink-0" strokeWidth={2.2} />
+                <span className="text-[10px] xs:text-[11px] sm:text-[13px] font-medium text-[#002953] leading-tight">
+                  24–48h Return
                 </span>
               </div>
-
-              {/* Free Pickup */}
-              <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-1 sm:gap-3 border-r border-[#d7dce4] px-1 sm:px-3">
-                <Truck className="w-4 h-4 xs:w-5 xs:h-5 sm:w-[28px] sm:h-[28px] text-[#0954c7] shrink-0" strokeWidth={2.2} />
-                <span className="text-[8px] xs:text-[9.5px] sm:text-[13px] lg:text-[14px] leading-[1.1] sm:leading-[1.25] font-medium text-navy">
-                  Free<br className="hidden sm:inline" /> Pickup
-                </span>
-              </div>
-
-              {/* Eco-Friendly Process */}
-              <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-1 sm:gap-3 px-1 sm:px-3">
-                <Leaf className="w-4 h-4 xs:w-5 xs:h-5 sm:w-[26px] sm:h-[26px] text-[#0954c7] shrink-0" strokeWidth={2.2} />
-                <span className="text-[8px] xs:text-[9.5px] sm:text-[13px] lg:text-[14px] leading-[1.1] sm:leading-[1.25] font-medium text-navy">
-                  Eco-Friendly<br className="hidden sm:inline" /> Process
+              <div className="flex flex-col sm:flex-row items-center justify-center text-center sm:text-left gap-1 sm:gap-2 px-1 sm:px-2">
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#01BEFE] shrink-0" strokeWidth={2.2} />
+                <span className="text-[10px] xs:text-[11px] sm:text-[13px] font-medium text-[#002953] leading-tight">
+                  100% Sanitized Garment Care
                 </span>
               </div>
             </div>
@@ -279,124 +294,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="absolute -bottom-[72px] left-0 h-[105px] w-full rotate-[2deg] rounded-[50%_50%_0_0] bg-[#9fc2f6] opacity-90"></div>
         </div>
       </section>
-
-      {/* =========================================================================
-          POSTCODE AVAILABILITY CHECKER SECTION (RESPONSIVE IMAGE & NESTED BUTTON)
-      ========================================================================= */}
-      <ScrollReveal yOffset={32} className="w-full">
-        <section className="relative w-full min-h-screen md:h-screen flex flex-col justify-center items-center bg-gradient-to-r from-[#eef5ff] via-[#f7faff] to-[#e4f0ff] py-12 sm:py-16 overflow-hidden">
-          {/* Subtle ambient light shapes */}
-          <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-200/40 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-300/30 rounded-full blur-3xl pointer-events-none" />
-
-          {/* Desktop & Tablet Background Image (Covers whole section on big screens, hidden on mobile) */}
-          <div className="hidden md:block absolute inset-0 z-0 pointer-events-none select-none">
-            <Image
-              src="/Postcode-Checker-Image.png"
-              alt="Postcode Checker Background"
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-center w-full h-full"
-            />
-          </div>
-
-          <div className="relative z-10 w-full px-4 sm:px-8 md:px-12 lg:px-16 max-w-7xl mx-auto my-auto">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8 lg:gap-12 xl:gap-16">
-              {/* Left Column: Heading, Subtitle, Mobile Image, Input Bar, Chips */}
-              <div className="w-full md:w-7/12 lg:w-3/5 text-center md:text-left flex flex-col items-center md:items-start">
-                {/* Blue Accent Pill */}
-                <div className="w-14 h-2 bg-[#0066f5] rounded-full mb-4 sm:mb-5" />
-
-                {/* Headline */}
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-black text-[#0a192f] tracking-tight leading-[1.15]">
-                  Check Postcode & <br /><span className="text-[#0066f5]">Service Availability</span>
-                </h2>
-
-                {/* Subtitle */}
-                <p className="text-sm sm:text-base md:text-lg text-gray-500 font-medium max-w-xl leading-relaxed mt-3 sm:mt-4">
-                  Check if Laundelle delivers to your doorstep and explore all available laundry and dry cleaning services in your neighborhood.
-                </p>
-
-                {/* Mobile Phone Only: 3D Delivery Driver Illustration ABOVE the Input Box */}
-                <div className="block md:hidden my-6 w-full max-w-[320px] sm:max-w-[380px] mx-auto">
-                  <Image
-                    src={getOptimizedImageUrl(LAUNDELLE_IMAGES.postcodeDriver)}
-                    alt={LAUNDELLE_IMAGES.postcodeDriver.alt}
-                    width={380}
-                    height={380}
-                    loading="lazy"
-                    className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-md"
-                  />
-                </div>
-
-                {/* Search Input Bar (White Rounded-Full Pill) with Check Button INSIDE on the Right Side */}
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleCheckPostcode();
-                  }}
-                  className="mt-4 sm:mt-6 md:mt-8 w-full max-w-xl"
-                >
-                  <div className="flex flex-row items-center p-1.5 sm:p-2 bg-white rounded-full border border-gray-200/90 shadow-[0_12px_35px_rgba(0,0,0,0.07)] w-full transition-all focus-within:ring-2 focus-within:ring-[#0066f5]/30 focus-within:border-[#0066f5]">
-                    <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 shrink-0 ml-2.5 sm:ml-4 stroke-[1.8]" />
-                    <input
-                      type="text"
-                      value={postcodeQuery}
-                      onChange={(e) => {
-                        setPostcodeQuery(e.target.value.toUpperCase());
-                        if (postcodeStatus !== 'idle') setPostcodeStatus('idle');
-                      }}
-                      placeholder="ENTER YOUR POSTCODE"
-                      className="flex-1 min-w-0 px-2.5 sm:px-3.5 h-11 sm:h-13 bg-transparent text-xs sm:text-sm md:text-base font-bold text-[#0a192f] placeholder:text-gray-400 placeholder:font-semibold tracking-wider uppercase focus:outline-none"
-                    />
-
-                    {/* Button nested INSIDE the input box on the right side */}
-                    <button
-                      type="submit"
-                      disabled={postcodeStatus === 'checking' || !postcodeQuery.trim()}
-                      className="shrink-0 h-10 sm:h-12 md:h-13 px-3.5 sm:px-6 md:px-8 bg-[#0066f5] hover:bg-[#0052cc] text-white font-bold text-xs sm:text-sm md:text-base rounded-full shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 active:scale-98 disabled:opacity-60"
-                    >
-                      {postcodeStatus === 'checking' ? (
-                        <>
-                          <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                          <span className="hidden xs:inline">Checking...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-                          <span className="hidden xs:inline sm:inline">Check Availability</span>
-                          <span className="xs:hidden">Check</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-
-                {/* Dynamically Loaded Supported Areas */}
-                {activeDistricts.length > 0 && (
-                  <div className="mt-5 sm:mt-6 flex items-center gap-2 flex-wrap text-xs sm:text-sm justify-center md:justify-start">
-                    <span className="font-semibold text-gray-500">Active Coverage Areas:</span>
-                    {activeDistricts.slice(0, 6).map((district) => (
-                      <button
-                        key={district}
-                        type="button"
-                        onClick={() => handleCheckPostcode(district)}
-                        className="px-3.5 sm:px-4 py-1.5 rounded-full bg-[#eaf2ff] hover:bg-[#d8e7ff] text-[#0066f5] font-bold text-xs sm:text-sm transition-colors cursor-pointer active:scale-95"
-                      >
-                        {district}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Right Column Spacer: Reserves visual balance on big screens so the background driver illustration is clear */}
-              <div className="hidden md:flex md:w-5/12 lg:w-2/5 justify-center items-center pl-2 lg:pl-6 pointer-events-none" />
-            </div>
-          </div>
-        </section>
-      </ScrollReveal>
 
       {/* =========================================================================
           POSTCODE CHECK AVAILABILITY RESULTS MODAL
@@ -448,8 +345,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 {/* Services Grid */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                    <h4 className="text-xs sm:text-sm font-extrabold text-[#03045E] uppercase tracking-wider flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-[#0077B6]" />
+                    <h4 className="text-xs sm:text-sm font-extrabold text-[#002953] uppercase tracking-wider flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-[#01BEFE]" />
                       <span>Services Available for {postcodeQuery}</span>
                     </h4>
                     <button
@@ -458,7 +355,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         setResultModalOpen(false);
                         onNavigate('services');
                       }}
-                      className="text-xs font-bold text-[#0077B6] hover:underline"
+                      className="text-xs font-bold text-[#01BEFE] hover:underline"
                     >
                       View full price list →
                     </button>
@@ -496,17 +393,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
                             />
                           </div>
                           <div>
-                            <h5 className="text-xs font-bold text-[#03045E] line-clamp-1 group-hover:text-[#0077B6] transition-colors">
+                            <h5 className="text-xs font-bold text-[#002953] line-clamp-1 group-hover:text-[#01BEFE] transition-colors">
                               {svc.name}
                             </h5>
-                            <p className="text-[11px] font-bold text-[#0077B6] mt-0.5">
+                            <p className="text-[11px] font-bold text-[#01BEFE] mt-0.5">
                               from £{(svc.price || svc.basePrice || 0).toFixed(2)}
                             </p>
                           </div>
                         </div>
-                        <div className="mt-2 pt-1.5 border-t border-gray-50 flex items-center justify-between text-[10px] font-semibold text-gray-500 group-hover:text-[#03045E]">
+                        <div className="mt-2 pt-1.5 border-t border-gray-50 flex items-center justify-between text-[10px] font-semibold text-gray-500 group-hover:text-[#002953]">
                           <span>Select</span>
-                          <ArrowRight className="w-3 h-3 text-[#0077B6]" />
+                          <ArrowRight className="w-3 h-3 text-[#01BEFE]" />
                         </div>
                       </div>
                     ))}
@@ -528,7 +425,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       setResultModalOpen(false);
                       onOpenSchedulePickup();
                     }}
-                    className="px-6 py-3 bg-[#0066f5] hover:bg-[#0052cc] text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer active:scale-98"
+                    className="px-6 py-3 bg-[#01BEFE] hover:bg-[#01BEFE] text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer active:scale-98"
                   >
                     <Calendar className="w-4 h-4" />
                     <span>Book Collection Now</span>
@@ -609,10 +506,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Content Wrapper */}
           <div className="relative z-10 w-full px-6 sm:px-12 md:px-20 lg:px-28">
             <div className="text-center space-y-2 mb-8 sm:mb-10">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#0077B6] block">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#01BEFE] block">
                 Tailored with care for every fabric
               </span>
-              <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-[#03045E]">
+              <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-serif font-semibold text-[#002953] tracking-tight">
                 Our Popular Laundry & Care Services
               </h2>
             </div>
@@ -640,7 +537,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-70" />
                     {service.popular && (
-                      <span className="absolute top-3 left-3 bg-[#03045E] text-[#CAF0F8] text-[10px] font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow-md">
+                      <span className="absolute top-3 left-3 bg-[#002953] text-[#01BEFE] text-[10px] font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow-md">
                         Popular
                       </span>
                     )}
@@ -654,7 +551,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
                   <div className="px-6 py-5 sm:px-8 sm:py-6 lg:px-6 lg:py-5 flex-1 flex flex-col justify-between text-left space-y-4">
                     <div>
-                      <h3 className="text-sm sm:text-base font-extrabold text-gray-900 line-clamp-1 group-hover:text-[#03045E] transition-colors">
+                      <h3 className="text-lg sm:text-xl font-sans font-semibold text-[#002953] line-clamp-1 group-hover:text-[#01BEFE] transition-colors">
                         {service.name}
                       </h3>
                       <p className="text-xs text-gray-500 mt-1.5 line-clamp-2 min-h-[34px] leading-relaxed">
@@ -664,12 +561,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
                     <div className="pt-3 flex items-center justify-between border-t border-gray-100">
                       <div>
-                        <span className="text-sm sm:text-base font-extrabold text-[#03045E]">£{service.price.toFixed(2)}</span>
+                        <span className="text-sm sm:text-base font-extrabold text-[#002953]">£{service.price.toFixed(2)}</span>
                         <span className="text-xs text-gray-400 font-normal ml-0.5">/{service.unit.replace('per ', '')}</span>
                       </div>
                       <button
                         onClick={() => onSelectService(service)}
-                        className="inline-flex items-center gap-1.5 bg-[#CAF0F8] hover:bg-[#03045E] text-[#03045E] hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs hover:shadow-sm active:scale-95"
+                        className="inline-flex items-center gap-1.5 bg-[#01BEFE] hover:bg-[#00a6e0] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs hover:shadow-sm active:scale-95"
                       >
                         <span>Book</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -684,10 +581,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="text-center mt-8 sm:mt-10">
             <button
               onClick={() => onNavigate('services')}
-              className="inline-flex items-center gap-2 bg-[#03045E] hover:bg-[#023E8A] text-white px-7 py-3.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer hover:shadow-lg"
+              className="inline-flex items-center gap-2 bg-[#01BEFE] hover:bg-[#00a6e0] text-white px-7 py-3.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer hover:shadow-lg"
             >
               <span>View All Laundry & Dry Clean Categories</span>
-              <ArrowRight className="w-4 h-4 text-[#48CAE4]" />
+              <ArrowRight className="w-4 h-4 text-white" />
             </button>
           </div>
         </section>
@@ -698,184 +595,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
           onBookPickup={onOpenSchedulePickup}
           onBookService={onBookService}
         />
-      </ScrollReveal>
-
-      {/* Full-Width White Promotional Hero Section */}
-      <ScrollReveal yOffset={28} className="w-full">
-        <section className="w-full bg-white text-gray-900 flex items-center justify-center relative overflow-hidden py-12 sm:py-16">
-          {/* Subtle decorative background ambient glows for white theme */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-50/40 rounded-full blur-3xl pointer-events-none -z-0" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-sky-50/30 rounded-full blur-3xl pointer-events-none -z-0" />
-
-          <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 lg:px-16 relative z-10 py-4">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-
-              {/* Left Content Column */}
-              <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
-
-                {/* Limited Time Offer Pill */}
-                <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-blue-50/90 border border-blue-200/80 text-[#0077B6] shadow-xs">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0077B6] opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0077B6]" />
-                  </span>
-                  <Tag className="w-3.5 h-3.5 text-[#0077B6]" />
-                  <span className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-[#03045E]">
-                    LIMITED TIME OFFER
-                  </span>
-                </div>
-
-                {/* Main Headline */}
-                <div className="space-y-3">
-                  <h2 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-heading font-black text-[#03045E] tracking-tight leading-[1.08]">
-                    Flat{' '}
-                    <span className="bg-gradient-to-r from-[#0077B6] via-[#0096C7] to-[#00B4D8] bg-clip-text text-transparent underline decoration-[#90E0EF]/60 decoration-wavy decoration-2 underline-offset-8">
-                      20% OFF
-                    </span>{' '}
-                    Your First Laundry Order
-                  </h2>
-                  <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed font-normal max-w-2xl mx-auto lg:mx-0">
-                    Use promo code below at checkout. Includes free doorstep pickup and premium organic wash.
-                  </p>
-                </div>
-
-                {/* Promo Code Box (Voucher Ticket Style) */}
-                <div className="max-w-xl mx-auto lg:mx-0">
-                  <div className="p-4 sm:p-5 rounded-2xl bg-[#F8FAFC] border-2 border-dashed border-[#0096C7]/40 hover:border-[#0077B6] transition-all">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 text-left w-full sm:w-auto">
-                        <div className="w-11 h-11 rounded-xl bg-[#03045E] text-white flex items-center justify-center shrink-0 shadow-md">
-                          <Sparkles className="w-5 h-5 text-[#48CAE4]" />
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block">
-                            Checkout Promo Code
-                          </span>
-                          <span className="text-2xl sm:text-3xl font-mono font-black text-[#03045E] tracking-widest">
-                            WELCOME20
-                          </span>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={handleCopyCoupon}
-                        className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer shadow-sm active:scale-95 ${copiedCoupon
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-[#03045E] hover:bg-[#0077B6] text-white'
-                          }`}
-                      >
-                        {copiedCoupon ? (
-                          <>
-                            <Check className="w-4 h-4 text-white" />
-                            <span>Copied to Clipboard!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span>Copy Promo Code</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    {copiedCoupon && (
-                      <div className="mt-3 pt-3 border-t border-gray-200/60 flex items-center justify-center sm:justify-start gap-2 text-xs font-semibold text-emerald-700">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        <span>Coupon code copied! Paste at checkout to get 20% off.</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Call to Action Button */}
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                  <button
-                    onClick={onOpenSchedulePickup}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#03045E] hover:bg-[#023E8A] text-white px-9 py-4 rounded-2xl text-sm sm:text-base font-extrabold shadow-xl shadow-[#03045E]/25 hover:shadow-2xl hover:scale-[1.02] active:scale-98 transition-all cursor-pointer group"
-                  >
-                    <span>Claim 20% Discount Now</span>
-                    <ArrowRight className="w-4 h-4 text-[#48CAE4] group-hover:translate-x-1 transition-transform" />
-                  </button>
-                  <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-                    <Clock className="w-3.5 h-3.5 text-gray-400" />
-                    <span>Book in 60s • Pickup as early as today</span>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Right Visual Column (Luxury Showcase on White) */}
-              <div className="lg:col-span-5 relative flex items-center justify-center">
-
-                {/* Decorative clean circular accent ring */}
-                <div className="absolute w-[320px] sm:w-[420px] lg:w-[460px] h-[320px] sm:h-[420px] lg:h-[460px] rounded-full border border-gray-200/80 -z-0 pointer-events-none" />
-                <div className="absolute w-[360px] sm:w-[470px] lg:w-[510px] h-[360px] sm:h-[470px] lg:h-[510px] rounded-full border border-dashed border-[#0096C7]/20 -z-0 pointer-events-none" />
-
-                {/* Main Image Card */}
-                <div className="relative z-10 w-full max-w-[420px] rounded-3xl overflow-hidden shadow-2xl border-4 border-white ring-1 ring-gray-100 bg-white group">
-                  <div className="w-full h-[360px] sm:h-[440px] relative overflow-hidden">
-                    <Image
-                      src="https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=1000&q=80"
-                      alt="Freshly Laundered Luxury Garments"
-                      fill
-                      loading="lazy"
-                      sizes="(max-width: 768px) 100vw, 420px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-
-                    {/* Subtle bottom tag in image */}
-                    <div className="absolute bottom-4 left-4 right-4 text-white">
-                      <span className="text-[10px] font-extrabold uppercase tracking-widest bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30">
-                        Signature Care
-                      </span>
-                      <p className="text-xs font-semibold text-white/95 mt-1.5 drop-shadow-sm">
-                        Crisp, odor-free, wrinkle-free garments ready to wear
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Floating Discount Badge */}
-                <div className="absolute -top-4 -left-2 sm:-top-6 sm:-left-6 z-20 w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-[#03045E] text-white flex flex-col items-center justify-center text-center shadow-2xl p-2.5 -rotate-6 hover:rotate-0 transition-transform duration-300 border-2 border-white">
-                  <span className="text-2xl sm:text-3xl font-black font-heading leading-none">
-                    20%
-                  </span>
-                  <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-widest text-[#48CAE4] mt-0.5">
-                    OFF
-                  </span>
-                  <span className="text-[8px] sm:text-[9px] uppercase tracking-wider text-gray-300 font-semibold mt-0.5">
-                    First Order
-                  </span>
-                </div>
-
-                {/* Floating Trust Card Bottom Right */}
-                <div className="absolute -bottom-5 -right-2 sm:-bottom-6 sm:-right-4 z-20 bg-white rounded-2xl p-3.5 sm:p-4 shadow-xl border border-gray-100 flex items-center gap-3 max-w-[240px]">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 shadow-xs">
-                    <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs font-extrabold text-gray-900">4.9 / 5.0</span>
-                      <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1 rounded">Top Rated</span>
-                    </div>
-                    <p className="text-[10px] text-gray-500 mt-0.5 leading-tight">
-                      Trusted by 10,000+ local homes
-                    </p>
-                  </div>
-                </div>
-
-                {/* Floating Free Pickup Chip Top Right */}
-                <div className="hidden sm:flex absolute top-12 -right-4 z-20 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3.5 shadow-lg border border-gray-100 items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[11px] font-bold text-gray-800">Free Doorstep Pickup</span>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-        </section>
       </ScrollReveal>
 
       <ScrollReveal yOffset={24} className="w-full">
@@ -889,17 +608,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
             <div className="space-y-6">
               <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-[#03045E] block">
+                <span className="text-xs font-bold uppercase tracking-widest text-[#002953] block">
                   The Smarter Way to Clean
                 </span>
-                <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-[#03045E]">
-                  Why 10,000+ Households Choose <span className="text-[#03045E]">LAUN</span><span className="text-[#00B4D8]">DELLE</span>
+                <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-serif font-semibold text-[#002953] tracking-tight">
+                  Why 10,000+ Households Choose <span className="text-[#002953]">LAUN</span><span className="text-[#01BEFE]">DELLE</span>
                 </h2>
               </div>
 
               <div className="space-y-4">
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#CAF0F8] text-[#03045E] flex items-center justify-center shrink-0 shadow-xs">
+                  <div className="w-12 h-12 rounded-2xl bg-[#01BEFE]/15 text-[#002953] flex items-center justify-center shrink-0 shadow-xs">
                     <Users className="w-6 h-6" />
                   </div>
                   <div>
@@ -911,7 +630,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#CAF0F8] text-[#03045E] flex items-center justify-center shrink-0 shadow-xs">
+                  <div className="w-12 h-12 rounded-2xl bg-[#01BEFE]/15 text-[#002953] flex items-center justify-center shrink-0 shadow-xs">
                     <Clock className="w-6 h-6" />
                   </div>
                   <div>
@@ -923,7 +642,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#CAF0F8] text-[#03045E] flex items-center justify-center shrink-0 shadow-xs">
+                  <div className="w-12 h-12 rounded-2xl bg-[#01BEFE]/15 text-[#002953] flex items-center justify-center shrink-0 shadow-xs">
                     <UserCheck className="w-6 h-6" />
                   </div>
                   <div>
@@ -935,7 +654,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#CAF0F8] text-[#03045E] flex items-center justify-center shrink-0 shadow-xs">
+                  <div className="w-12 h-12 rounded-2xl bg-[#01BEFE]/15 text-[#002953] flex items-center justify-center shrink-0 shadow-xs">
                     <Leaf className="w-6 h-6" />
                   </div>
                   <div>
@@ -950,41 +669,41 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             <div className="grid grid-cols-2 gap-5">
               <div className="p-7 rounded-3xl bg-white shadow-sm flex flex-col justify-between gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#CAF0F8] text-[#03045E] flex items-center justify-center">
-                  <Users className="w-6 h-6 text-[#03045E]" />
+                <div className="w-12 h-12 rounded-2xl bg-[#01BEFE]/15 text-[#002953] flex items-center justify-center">
+                  <Users className="w-6 h-6 text-[#002953]" />
                 </div>
                 <div>
-                  <strong className="text-3xl sm:text-4xl font-heading font-extrabold text-[#03045E] block">10,000+</strong>
+                  <strong className="text-3xl sm:text-4xl font-heading font-extrabold text-[#002953] block">10,000+</strong>
                   <p className="text-xs text-gray-500 font-medium mt-1">Happy Active Customers</p>
                 </div>
               </div>
 
               <div className="p-7 rounded-3xl bg-white shadow-sm flex flex-col justify-between gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#CAF0F8] text-[#03045E] flex items-center justify-center">
-                  <ShoppingBag className="w-6 h-6 text-[#03045E]" />
+                <div className="w-12 h-12 rounded-2xl bg-[#01BEFE]/15 text-[#002953] flex items-center justify-center">
+                  <ShoppingBag className="w-6 h-6 text-[#002953]" />
                 </div>
                 <div>
-                  <strong className="text-3xl sm:text-4xl font-heading font-extrabold text-[#03045E] block">50,000+</strong>
+                  <strong className="text-3xl sm:text-4xl font-heading font-extrabold text-[#002953] block">50,000+</strong>
                   <p className="text-xs text-gray-500 font-medium mt-1">Garments Cleaned</p>
                 </div>
               </div>
 
               <div className="p-7 rounded-3xl bg-white shadow-sm flex flex-col justify-between gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#CAF0F8] text-[#03045E] flex items-center justify-center">
-                  <MapPin className="w-6 h-6 text-[#03045E]" />
+                <div className="w-12 h-12 rounded-2xl bg-[#01BEFE]/15 text-[#002953] flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-[#002953]" />
                 </div>
                 <div>
-                  <strong className="text-3xl sm:text-4xl font-heading font-extrabold text-[#03045E] block">25+</strong>
+                  <strong className="text-3xl sm:text-4xl font-heading font-extrabold text-[#002953] block">25+</strong>
                   <p className="text-xs text-gray-500 font-medium mt-1">City Hub Locations</p>
                 </div>
               </div>
 
               <div className="p-7 rounded-3xl bg-white shadow-sm flex flex-col justify-between gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#CAF0F8] text-[#03045E] flex items-center justify-center">
-                  <Smile className="w-6 h-6 text-[#03045E]" />
+                <div className="w-12 h-12 rounded-2xl bg-[#01BEFE]/15 text-[#002953] flex items-center justify-center">
+                  <Smile className="w-6 h-6 text-[#002953]" />
                 </div>
                 <div>
-                  <strong className="text-3xl sm:text-4xl font-heading font-extrabold text-[#03045E] block">99.4%</strong>
+                  <strong className="text-3xl sm:text-4xl font-heading font-extrabold text-[#002953] block">99.4%</strong>
                   <p className="text-xs text-gray-500 font-medium mt-1">Satisfaction Rate</p>
                 </div>
               </div>
@@ -1016,24 +735,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
           }
         `}</style>
 
-          <div className="w-full relative isolate bg-gradient-to-br from-[#0B176F] via-[#050A5C] to-[#020530] rounded-[40px] p-6 sm:p-10 lg:p-14 shadow-2xl overflow-hidden space-y-8 border border-white/10">
+          <div className="w-full relative isolate bg-gradient-to-br from-[#002953] via-[#002953] to-[#002953] rounded-[40px] p-6 sm:p-10 lg:p-14 shadow-2xl overflow-hidden space-y-8 border border-white/10">
 
             {/* Animated Wave Background */}
             <div className="absolute bottom-0 left-0 w-full overflow-hidden h-[120px] sm:h-[180px] z-0 pointer-events-none">
-              <svg className="sweep-wave-1 absolute bottom-0 h-full fill-[#12C8F4]/20" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <svg className="sweep-wave-1 absolute bottom-0 h-full fill-[#01BEFE]/20" viewBox="0 0 1200 120" preserveAspectRatio="none">
                 <path d="M0,0 C150,100 350,0 600,50 C850,100 1050,0 1200,50 L1200,120 L0,120 Z M1200,50 C1350,100 1550,0 1800,50 C2050,100 2250,0 2400,50 L2400,120 L1200,120 Z" />
               </svg>
-              <svg className="sweep-wave-2 absolute bottom-0 h-[80%] fill-[#6ED8FF]/20" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <svg className="sweep-wave-2 absolute bottom-0 h-[80%] fill-[#01BEFE]/20" viewBox="0 0 1200 120" preserveAspectRatio="none">
                 <path d="M0,50 C150,0 350,100 600,50 C850,0 1050,100 1200,50 L1200,120 L0,120 Z M1200,50 C1350,0 1550,100 1800,50 C2050,0 2250,100 2400,50 L2400,120 L1200,120 Z" />
               </svg>
             </div>
 
             <div className="relative z-10 text-center space-y-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#6ED8FF] block">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#01BEFE] block">
                 The Quality Difference
               </span>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-white">
-                Why Switch to <span className="text-white">LAUN</span><span className="text-[#48CAE4]">DELLE</span>?
+              <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-serif font-semibold text-white tracking-tight">
+                Why Switch to <span className="text-white">LAUN</span><span className="text-[#01BEFE]">DELLE</span>?
               </h2>
               <p className="text-sm text-blue-100/70 max-w-2xl mx-auto pt-2">
                 Don't compromise on your fabrics. See how our premium doorstep service compares to local dhobis and traditional laundromats.
@@ -1053,7 +772,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       <span className="hidden sm:inline">Self-Service Laundromat</span>
                       <span className="sm:hidden text-[9px]">DIY</span>
                     </th>
-                    <th className="py-4 px-3 sm:py-5 sm:px-6 bg-[#12C8F4]/20 text-[#6ED8FF] font-extrabold text-center sm:text-left leading-tight">
+                    <th className="py-4 px-3 sm:py-5 sm:px-6 bg-[#01BEFE]/20 text-[#01BEFE] font-extrabold text-center sm:text-left leading-tight">
                       <span className="hidden sm:inline">Laundelle Doorstep</span>
                       <span className="sm:hidden text-[10px]">Laundelle</span>
                     </th>
@@ -1070,11 +789,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       <span className="hidden sm:inline">You must carry loads yourself</span>
                       <XCircle className="w-5 h-5 text-red-400/80 sm:hidden mx-auto" />
                     </td>
-                    <td className="py-3 px-3 sm:py-4 sm:px-6 bg-[#12C8F4]/10 font-bold text-[#6ED8FF] text-center sm:text-left">
+                    <td className="py-3 px-3 sm:py-4 sm:px-6 bg-[#01BEFE]/10 font-bold text-[#01BEFE] text-center sm:text-left">
                       <span className="hidden sm:inline-flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#12C8F4]" /> Free 30-min slots
+                        <CheckCircle2 className="w-4 h-4 text-[#01BEFE]" /> Free 30-min slots
                       </span>
-                      <CheckCircle2 className="w-5 h-5 text-[#12C8F4] sm:hidden mx-auto" />
+                      <CheckCircle2 className="w-5 h-5 text-[#01BEFE] sm:hidden mx-auto" />
                     </td>
                   </tr>
                   <tr className="hover:bg-white/5 transition-colors text-[10px] sm:text-sm">
@@ -1087,11 +806,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       <span className="hidden sm:inline">Shared unsterilized washers</span>
                       <XCircle className="w-5 h-5 text-red-400/80 sm:hidden mx-auto" />
                     </td>
-                    <td className="py-3 px-3 sm:py-4 sm:px-6 bg-[#12C8F4]/10 font-bold text-[#6ED8FF] text-center sm:text-left">
+                    <td className="py-3 px-3 sm:py-4 sm:px-6 bg-[#01BEFE]/10 font-bold text-[#01BEFE] text-center sm:text-left">
                       <span className="hidden sm:inline-flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#12C8F4]" /> 100% Dedicated Wash
+                        <CheckCircle2 className="w-4 h-4 text-[#01BEFE]" /> 100% Dedicated Wash
                       </span>
-                      <CheckCircle2 className="w-5 h-5 text-[#12C8F4] sm:hidden mx-auto" />
+                      <CheckCircle2 className="w-5 h-5 text-[#01BEFE] sm:hidden mx-auto" />
                     </td>
                   </tr>
                   <tr className="hover:bg-white/5 transition-colors text-[10px] sm:text-sm">
@@ -1104,11 +823,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       <span className="hidden sm:inline">Standard generic soaps</span>
                       <XCircle className="w-5 h-5 text-red-400/80 sm:hidden mx-auto" />
                     </td>
-                    <td className="py-3 px-3 sm:py-4 sm:px-6 bg-[#12C8F4]/10 font-bold text-[#6ED8FF] text-center sm:text-left">
+                    <td className="py-3 px-3 sm:py-4 sm:px-6 bg-[#01BEFE]/10 font-bold text-[#01BEFE] text-center sm:text-left">
                       <span className="hidden sm:inline-flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#12C8F4]" /> Organic Enzyme, zero smell
+                        <CheckCircle2 className="w-4 h-4 text-[#01BEFE]" /> Organic Enzyme, zero smell
                       </span>
-                      <CheckCircle2 className="w-5 h-5 text-[#12C8F4] sm:hidden mx-auto" />
+                      <CheckCircle2 className="w-5 h-5 text-[#01BEFE] sm:hidden mx-auto" />
                     </td>
                   </tr>
                   <tr className="hover:bg-white/5 transition-colors text-[10px] sm:text-sm">
@@ -1121,11 +840,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       <span className="hidden sm:inline">Unironed or wrinkled</span>
                       <XCircle className="w-5 h-5 text-red-400/80 sm:hidden mx-auto" />
                     </td>
-                    <td className="py-3 px-3 sm:py-4 sm:px-6 bg-[#12C8F4]/10 font-bold text-[#6ED8FF] text-center sm:text-left">
+                    <td className="py-3 px-3 sm:py-4 sm:px-6 bg-[#01BEFE]/10 font-bold text-[#01BEFE] text-center sm:text-left">
                       <span className="hidden sm:inline-flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#12C8F4]" /> Italian Vacuum Steam
+                        <CheckCircle2 className="w-4 h-4 text-[#01BEFE]" /> Italian Vacuum Steam
                       </span>
-                      <CheckCircle2 className="w-5 h-5 text-[#12C8F4] sm:hidden mx-auto" />
+                      <CheckCircle2 className="w-5 h-5 text-[#01BEFE] sm:hidden mx-auto" />
                     </td>
                   </tr>
                   <tr className="hover:bg-white/5 transition-colors text-[10px] sm:text-sm">
@@ -1138,11 +857,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       <span className="hidden sm:inline">N/A</span>
                       <XCircle className="w-5 h-5 text-red-400/80 sm:hidden mx-auto" />
                     </td>
-                    <td className="py-3 px-3 sm:py-4 sm:px-6 bg-[#12C8F4]/10 font-bold text-[#6ED8FF] text-center sm:text-left">
+                    <td className="py-3 px-3 sm:py-4 sm:px-6 bg-[#01BEFE]/10 font-bold text-[#01BEFE] text-center sm:text-left">
                       <span className="hidden sm:inline-flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#12C8F4]" /> Real-Time App Tracking
+                        <CheckCircle2 className="w-4 h-4 text-[#01BEFE]" /> Real-Time App Tracking
                       </span>
-                      <CheckCircle2 className="w-5 h-5 text-[#12C8F4] sm:hidden mx-auto" />
+                      <CheckCircle2 className="w-5 h-5 text-[#01BEFE] sm:hidden mx-auto" />
                     </td>
                   </tr>
                 </tbody>
@@ -1158,10 +877,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <ScrollReveal yOffset={28} className="w-full">
         <section className="w-full bg-[#f8fafc] py-12 sm:py-16 px-6 sm:px-12 md:px-20 lg:px-28">
           <div className="text-center space-y-2 mb-10">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#0077B6] block">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#01BEFE] block">
               Real Experiences, Real Trust
             </span>
-            <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-[#03045E]">
+            <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-serif font-semibold text-[#002953] tracking-tight">
               What Our Customers Say
             </h2>
             <p className="text-xs sm:text-sm text-gray-500">Real stories from our everyday happy users</p>
@@ -1240,10 +959,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <section className="w-full bg-white py-12 sm:py-16 px-6 sm:px-12 md:px-20 lg:px-28">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center space-y-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#0077B6] block">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#01BEFE] block">
                 Frequently Asked Questions
               </span>
-              <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-[#03045E]">
+              <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-serif font-semibold text-[#002953] tracking-tight">
                 Frequently Asked Questions
               </h2>
             </div>
@@ -1256,10 +975,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 >
                   <button
                     onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                    className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-xs sm:text-sm text-gray-800 hover:text-[#03045E] cursor-pointer"
+                    className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-xs sm:text-sm text-gray-800 hover:text-[#002953] cursor-pointer"
                   >
                     <span>{faq.q}</span>
-                    <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-transform ${openFaq === idx ? 'bg-[#03045E] text-white rotate-45' : 'bg-gray-100 text-gray-600'}`}>
+                    <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-transform ${openFaq === idx ? 'bg-[#002953] text-white rotate-45' : 'bg-gray-100 text-gray-600'}`}>
                       +
                     </span>
                   </button>

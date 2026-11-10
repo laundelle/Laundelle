@@ -20,7 +20,7 @@ export const Loading: React.FC<LoadingProps> = ({
   const spinner = (
     <div className="flex flex-col items-center justify-center gap-3">
       <div
-        className={`animate-spin rounded-full border-t-transparent border-[#03045E] ${sizeClass}`}
+        className={`animate-spin rounded-full border-t-transparent border-[#01BEFE] ${sizeClass}`}
       />
       {text && <p className="text-xs font-medium text-gray-500">{text}</p>}
     </div>
@@ -28,7 +28,7 @@ export const Loading: React.FC<LoadingProps> = ({
 
   if (fullScreen) {
     return (
-      <div className="min-h-screen bg-[#FAFCFF] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         {spinner}
       </div>
     );

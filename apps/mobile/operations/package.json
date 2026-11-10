@@ -40,6 +40,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.2.4",
+    "tsx": "^4.19.3",
     "typescript": "^5.7.0"
   },
   "expo": {

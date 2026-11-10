@@ -98,13 +98,36 @@ export class UserService {
     }
 
     static async updateProfile(userId: string, body: any) {
+        if (!body || typeof body !== 'object') {
+            throw new BadRequestError('Invalid update payload.');
+        }
+
         const { name, phone } = body;
         const db = await getDb();
         const now = new Date().toISOString();
         
         const updateData: any = { updated_at: now };
-        if (name !== undefined) updateData.full_name = name;
-        if (phone !== undefined) updateData.phone = phone;
+
+        if (name !== undefined) {
+            if (typeof name !== 'string' || name.trim().length === 0) {
+                throw new BadRequestError('Name must be a non-empty string.');
+            }
+            if (name.trim().length > 100) {
+                throw new BadRequestError('Name cannot exceed 100 characters.');
+            }
+            updateData.full_name = name.trim();
+        }
+
+        if (phone !== undefined) {
+            if (typeof phone !== 'string') {
+                throw new BadRequestError('Phone must be a string.');
+            }
+            const cleanPhone = phone.trim();
+            if (cleanPhone.length < 7 || cleanPhone.length > 30 || !/^[+0-9\s\-()]+$/.test(cleanPhone)) {
+                throw new BadRequestError('Invalid phone number format or length.');
+            }
+            updateData.phone = cleanPhone;
+        }
 
         await db.collection('users').updateOne(
             this.buildUserFilter(userId),

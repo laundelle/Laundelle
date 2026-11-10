@@ -8,7 +8,6 @@
     "start": "next start -p 4000",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "migrate:canonical": "npx tsx scripts/migrateCanonicalIds.ts",
     "auth0:bootstrap-admin": "npx tsx scripts/bootstrap-super-admin.ts"
   },
   "dependencies": {
@@ -22,6 +21,7 @@
     "@react-email/components": "^1.0.12",
     "mongodb": "^6.3.0",
     "next": "^15.5.27",
+    "otplib": "^13.6.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "resend": "^6.34.1",

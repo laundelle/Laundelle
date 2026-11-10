@@ -68,7 +68,7 @@ export default function CancellationAndRefundPage() {
             </div>
 
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200">
-              <h5 className="font-bold text-xs uppercase tracking-wider text-[#03045E]">In-Plant Processing Stage</h5>
+              <h5 className="font-bold text-xs uppercase tracking-wider text-[#002953]">In-Plant Processing Stage</h5>
               <p className="text-xs text-slate-600 mt-1">
                 Once garments have arrived at the facility and have commenced the sorting, washing, dry cleaning, or pressing cycles, the order cannot be cancelled as specialized labor and non-recoverable organic detergents have already been engaged.
               </p>
@@ -102,8 +102,8 @@ export default function CancellationAndRefundPage() {
             We take immense pride in our craftsmanship. If you are not completely satisfied with the cleanliness, pressing, or finish of any garment:
           </p>
           <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-2xl border border-blue-200 space-y-2">
-            <h5 className="font-bold text-[#03045E] text-xs flex items-center gap-1.5 uppercase tracking-wider">
-              <Sparkles className="w-4 h-4 text-[#00B4D8]" />
+            <h5 className="font-bold text-[#002953] text-xs flex items-center gap-1.5 uppercase tracking-wider">
+              <Sparkles className="w-4 h-4 text-[#01BEFE]" />
               <span>Complimentary 48-Hour Re-Clean</span>
             </h5>
             <p className="text-xs text-slate-700 leading-relaxed">
@@ -149,8 +149,8 @@ export default function CancellationAndRefundPage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-2">
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider text-[#03045E]">
-                <CreditCard className="w-4 h-4 text-[#00B4D8]" />
+              <div className="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider text-[#002953]">
+                <CreditCard className="w-4 h-4 text-[#01BEFE]" />
                 <span>Original Card (Stripe)</span>
               </div>
               <p className="text-xs text-slate-600">
@@ -159,8 +159,8 @@ export default function CancellationAndRefundPage() {
             </div>
 
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider text-[#03045E]">
-                <Sparkles className="w-4 h-4 text-[#00B4D8]" />
+              <div className="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider text-[#002953]">
+                <Sparkles className="w-4 h-4 text-[#01BEFE]" />
                 <span>Laundelle Wallet Credit (+10% Bonus)</span>
               </div>
               <p className="text-xs text-slate-600">
@@ -178,7 +178,7 @@ export default function CancellationAndRefundPage() {
         <>
           <p>Filing a claim is quick and completely transparent:</p>
           <ol className="list-decimal pl-5 space-y-1.5">
-            <li>Open our <Link href="/support" className="text-[#00B4D8] font-bold hover:underline">Customer Support Portal</Link> or email <a href="mailto:care@laundelle.co.uk" className="text-[#00B4D8] font-bold hover:underline">care@laundelle.co.uk</a> within 24 hours of delivery.</li>
+            <li>Open our <Link href="/support" className="text-[#01BEFE] font-bold hover:underline">Customer Support Portal</Link> or email <a href="mailto:care@laundelle.co.uk" className="text-[#01BEFE] font-bold hover:underline">care@laundelle.co.uk</a> within 24 hours of delivery.</li>
             <li>Provide your <strong>Order Number</strong> (e.g. #ORD-10024) and describe the issue in detail.</li>
             <li>Attach clear photos showing the garment, care label, and specific area of concern.</li>
             <li>Our operations manager will review the digital intake inspection logs and issue a formal resolution within <strong>24 business hours</strong>.</li>
@@ -192,17 +192,17 @@ export default function CancellationAndRefundPage() {
     {
       title: 'Free Cancellation',
       desc: 'Cancel up to 2 hours prior to scheduled collection window at zero fee or penalty.',
-      icon: <CheckCircle2 className="w-5 h-5 text-[#00B4D8]" />,
+      icon: <CheckCircle2 className="w-5 h-5 text-[#01BEFE]" />,
     },
     {
       title: '100% Re-Clean Guarantee',
       desc: 'Complimentary doorstep collection and re-clean if your garments are not immaculate.',
-      icon: <Sparkles className="w-5 h-5 text-[#00B4D8]" />,
+      icon: <Sparkles className="w-5 h-5 text-[#01BEFE]" />,
     },
     {
       title: 'Fast Stripe Refunds',
       desc: 'Automated 3-5 business day refund turnaround or instant wallet credit with 10% bonus.',
-      icon: <CreditCard className="w-5 h-5 text-[#00B4D8]" />,
+      icon: <CreditCard className="w-5 h-5 text-[#01BEFE]" />,
     },
   ];
 

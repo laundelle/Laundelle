@@ -23,11 +23,11 @@ export default function TermsAndConditionsPage() {
             Welcome to <strong>LAUNDELLE</strong> (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;), operated by <strong>Laundelle Garment Care Ltd</strong> (incorporated in England and Wales). These Terms and Conditions (&quot;Terms&quot;) govern your access to and use of our mobile-responsive web platform, mobile applications, and on-demand laundry, dry cleaning, garment repair, and collection/delivery services (collectively, the &quot;Services&quot;).
           </p>
           <p>
-            By booking a collection, placing an order, registering an account, or otherwise using our Services, you confirm that you have read, understood, and agreed to be legally bound by these Terms and our related policies, including our <Link href="/privacypolicy" className="text-[#00B4D8] font-bold hover:underline">Privacy Policy</Link> and <Link href="/cancellationandrefund" className="text-[#00B4D8] font-bold hover:underline">Cancellation &amp; Refund Policy</Link>.
+            By booking a collection, placing an order, registering an account, or otherwise using our Services, you confirm that you have read, understood, and agreed to be legally bound by these Terms and our related policies, including our <Link href="/privacypolicy" className="text-[#01BEFE] font-bold hover:underline">Privacy Policy</Link> and <Link href="/cancellationandrefund" className="text-[#01BEFE] font-bold hover:underline">Cancellation &amp; Refund Policy</Link>.
           </p>
           <div className="bg-blue-50/70 rounded-2xl p-4 border border-blue-100 flex items-start gap-3 mt-2">
-            <AlertCircle className="w-5 h-5 text-[#00B4D8] shrink-0 mt-0.5" />
-            <p className="text-xs text-[#03045E]">
+            <AlertCircle className="w-5 h-5 text-[#01BEFE] shrink-0 mt-0.5" />
+            <p className="text-xs text-[#002953]">
               If you do not accept these Terms in their entirety, you must immediately cease using the platform and refrain from booking collections.
             </p>
           </div>
@@ -46,7 +46,7 @@ export default function TermsAndConditionsPage() {
             <li><strong>Age Requirement:</strong> You must be at least 18 years of age to book orders and enter into binding agreements.</li>
             <li><strong>Accurate Details:</strong> You agree to provide accurate, current, and complete information, including your full legal name, active telephone number, email address, and precise collection/delivery address within our serviceable UK postcodes.</li>
             <li><strong>Credential Security:</strong> You are responsible for maintaining the confidentiality of your login credentials and one-time passcodes (OTP). Any activity conducted through your authenticated session is deemed to have been authorized by you.</li>
-            <li><strong>Account Safeguarding:</strong> You must immediately notify our support team at <a href="mailto:care@laundelle.co.uk" className="text-[#00B4D8] font-semibold hover:underline">care@laundelle.co.uk</a> if you suspect any unauthorized access to your account.</li>
+            <li><strong>Account Safeguarding:</strong> You must immediately notify our support team at <a href="mailto:care@laundelle.co.uk" className="text-[#01BEFE] font-semibold hover:underline">care@laundelle.co.uk</a> if you suspect any unauthorized access to your account.</li>
           </ul>
         </>
       ),
@@ -60,19 +60,19 @@ export default function TermsAndConditionsPage() {
             Our logistics couriers operate scheduled collection and delivery slots across approved service postcodes.
           </p>
           <div className="space-y-2">
-            <h4 className="font-bold text-[#03045E]">1. Scheduled Windows &amp; Access</h4>
+            <h4 className="font-bold text-[#002953]">1. Scheduled Windows &amp; Access</h4>
             <p>
               When placing an order, you select a designated collection time window. You must ensure that you or an authorized representative (or designated secure concierge/porch) is available to hand over garments during this window. If access codes, flat buzzers, or concierge keys are required, they must be specified in the booking notes.
             </p>
           </div>
           <div className="space-y-2 pt-2">
-            <h4 className="font-bold text-[#03045E]">2. Verification &amp; Bag Handover</h4>
+            <h4 className="font-bold text-[#002953]">2. Verification &amp; Bag Handover</h4>
             <p>
               For security, our couriers utilize digital pickup manifests. Garments are placed into secure, moisture-resistant, uniquely tagged Laundelle laundry hampers or protective garment carriers. An automated SMS/WhatsApp handover confirmation is issued upon driver scan.
             </p>
           </div>
           <div className="space-y-2 pt-2">
-            <h4 className="font-bold text-[#03045E]">3. Turnaround Times</h4>
+            <h4 className="font-bold text-[#002953]">3. Turnaround Times</h4>
             <p>
               Standard orders are cleaned and returned within <strong>48 hours</strong>. Express Same-Day and 24-Hour turnaround services are available for select postcodes and service categories at published surcharge rates. While we make every commercially reasonable effort to adhere to selected slots, times may occasionally be influenced by traffic, severe weather, or transport disruptions.
             </p>
@@ -90,11 +90,11 @@ export default function TermsAndConditionsPage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-2">
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="font-bold text-[#03045E] block text-xs">⚖️ Digital Weigh-In</span>
+              <span className="font-bold text-[#002953] block text-xs">⚖️ Digital Weigh-In</span>
               <span className="text-[11px] text-slate-600">Wash &amp; Fold bags are weighed on certified digital scales before sorting to verify net weight.</span>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="font-bold text-[#03045E] block text-xs">🔍 Wear &amp; Tear Audit</span>
+              <span className="font-bold text-[#002953] block text-xs">🔍 Wear &amp; Tear Audit</span>
               <span className="text-[11px] text-slate-600">Existing stains, rips, missing buttons, or fabric thinning are photographed and logged.</span>
             </div>
           </div>
@@ -153,19 +153,19 @@ export default function TermsAndConditionsPage() {
             We handle every garment with consummate professional care. In the highly exceptional event that an item is misplaced or irreparably damaged while in our physical custody:
           </p>
           <div className="space-y-2">
-            <h4 className="font-bold text-[#03045E]">1. Reporting Window</h4>
+            <h4 className="font-bold text-[#002953]">1. Reporting Window</h4>
             <p>
               Any claim regarding missing items, garment damage, or dissatisfaction must be reported to our customer support team within <strong>24 hours of delivery</strong>, accompanied by clear photographic evidence and your order confirmation.
             </p>
           </div>
           <div className="space-y-2 pt-2">
-            <h4 className="font-bold text-[#03045E]">2. Compensation Calculation</h4>
+            <h4 className="font-bold text-[#002953]">2. Compensation Calculation</h4>
             <p>
               In accordance with Textile Services Association (TSA) guidelines, compensation for lost or damaged garments is calculated based on the item&apos;s fair depreciated market value (taking into account age, condition, and expected lifespan), capped at a maximum of <strong>10 times the cleaning charge</strong> for that specific item, up to an aggregate cap of <strong>£250.00 per order</strong>, unless an extended protection tier has been purchased in advance.
             </p>
           </div>
           <div className="space-y-2 pt-2">
-            <h4 className="font-bold text-[#03045E]">3. Exclusions from Liability</h4>
+            <h4 className="font-bold text-[#002953]">3. Exclusions from Liability</h4>
             <p>
               Laundelle is not liable for normal wear and tear, color fading from prior sun exposure, defective manufacturer dyes, disintegration of aged adhesive interlinings, damage resulting from hidden defects, or loss of detached embellishments (such as decorative beads, rhinestones, sequins, or delicate mother-of-pearl buttons).
             </p>
@@ -196,17 +196,17 @@ export default function TermsAndConditionsPage() {
     {
       title: 'Consumer Rights Act Compliant',
       desc: 'Clear, fair terms under UK consumer protection laws & Textile Services Association standards.',
-      icon: <Scale className="w-5 h-5 text-[#00B4D8]" />,
+      icon: <Scale className="w-5 h-5 text-[#01BEFE]" />,
     },
     {
       title: 'Fair Compensation Pledge',
       desc: 'Dedicated digital claim resolution within 24 business hours for damaged or misplaced items.',
-      icon: <ShieldCheck className="w-5 h-5 text-[#00B4D8]" />,
+      icon: <ShieldCheck className="w-5 h-5 text-[#01BEFE]" />,
     },
     {
       title: 'Secure Stripe Payments',
       desc: '256-bit encrypted card billing; no raw credit or debit card data is ever stored on our servers.',
-      icon: <CheckCircle2 className="w-5 h-5 text-[#00B4D8]" />,
+      icon: <CheckCircle2 className="w-5 h-5 text-[#01BEFE]" />,
     },
   ];
 

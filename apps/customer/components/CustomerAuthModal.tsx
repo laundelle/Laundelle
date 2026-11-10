@@ -94,7 +94,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
               />
             </div>
             <div className="mt-4 flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">
-              <Building2 className="w-3.5 h-3.5 text-[#0077B6]" />
+              <Building2 className="w-3.5 h-3.5 text-[#01BEFE]" />
               <span>Laundelle Operations Network</span>
             </div>
           </div>
@@ -102,7 +102,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
           {/* Right Column: Log in or create an account */}
           <div className="flex flex-col justify-center space-y-4">
             <div className="space-y-1">
-              <h2 className="text-2xl sm:text-3xl font-heading font-black text-slate-900 tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-heading font-black text-[#002953] tracking-tight">
                 Log in or create an account
               </h2>
               <p className="text-xs text-slate-500">
@@ -117,7 +117,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
                 type="button"
                 onClick={() => handleAuth0Login('google-oauth2')}
                 disabled={isAuth0Loading}
-                className="w-full h-12 sm:h-13 bg-white hover:bg-slate-50 border border-slate-300 hover:border-slate-400 rounded-xl px-5 flex items-center justify-start gap-3.5 text-sm font-semibold text-slate-800 shadow-2xs transition-all cursor-pointer active:scale-99 disabled:opacity-60"
+                className="w-full h-12 sm:h-13 bg-white hover:bg-slate-50 border border-slate-300 hover:border-[#01BEFE] rounded-xl px-5 flex items-center justify-start gap-3.5 text-sm font-semibold text-slate-800 shadow-2xs transition-all cursor-pointer active:scale-99 disabled:opacity-60"
               >
                 <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                   <path
@@ -145,7 +145,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
                 type="button"
                 onClick={() => handleAuth0Login('apple')}
                 disabled={isAuth0Loading}
-                className="w-full h-12 sm:h-13 bg-white hover:bg-slate-50 border border-slate-300 hover:border-slate-400 rounded-xl px-5 flex items-center justify-start gap-3.5 text-sm font-semibold text-slate-800 shadow-2xs transition-all cursor-pointer active:scale-99 disabled:opacity-60"
+                className="w-full h-12 sm:h-13 bg-white hover:bg-slate-50 border border-slate-300 hover:border-[#01BEFE] rounded-xl px-5 flex items-center justify-start gap-3.5 text-sm font-semibold text-slate-800 shadow-2xs transition-all cursor-pointer active:scale-99 disabled:opacity-60"
               >
                 <svg className="w-5 h-5 shrink-0 fill-current text-black" viewBox="0 0 24 24">
                   <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.67-1.09 1.74-.95 2.77.99.08 2.05-.51 2.68-1.27z" />
@@ -158,7 +158,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
                 type="button"
                 onClick={() => handleAuth0Login('facebook')}
                 disabled={isAuth0Loading}
-                className="w-full h-12 sm:h-13 bg-white hover:bg-slate-50 border border-slate-300 hover:border-slate-400 rounded-xl px-5 flex items-center justify-start gap-3.5 text-sm font-semibold text-slate-800 shadow-2xs transition-all cursor-pointer active:scale-99 disabled:opacity-60"
+                className="w-full h-12 sm:h-13 bg-white hover:bg-slate-50 border border-slate-300 hover:border-[#01BEFE] rounded-xl px-5 flex items-center justify-start gap-3.5 text-sm font-semibold text-slate-800 shadow-2xs transition-all cursor-pointer active:scale-99 disabled:opacity-60"
               >
                 <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                   <path
@@ -174,7 +174,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
                 type="button"
                 onClick={() => handleAuth0Login()}
                 disabled={isAuth0Loading}
-                className="w-full h-12 sm:h-13 bg-white hover:bg-slate-50 border border-slate-300 hover:border-slate-400 rounded-xl px-5 flex items-center justify-start gap-3.5 text-sm font-semibold text-slate-800 shadow-2xs transition-all cursor-pointer active:scale-99 disabled:opacity-60"
+                className="w-full h-12 sm:h-13 bg-white hover:bg-slate-50 border border-slate-300 hover:border-[#01BEFE] rounded-xl px-5 flex items-center justify-start gap-3.5 text-sm font-semibold text-slate-800 shadow-2xs transition-all cursor-pointer active:scale-99 disabled:opacity-60"
               >
                 <Mail className="w-5 h-5 text-slate-500 shrink-0" />
                 <span>Continue with Email</span>
@@ -198,7 +198,8 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
           aria-hidden="true"
         >
           <path
-            fill="#2563eb"
+            fill="#01BEFE"
+            opacity="0.15"
             d="M0,70 C180,170 360,10 540,70
                S900,170 1080,70
                S1260,10 1440,70

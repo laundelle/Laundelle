@@ -835,6 +835,15 @@ export class OrderService {
                     { $set: { customerId: canonicalCustomerId, customer_id: canonicalCustomerId, updated_at: now } }
                 );
             }
+
+            await AuditService.recordEvent({
+                entityType: 'customer',
+                entityId: canonicalCustomerId,
+                action: 'guest_orders_linked',
+                actorId: canonicalCustomerId,
+                actorRole: 'customer',
+                metadata: { email: formatted, orderIds, linkedOrderCount: result.modifiedCount }
+            });
         }
 
         return result.modifiedCount;

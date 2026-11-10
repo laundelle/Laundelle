@@ -86,8 +86,8 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
 
         {/* Header Branding */}
         <div className="text-center space-y-1.5 pb-2">
-          <div className="w-12 h-12 bg-blue-50 text-[#0077B6] rounded-2xl flex items-center justify-center mx-auto mb-2 font-black text-xl border border-blue-100 shadow-xs">
-            <CheckCircle2 className="w-6 h-6 text-[#0077B6]" />
+          <div className="w-12 h-12 bg-blue-50 text-[#01BEFE] rounded-2xl flex items-center justify-center mx-auto mb-2 font-black text-xl border border-blue-100 shadow-xs">
+            <CheckCircle2 className="w-6 h-6 text-[#01BEFE]" />
           </div>
           <h2 className="text-2xl font-heading font-extrabold text-slate-900">
             Complete Your Profile
@@ -120,7 +120,7 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="e.g. John Doe"
-                className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0077B6] focus:ring-2 focus:ring-[#0077B6]/10 transition-all"
+                className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01BEFE] focus:ring-2 focus:ring-[#01BEFE]/10 transition-all"
               />
             </div>
           </div>
@@ -134,7 +134,7 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
               <select
                 value={countryCode}
                 onChange={(e) => setCountryCode(e.target.value)}
-                className="h-11 px-2.5 bg-slate-50 border border-r-0 border-slate-200 rounded-l-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#0077B6] cursor-pointer shrink-0"
+                className="h-11 px-2.5 bg-slate-50 border border-r-0 border-slate-200 rounded-l-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#01BEFE] cursor-pointer shrink-0"
               >
                 <option value="+44">🇬🇧 +44 (UK)</option>
                 <option value="+1">🇺🇸 +1 (US)</option>
@@ -155,7 +155,7 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
                   value={phoneDigits}
                   onChange={(e) => setPhoneDigits(e.target.value)}
                   placeholder="7700 900000"
-                  className="w-full h-11 pl-9 pr-3.5 rounded-r-xl border border-slate-200 bg-white text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0077B6] focus:ring-2 focus:ring-[#0077B6]/10 transition-all"
+                  className="w-full h-11 pl-9 pr-3.5 rounded-r-xl border border-slate-200 bg-white text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01BEFE] focus:ring-2 focus:ring-[#01BEFE]/10 transition-all"
                 />
               </div>
             </div>

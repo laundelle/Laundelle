@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth, requireRole } from '@/lib/api';
+import { requireAuthAsync, resolveLaundelleUser, ForbiddenError } from '@/lib/api';
+import { normalizeRole } from '@laundelle/auth';
 import { DriverService } from '@/services/DriverService';
 
 export async function POST(req: NextRequest, context: any) {
     try {
-        const session = await requireAuth(req);
-        requireRole(req, ['driver', 'admin', 'super_admin']);
+        const token = await requireAuthAsync(req);
+        const dbUser = await resolveLaundelleUser(token);
+        const role = normalizeRole(dbUser?.role || token.role);
+
+        if (!['driver', 'admin', 'super_admin'].includes(role)) {
+            throw new ForbiddenError('Access denied: Driver or administrator privileges required.');
+        }
 
         const body = await req.json();
         const { otp, pin, signatureUrl, photoUrls, recipientName, amountCollected, codPaymentMethod, location } = body;
@@ -13,9 +19,10 @@ export async function POST(req: NextRequest, context: any) {
 
         const params = await context.params;
         const orderId = params.id;
+        const driverIdentity = String(dbUser?._id || dbUser?.publicId || token.sub);
 
         const result = await DriverService.confirmDelivery(
-            session.sub, 
+            driverIdentity, 
             orderId, 
             verificationPin, 
             signatureUrl, 

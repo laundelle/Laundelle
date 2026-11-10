@@ -31,6 +31,7 @@ function getAllowedOrigins(): string[] {
 }
 
 const nextConfig: NextConfig = {
+  // Enhanced connection resilience
   transpilePackages: [
     '@laundelle/types',
     '@laundelle/config',

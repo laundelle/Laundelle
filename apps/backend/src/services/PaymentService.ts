@@ -113,8 +113,6 @@ export class PaymentService {
                         { _id: orderToReturn._id },
                         {
                             $set: {
-                                pickup_pin: newPickupPin,
-                                pickup_otp: newPickupPin,
                                 pickup_pin_hash: newHash,
                                 pickup_pin_salt: newSalt,
                                 pickup_pin_enc: newEnc,
@@ -137,8 +135,6 @@ export class PaymentService {
                         { _id: orderToReturn._id },
                         {
                             $set: {
-                                delivery_pin: newDeliveryPin,
-                                delivery_otp: newDeliveryPin,
                                 delivery_pin_hash: newDeliveryHash,
                                 delivery_pin_salt: newDeliverySalt,
                                 delivery_pin_enc: newDeliveryEnc,
@@ -164,14 +160,13 @@ export class PaymentService {
             }
 
             if (pendingCheckout) {
-                const effectiveOwner = pendingCheckout.userId || sessionUserId || authenticatedUserId || 'guest';
-                const createdOrder = await OrderService.createPaidOrderFromCheckout(
-                    effectiveOwner,
-                    pendingCheckout,
-                    session
-                );
-                await db.collection('pending_checkouts').deleteOne({ _id: pendingCheckout._id }).catch(() => {});
-                return { status: 'paid', order: OrderService.sanitizeOrderForCustomer(createdOrder) };
+                // Webhook is the authoritative path for order creation (amount reconciliation happens there).
+                // Do NOT create the order here — return pending so the client polls until the webhook fires.
+                console.log(`[PaymentService] verifySessionPayment: Paid session ${sessionId} has a pending checkout. Awaiting webhook to create order authoritatively.`);
+                return {
+                    status: 'pending',
+                    message: 'Payment received. Your order confirmation is being processed — please wait a moment and refresh.'
+                };
             }
 
             console.warn(`[PaymentService] verifySessionPayment: Stripe reports paid for ${sessionId} but no order found in DB.`);
@@ -526,8 +521,6 @@ export class PaymentService {
             const pickupPinHash = hashOrderPin(pickupPin, pickupPinSalt, orderId, customerIdentifier);
             const pickupPinEnc = encryptOrderPin(pickupPin, orderId, customerIdentifier);
 
-            updateOps.$set.pickup_pin = pickupPin;
-            updateOps.$set.pickup_otp = pickupPin;
             updateOps.$set.pickup_pin_hash = pickupPinHash;
             updateOps.$set.pickup_pin_salt = pickupPinSalt;
             updateOps.$set.pickup_pin_enc = pickupPinEnc;
@@ -541,8 +534,6 @@ export class PaymentService {
             const deliveryPinHash = hashOrderPin(deliveryPin, deliveryPinSalt, orderId, customerIdentifier);
             const deliveryPinEnc = encryptOrderPin(deliveryPin, orderId, customerIdentifier);
 
-            updateOps.$set.delivery_pin = deliveryPin;
-            updateOps.$set.delivery_otp = deliveryPin;
             updateOps.$set.delivery_pin_hash = deliveryPinHash;
             updateOps.$set.delivery_pin_salt = deliveryPinSalt;
             updateOps.$set.delivery_pin_enc = deliveryPinEnc;

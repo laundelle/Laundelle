@@ -2,7 +2,11 @@ import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { NotificationChannel, NotificationRecord, NotificationStatus, NotificationTemplate } from '@laundelle/types';
 import crypto from 'crypto';
-import { generateNotificationId, generateExceptionId } from '@laundelle/ids';
+import { generateNotificationId, generateExceptionId, buildEntityLookupQuery } from '@laundelle/ids';
+import { sendEmail } from '@/lib/email';
+import { AlertService } from './AlertService';
+import { SmsService } from './SmsService';
+import { PushNotificationService } from './PushNotificationService';
 
 export interface CreateNotificationParams {
   userId: string;
@@ -215,7 +219,9 @@ export class NotificationService {
     }
 
     const db = await getDb();
-    const user = await db.collection('users').findOne({ $or: [{ id: userId }, { _id: userId }] } as any);
+    const user = await db.collection('users').findOne(
+      buildEntityLookupQuery(userId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+    );
     if (!user || !user.preferences) return true;
 
     const prefs = user.preferences;
@@ -241,7 +247,9 @@ export class NotificationService {
 
   static async saveUserPreferences(userId: string, preferences: any) {
     const db = await getDb();
-    const existing = await db.collection('users').findOne({ $or: [{ id: userId }, { _id: userId }] } as any);
+    const existing = await db.collection('users').findOne(
+      buildEntityLookupQuery(userId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+    );
     if (existing) {
       await db.collection('users').updateOne(
         { _id: existing._id },
@@ -250,7 +258,7 @@ export class NotificationService {
     } else {
       await db.collection('users').insertOne({
         id: userId,
-        _id: userId as any,
+        _id: (ObjectId.isValid(userId) && userId.length === 24 ? new ObjectId(userId) : userId) as any,
         preferences,
         createdAt: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -261,7 +269,9 @@ export class NotificationService {
 
   static async getUserPreferences(userId: string) {
     const db = await getDb();
-    const user = await db.collection('users').findOne({ $or: [{ id: userId }, { _id: userId }] } as any);
+    const user = await db.collection('users').findOne(
+      buildEntityLookupQuery(userId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+    );
     return user?.preferences || null;
   }
 
@@ -290,6 +300,52 @@ export class NotificationService {
       const notifId = generateNotificationId();
       const now = new Date().toISOString();
 
+      let notifStatus: NotificationStatus = 'SENT';
+      let sentAt: string | undefined = now;
+      let failureReason: string | undefined;
+      let scheduledAt: string | undefined;
+
+      if (channel === 'in_app') {
+        notifStatus = 'SENT';
+        sentAt = now;
+      } else if (channel === 'email') {
+        try {
+          const recipientUser = await db.collection('users').findOne(
+            buildEntityLookupQuery(params.userId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+          );
+          const recipientEmail = recipientUser?.email || (params.userId.includes('@') ? params.userId : undefined);
+          if (recipientEmail) {
+            const emailResult = await sendEmail({
+              to: recipientEmail,
+              subject: params.title,
+              html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 24px;">
+                <h2 style="color: #0f172a; margin-bottom: 16px;">${params.title}</h2>
+                <p style="font-size: 16px; margin-bottom: 24px;">${params.message}</p>
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+                <p style="font-size: 12px; color: #64748b;">Laundelle Quality Laundry Services.</p>
+              </div>`
+            });
+            if (!emailResult || !(emailResult as any).id) {
+              throw new Error('Email provider did not accept message (missing confirmation identifier).');
+            }
+            notifStatus = 'SENT';
+            sentAt = now;
+          } else {
+            notifStatus = 'FAILED';
+            sentAt = undefined;
+            failureReason = `Recipient user ${params.userId} has no registered email.`;
+          }
+        } catch (err: any) {
+          notifStatus = 'PENDING';
+          sentAt = undefined;
+          failureReason = err?.message || 'Email delivery failed';
+          scheduledAt = new Date(Date.now() + 2 * 60 * 1000).toISOString();
+        }
+      } else {
+        // SMS, WhatsApp, Push: channel is unsupported or provider not configured
+        return { success: false, error: `Channel "${channel}" is unsupported or provider is not configured.` };
+      }
+
       const record: NotificationRecord = {
         id: notifId,
         publicId: notifId,
@@ -300,10 +356,15 @@ export class NotificationService {
         channel,
         title: params.title,
         body: params.message,
-        status: 'SENT',
+        status: notifStatus,
+        failureReason,
+        failedAt: notifStatus === 'FAILED' ? now : undefined,
+        scheduledAt,
+        provider: channel === 'in_app' ? 'local' : (channel === 'email' ? 'resend' : 'system'),
         attemptCount: 1,
         maxAttempts: 3,
-        sentAt: now,
+        sentAt,
+        deliveredAt: channel === 'in_app' ? now : undefined,
         idempotencyKey: params.idempotencyKey,
         metadata: params.metadata || {},
         createdAt: now,
@@ -385,6 +446,120 @@ export class NotificationService {
       const notifId = generateNotificationId();
       const now = new Date().toISOString();
 
+      let notifStatus: NotificationStatus = 'SENT';
+      let sentAt: string | undefined = now;
+      let failureReason: string | undefined;
+      let scheduledAt: string | undefined;
+
+      if (channel === 'in_app') {
+        notifStatus = 'SENT';
+        sentAt = now;
+      } else if (channel === 'email') {
+        try {
+          const recipientUser = await db.collection('users').findOne(
+            buildEntityLookupQuery(recipientId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+          );
+          const recipientEmail = recipientUser?.email || (recipientId.includes('@') ? recipientId : undefined);
+          if (recipientEmail) {
+            await sendEmail({
+              to: recipientEmail,
+              subject: compiledTitle,
+              html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 24px;">
+                <h2 style="color: #0f172a; margin-bottom: 16px;">${compiledTitle}</h2>
+                <p style="font-size: 16px; margin-bottom: 24px;">${compiledBody}</p>
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+                <p style="font-size: 12px; color: #64748b;">Laundelle Quality Laundry Services. If you did not request this, please contact support.</p>
+              </div>`
+            });
+            notifStatus = 'SENT';
+            sentAt = now;
+          } else {
+            failureReason = `Recipient user ${recipientId} does not have a registered email address.`;
+            notifStatus = 'FAILED';
+            sentAt = undefined;
+          }
+        } catch (err: any) {
+          console.error('[NotificationService] Failed to deliver email notification:', err);
+          failureReason = err?.message || 'Email delivery failure';
+          notifStatus = 'PENDING';
+          sentAt = undefined;
+          scheduledAt = new Date(Date.now() + 2 * 60 * 1000).toISOString();
+        }
+      } else if (channel === 'sms') {
+        try {
+          const recipientUser = await db.collection('users').findOne(
+            buildEntityLookupQuery(recipientId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+          );
+          const rawPhone = recipientUser?.phone || recipientUser?.mobile || (recipientId.startsWith('+') ? recipientId : undefined);
+          if (rawPhone) {
+            const smsRes = await SmsService.sendSms({
+              to: rawPhone,
+              body: `${compiledTitle}\n${compiledBody}`
+            });
+
+            if (smsRes.success) {
+              notifStatus = 'SENT';
+              sentAt = now;
+            } else if (smsRes.status === 'BLOCKED') {
+              notifStatus = 'FAILED';
+              sentAt = undefined;
+              failureReason = smsRes.error || 'Twilio SMS credentials are not configured.';
+            } else {
+              notifStatus = 'PENDING';
+              sentAt = undefined;
+              failureReason = smsRes.error;
+              scheduledAt = new Date(Date.now() + 2 * 60 * 1000).toISOString();
+            }
+          } else {
+            failureReason = `Recipient user ${recipientId} does not have a registered phone number.`;
+            notifStatus = 'FAILED';
+            sentAt = undefined;
+          }
+        } catch (err: any) {
+          console.error('[NotificationService] SMS dispatch error:', err);
+          failureReason = err?.message || 'SMS delivery failed';
+          notifStatus = 'PENDING';
+          sentAt = undefined;
+          scheduledAt = new Date(Date.now() + 2 * 60 * 1000).toISOString();
+        }
+      } else if (channel === 'push') {
+        try {
+          const pushRes = await PushNotificationService.sendPush({
+            userId: recipientId,
+            title: compiledTitle,
+            body: compiledBody,
+            data: { orderId, eventType }
+          });
+
+          if (pushRes.success && pushRes.status === 'SENT') {
+            notifStatus = 'SENT';
+            sentAt = now;
+          } else if (pushRes.status === 'SKIPPED_NO_DEVICE') {
+            notifStatus = 'FAILED';
+            sentAt = undefined;
+            failureReason = `Recipient user ${recipientId} does not have any active registered mobile devices with push tokens.`;
+          } else {
+            notifStatus = 'PENDING';
+            sentAt = undefined;
+            failureReason = pushRes.error || 'Push notification delivery error';
+            scheduledAt = new Date(Date.now() + 2 * 60 * 1000).toISOString();
+          }
+        } catch (err: any) {
+          console.error('[NotificationService] Push dispatch error:', err);
+          failureReason = err?.message || 'Push notification error';
+          notifStatus = 'PENDING';
+          sentAt = undefined;
+          scheduledAt = new Date(Date.now() + 2 * 60 * 1000).toISOString();
+        }
+      } else {
+        // WhatsApp or unconfigured custom channel
+        notifStatus = 'FAILED';
+        sentAt = undefined;
+        failureReason = channel === 'whatsapp'
+          ? 'WhatsApp Cloud API integration pending provider verification.'
+          : `Channel "${channel}" is unsupported or provider is not configured.`;
+      }
+
       const notification: NotificationRecord = {
         id: notifId,
         publicId: notifId,
@@ -395,12 +570,15 @@ export class NotificationService {
         channel,
         title: compiledTitle,
         body: compiledBody,
-        status: 'SENT',
-        provider: channel === 'in_app' ? 'local' : (process.env.NOTIFICATION_PROVIDER || 'system'),
+        status: notifStatus,
+        failureReason,
+        failedAt: notifStatus === 'FAILED' ? now : undefined,
+        scheduledAt,
+        provider: channel === 'in_app' ? 'local' : (channel === 'email' ? 'resend' : 'system'),
         providerMessageId: `msg_${crypto.randomBytes(6).toString('hex')}`,
         attemptCount: 1,
         maxAttempts: 3,
-        sentAt: now,
+        sentAt: notifStatus === 'SENT' ? now : undefined,
         deliveredAt: channel === 'in_app' ? now : undefined,
         idempotencyKey: channelIdempotency,
         metadata,
@@ -422,11 +600,27 @@ export class NotificationService {
   }
 
   /**
-   * Processes the notification retry queue with controlled exponential backoff.
+   * Processes the notification retry queue with atomic claiming, real provider dispatch,
+   * bounded retries, and exponential backoff with jitter.
    */
   static async processRetries(): Promise<{ retriedCount: number; failedPermanentlyCount: number }> {
     const db = await getDb();
     const now = new Date().toISOString();
+
+    // 0. Recover abandoned SENDING notifications (e.g. from crashed background workers) older than 5 minutes
+    const staleSendingThreshold = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    await db.collection('notifications').updateMany(
+      {
+        status: 'SENDING',
+        updatedAt: { $lte: staleSendingThreshold }
+      },
+      {
+        $set: {
+          status: 'PENDING',
+          updatedAt: now
+        }
+      }
+    );
 
     const pending = await db.collection('notifications')
       .find({
@@ -440,55 +634,258 @@ export class NotificationService {
     let failedPermanentlyCount = 0;
 
     for (const notif of pending) {
-      const nextAttempt = (notif.attemptCount || 1) + 1;
+      // 1. Atomic claim to prevent concurrent workers from processing the same notification
+      const claimed = await db.collection('notifications').findOneAndUpdate(
+        { _id: notif._id, status: 'PENDING' },
+        { $set: { status: 'SENDING', updatedAt: now } } as any,
+        { returnDocument: 'after' }
+      );
+
+      if (!claimed) {
+        continue; // Already claimed by another worker
+      }
+
+      const currentAttempts = notif.attemptCount || 1;
       const maxAttempts = notif.maxAttempts || 3;
 
-      if (nextAttempt > maxAttempts) {
-        // Mark permanently failed (Dead-Letter queue)
+      if (notif.channel === 'email') {
+        try {
+          const recipientUser = await db.collection('users').findOne(
+            buildEntityLookupQuery(notif.userId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+          );
+          const recipientEmail = recipientUser?.email || (notif.userId?.includes('@') ? notif.userId : undefined);
+          if (!recipientEmail) {
+            throw new Error(`Recipient user ${notif.userId} has no registered email.`);
+          }
+
+          const emailResult = await sendEmail({
+            to: recipientEmail,
+            subject: notif.title,
+            html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 24px;">
+              <h2 style="color: #0f172a; margin-bottom: 16px;">${notif.title}</h2>
+              <p style="font-size: 16px; margin-bottom: 24px;">${notif.body || notif.message}</p>
+              <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+              <p style="font-size: 12px; color: #64748b;">Laundelle Quality Laundry Services.</p>
+            </div>`
+          });
+          if (!emailResult || !(emailResult as any).id) {
+            throw new Error('Email provider did not accept message (missing confirmation identifier).');
+          }
+
+          await db.collection('notifications').updateOne(
+            { _id: notif._id },
+            {
+              $set: {
+                status: 'SENT',
+                sentAt: new Date().toISOString(),
+                providerMessageId: (emailResult as any)?.id || `msg_${crypto.randomBytes(6).toString('hex')}`,
+                updatedAt: new Date().toISOString()
+              }
+            }
+          );
+          retriedCount++;
+        } catch (err: any) {
+          const nextAttempt = currentAttempts + 1;
+          if (nextAttempt > maxAttempts) {
+            // Mark permanently failed (Dead-Letter queue)
+            await db.collection('notifications').updateOne(
+              { _id: notif._id },
+              {
+                $set: {
+                  status: 'FAILED',
+                  failedAt: new Date().toISOString(),
+                  failureReason: `Exceeded maximum allowable attempts (${maxAttempts}): ${err?.message || 'Delivery error'}`,
+                  updatedAt: new Date().toISOString()
+                }
+              }
+            );
+
+            // Operational alert & exception log
+            await AlertService.createAlert({
+              type: 'NOTIFICATION_DEAD_LETTER',
+              severity: 'CRITICAL',
+              title: `Notification Dead-Letter: ${notif.id}`,
+              message: `Dead-Letter Queue: Notification ${notif.id} failed permanently after ${maxAttempts} attempts across channel ${notif.channel}: ${err?.message}`,
+              entityId: notif.id,
+              entityType: 'NOTIFICATION'
+            });
+
+            const deadLetterExcId = generateExceptionId();
+            await db.collection('exceptions').insertOne({
+              id: deadLetterExcId,
+              publicId: deadLetterExcId,
+              orderId: notif.orderId || 'system',
+              type: 'notification_delivery_failed',
+              priority: 'medium',
+              status: 'OPEN',
+              description: `Dead-Letter Queue: Notification ${notif.id} failed permanently after ${maxAttempts} attempts across channel ${notif.channel}: ${err?.message}`,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            });
+
+            failedPermanentlyCount++;
+          } else {
+            // Exponential backoff with jitter
+            const baseMinutes = Math.pow(2, currentAttempts);
+            const jitterSeconds = Math.floor(Math.random() * 30);
+            const delayMs = (baseMinutes * 60 + jitterSeconds) * 1000;
+            const nextSchedule = new Date(Date.now() + delayMs).toISOString();
+
+            await db.collection('notifications').updateOne(
+              { _id: notif._id },
+              {
+                $set: {
+                  attemptCount: nextAttempt,
+                  scheduledAt: nextSchedule,
+                  status: 'PENDING',
+                  failureReason: err?.message || 'Email delivery failed',
+                  updatedAt: new Date().toISOString()
+                }
+              }
+            );
+            retriedCount++;
+          }
+        }
+      } else if (notif.channel === 'sms') {
+        try {
+          const recipientUser = await db.collection('users').findOne(
+            buildEntityLookupQuery(notif.userId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+          );
+          const rawPhone = recipientUser?.phone || recipientUser?.mobile || (notif.userId?.startsWith('+') ? notif.userId : undefined);
+          if (!rawPhone) {
+            throw new Error(`Recipient user ${notif.userId} has no registered phone number.`);
+          }
+
+          const smsResult = await SmsService.sendSms({
+            to: rawPhone,
+            body: `${notif.title}\n${notif.body || notif.message}`
+          });
+
+          if (!smsResult.success) {
+            throw new Error(smsResult.error || 'Twilio SMS retry dispatch failed');
+          }
+
+          await db.collection('notifications').updateOne(
+            { _id: notif._id },
+            {
+              $set: {
+                status: 'SENT',
+                sentAt: new Date().toISOString(),
+                providerMessageId: smsResult.messageId || `msg_${crypto.randomBytes(6).toString('hex')}`,
+                updatedAt: new Date().toISOString()
+              }
+            }
+          );
+          retriedCount++;
+        } catch (err: any) {
+          const nextAttempt = currentAttempts + 1;
+          if (nextAttempt > maxAttempts) {
+            await db.collection('notifications').updateOne(
+              { _id: notif._id },
+              {
+                $set: {
+                  status: 'FAILED',
+                  failedAt: new Date().toISOString(),
+                  failureReason: `Exceeded maximum allowable attempts (${maxAttempts}): ${err?.message || 'Delivery error'}`,
+                  updatedAt: new Date().toISOString()
+                }
+              }
+            );
+            failedPermanentlyCount++;
+          } else {
+            const baseMinutes = Math.pow(2, currentAttempts);
+            const delayMs = (baseMinutes * 60 + Math.floor(Math.random() * 30)) * 1000;
+            const nextSchedule = new Date(Date.now() + delayMs).toISOString();
+
+            await db.collection('notifications').updateOne(
+              { _id: notif._id },
+              {
+                $set: {
+                  attemptCount: nextAttempt,
+                  scheduledAt: nextSchedule,
+                  status: 'PENDING',
+                  failureReason: err?.message || 'SMS delivery failed',
+                  updatedAt: new Date().toISOString()
+                }
+              }
+            );
+            retriedCount++;
+          }
+        }
+      } else if (notif.channel === 'push') {
+        try {
+          const pushResult = await PushNotificationService.sendPush({
+            userId: notif.userId,
+            title: notif.title,
+            body: notif.body || notif.message,
+            data: { orderId: notif.orderId, notificationId: notif.id }
+          });
+
+          if (!pushResult.success && pushResult.status !== 'SKIPPED_NO_DEVICE') {
+            throw new Error(pushResult.error || 'Push retry dispatch failed');
+          }
+
+          await db.collection('notifications').updateOne(
+            { _id: notif._id },
+            {
+              $set: {
+                status: 'SENT',
+                sentAt: new Date().toISOString(),
+                providerMessageId: pushResult.messageIds[0] || `push_${Date.now()}`,
+                updatedAt: new Date().toISOString()
+              }
+            }
+          );
+          retriedCount++;
+        } catch (err: any) {
+          const nextAttempt = currentAttempts + 1;
+          if (nextAttempt > maxAttempts) {
+            await db.collection('notifications').updateOne(
+              { _id: notif._id },
+              {
+                $set: {
+                  status: 'FAILED',
+                  failedAt: new Date().toISOString(),
+                  failureReason: `Exceeded maximum allowable attempts (${maxAttempts}): ${err?.message || 'Push error'}`,
+                  updatedAt: new Date().toISOString()
+                }
+              }
+            );
+            failedPermanentlyCount++;
+          } else {
+            const baseMinutes = Math.pow(2, currentAttempts);
+            const delayMs = (baseMinutes * 60) * 1000;
+            const nextSchedule = new Date(Date.now() + delayMs).toISOString();
+
+            await db.collection('notifications').updateOne(
+              { _id: notif._id },
+              {
+                $set: {
+                  attemptCount: nextAttempt,
+                  scheduledAt: nextSchedule,
+                  status: 'PENDING',
+                  failureReason: err?.message || 'Push delivery failed',
+                  updatedAt: new Date().toISOString()
+                }
+              }
+            );
+            retriedCount++;
+          }
+        }
+      } else {
+        // Unsupported channel
         await db.collection('notifications').updateOne(
-          { id: notif.id },
+          { _id: notif._id },
           {
             $set: {
               status: 'FAILED',
-              failedAt: now,
-              failureReason: `Exceeded maximum allowable attempts (${maxAttempts})`,
-              updatedAt: now
+              failedAt: new Date().toISOString(),
+              failureReason: `Channel "${notif.channel}" is unsupported or provider is not configured.`,
+              updatedAt: new Date().toISOString()
             }
           }
         );
-
-        // Operational exception log
-        const deadLetterExcId = generateExceptionId();
-        await db.collection('exceptions').insertOne({
-          id: deadLetterExcId,
-          publicId: deadLetterExcId,
-          orderId: notif.orderId || 'system',
-          type: 'notification_delivery_failed',
-          priority: 'medium',
-          status: 'OPEN',
-          description: `Dead-Letter Queue: Notification ${notif.id} failed after ${maxAttempts} attempts across channel ${notif.channel}.`,
-          createdAt: now,
-          updatedAt: now
-        });
-
         failedPermanentlyCount++;
-      } else {
-        // Retry with backoff
-        const delayMinutes = this.getBackoffDelayMinutes(nextAttempt);
-        const nextSchedule = new Date(Date.now() + delayMinutes * 60 * 1000).toISOString();
-
-        await db.collection('notifications').updateOne(
-          { id: notif.id },
-          {
-            $set: {
-              attemptCount: nextAttempt,
-              scheduledAt: nextSchedule,
-              status: 'PENDING',
-              updatedAt: now
-            }
-          }
-        );
-        retriedCount++;
       }
     }
 

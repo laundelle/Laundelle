@@ -35,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     {
       tab: 'assistant',
       label: 'AI Care',
-      icon: <Sparkles className="w-3.5 h-3.5 text-[#2f73df]" />,
+      icon: <Sparkles className="w-3.5 h-3.5 text-[#01BEFE]" />,
       isAi: true
     },
     { tab: 'support', label: 'Support' },
@@ -84,7 +84,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, [activeTab]);
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 sm:h-[72px] lg:h-20 min-h-[64px] sm:min-h-[72px] lg:min-h-[80px] items-center justify-between bg-white/95 backdrop-blur-md px-6 sm:px-10 lg:px-[60px] border-b border-gray-100 shadow-xs py-2 sm:py-2.5">
+    <header className="relative lg:sticky lg:top-0 z-50 flex h-16 sm:h-[72px] lg:h-20 min-h-[64px] sm:min-h-[72px] lg:min-h-[80px] items-center justify-between bg-white/95 backdrop-blur-md px-6 sm:px-10 lg:px-[60px] border-b border-gray-100 shadow-xs py-2 sm:py-2.5">
       {/* Brand Logo */}
       <button
         onClick={() => onNavigate('home')}
@@ -102,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </button>
 
       {/* Desktop Navigation Links (Centered - hidden when bottom nav is active) */}
-      <nav ref={navRef} className="relative hidden lg:flex flex-1 items-center justify-center gap-2 lg:gap-4 xl:gap-6 text-[15px] lg:text-[16px] text-[#101d38]">
+      <nav ref={navRef} className="relative hidden lg:flex flex-1 items-center justify-center gap-2 lg:gap-4 xl:gap-6 text-[15px] lg:text-[16px] text-[#002953]">
         {navItems.map((item) => {
           const isActive = activeTab === item.tab;
           return (
@@ -111,13 +111,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               ref={(el) => { tabRefs.current[item.tab] = el; }}
               id={item.tab === 'assistant' ? 'nav-ai-assistant-btn' : undefined}
               onClick={() => onNavigate(item.tab)}
-              className={`relative py-2 px-2.5 transition-colors duration-200 flex items-center gap-1.5 cursor-pointer ${isActive
-                ? 'text-[#082b78] font-bold'
-                : 'text-[#101d38]/80 font-medium hover:text-[#082b78]'
+              className={`relative py-2 px-2.5 transition-colors duration-200 flex items-center gap-1.5 cursor-pointer font-sans text-[15px] lg:text-[16px] ${isActive
+                ? 'text-[#002953] font-semibold'
+                : 'text-[#002953]/75 font-medium hover:text-[#002953]'
                 }`}
             >
               {item.icon && (
-                <span className={`transition-colors ${isActive ? 'text-[#082b78]' : ''}`}>
+                <span className={`transition-colors ${isActive ? 'text-[#01BEFE]' : ''}`}>
                   {item.icon}
                 </span>
               )}
@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Sliding underline indicator */}
         <span
-          className="absolute bottom-0 h-[2.5px] bg-[#082b78] rounded-full pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
+          className="absolute bottom-0 h-[2.5px] bg-[#01BEFE] rounded-full pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
           style={{
             transform: `translateX(${indicatorStyle.left}px)`,
             width: `${indicatorStyle.width}px`,
@@ -144,32 +144,32 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={() => (customerUser ? onNavigate('notifications') : onOpenCustomerAuth())}
           className={`relative p-2 sm:p-2.5 rounded-xl transition-all cursor-pointer ${activeTab === 'notifications'
-            ? 'bg-[#082b78] text-white shadow-sm shadow-[#082b78]/20 ring-2 ring-[#082b78]/20'
-            : 'text-[#082b78] hover:bg-gray-100'
+            ? 'bg-[#002953] text-white shadow-sm shadow-[#002953]/20 ring-2 ring-[#002953]/20'
+            : 'text-[#002953] hover:bg-gray-100'
             }`}
           title="Notification Center"
           aria-label="Notification Center"
         >
           <Bell className="w-5 h-5" />
           {unreadNotificationsCount > 0 && (
-            <span className={`absolute top-1 right-1 w-4 h-4 rounded-full text-white text-[9px] font-extrabold flex items-center justify-center border-2 ${activeTab === 'notifications' ? 'bg-[#2f73df] border-[#082b78]' : 'bg-[#082b78] border-white'
+            <span className={`absolute top-1 right-1 w-4 h-4 rounded-full text-white text-[9px] font-extrabold flex items-center justify-center border-2 ${activeTab === 'notifications' ? 'bg-[#01BEFE] border-[#002953]' : 'bg-[#01BEFE] border-white'
               }`}>
               {unreadNotificationsCount}
             </span>
           )}
         </button>
 
-        {/* Cart Icon */}
+        {/* Cart Icon (Desktop Only - on mobile it floats at bottom right) */}
         <button
-          id="cart-icon"
+          id="cart-icon-desktop"
           onClick={onOpenCart}
-          className="relative p-2 sm:p-2.5 rounded-xl text-[#082b78] hover:bg-gray-100 transition-colors cursor-pointer"
+          className="hidden lg:flex relative p-2 sm:p-2.5 rounded-xl text-[#002953] hover:bg-gray-100 transition-colors cursor-pointer"
           title="Shopping Cart"
           aria-label="Shopping Cart"
         >
           <ShoppingBag className="w-5 h-5" />
           {cartCount > 0 && (
-            <span className="absolute top-1 right-1 w-5 h-5 rounded-full bg-[#2f73df] text-white text-[10px] font-extrabold flex items-center justify-center border-2 border-white">
+            <span className="absolute top-1 right-1 w-5 h-5 rounded-full bg-[#01BEFE] text-white text-[10px] font-extrabold flex items-center justify-center border-2 border-white">
               {cartCount}
             </span>
           )}

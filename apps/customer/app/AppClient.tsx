@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { ActiveTab, CartItem, ServiceItem, Order, UserProfile, CustomerNotification } from '@laundelle/types';
 import { LAUNDELLE_IMAGES, getOptimizedImageUrl } from '@laundelle/config';
-import { User } from 'lucide-react';
+import { User, ShoppingBag, Sparkles, ArrowRight, X } from 'lucide-react';
 
 import dynamic from 'next/dynamic';
 
@@ -128,6 +128,7 @@ export default function App({ initialTab }: { initialTab?: string }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [notifications, setNotifications] = useState<CustomerNotification[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isAiMinimized, setIsAiMinimized] = useState(false);
   const isCartRestored = React.useRef(false);
 
   // Restore cart from localStorage safely on client mount to prevent SSR hydration mismatch
@@ -541,6 +542,11 @@ export default function App({ initialTab }: { initialTab?: string }) {
               isAuthenticated: true,
             });
 
+            // If user's email is not yet verified, inform them that a verification link was sent
+            if (!syncResult.user?.emailVerified) {
+              showToast(`✉️ Verification email sent to ${syncResult.user.email || email}. Please check your inbox.`);
+            }
+
             // Prompt user for Username & Mobile Number if missing (e.g. after Google OAuth signup)
             if (syncResult.needsProfileCompletion || !syncResult.user?.phone) {
               setCompleteProfileModalOpen(true);
@@ -867,11 +873,11 @@ export default function App({ initialTab }: { initialTab?: string }) {
 
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-gray-900 font-sans flex flex-col antialiased selection:bg-[#CAF0F8] selection:text-[#03045E]">
+    <div className="min-h-screen bg-[#f8fafc] text-gray-900 font-sans flex flex-col antialiased selection:bg-[#01BEFE]/15 selection:text-[#002953]">
 
       {/* Toast Notification Banner */}
       {toastMessage && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#03045E] text-white px-5 py-3 rounded-2xl shadow-xl border border-[#00B4D8]/30 flex items-center gap-2 text-xs font-bold animate-in fade-in slide-in-from-top duration-300">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#002953] text-white px-5 py-3 rounded-2xl shadow-xl border border-[#01BEFE]/30 flex items-center gap-2 text-xs font-bold animate-in fade-in slide-in-from-top duration-300">
           <span>{toastMessage}</span>
         </div>
       )}
@@ -1041,7 +1047,7 @@ export default function App({ initialTab }: { initialTab?: string }) {
                   aria-hidden="true"
                 >
                   <path
-                    fill="#2563eb"
+                    fill="#01BEFE"
                     d="M0,70 C180,170 360,10 540,70
                        S900,170 1080,70
                        S1260,10 1440,70
@@ -1219,7 +1225,7 @@ export default function App({ initialTab }: { initialTab?: string }) {
                   aria-hidden="true"
                 >
                   <path
-                    fill="#2563eb"
+                    fill="#01BEFE"
                     d="M0,70 C180,170 360,10 540,70
                        S900,170 1080,70
                        S1260,10 1440,70
@@ -1251,6 +1257,94 @@ export default function App({ initialTab }: { initialTab?: string }) {
         cartCount={cart.length}
         isLoggedIn={authSession.isAuthenticated && authSession.role === 'customer'}
       />
+
+      {/* Floating Bottom-Right Cart Button (Only shown when cart has items) */}
+      {cart.length > 0 && (
+        <button
+          id="cart-icon"
+          type="button"
+          onClick={() => setCartDrawerOpen(true)}
+          className="fixed bottom-20 right-4 lg:bottom-8 lg:right-8 z-40 bg-[#002953] hover:bg-[#001f3f] text-white p-3.5 sm:p-4 rounded-full shadow-[0_12px_32px_rgba(0,41,83,0.35)] border-2 border-white flex items-center gap-2.5 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer animate-in zoom-in-75 fade-in group"
+          aria-label="View Shopping Cart"
+          title="Open Cart"
+        >
+          <div className="relative flex items-center justify-center">
+            <ShoppingBag className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
+            <span className="absolute -top-2.5 -right-2.5 bg-[#01BEFE] text-[#002953] text-[11px] font-mono font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#002953] shadow-xs">
+              {cart.reduce((sum, item) => sum + item.quantity, 0)}
+            </span>
+          </div>
+          <div className="hidden sm:flex flex-col text-left leading-tight pr-1">
+            <span className="text-[10px] text-[#01BEFE] font-bold uppercase tracking-wider font-sans">Cart</span>
+            <span className="text-xs font-mono font-semibold">
+              £{cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+            </span>
+          </div>
+        </button>
+      )}
+
+      {/* Floating "Can't find what you want? Ask AI" & "Ask AI" Button (Bottom Right) */}
+      {['home', 'services'].includes(activeTab) && (
+        !isAiMinimized ? (
+          <div
+            className={`fixed z-40 transition-all duration-300 max-w-[290px] sm:max-w-[320px] ${
+              cart.length > 0
+                ? 'bottom-36 lg:bottom-24 right-4 lg:right-8'
+                : 'bottom-20 lg:bottom-8 right-4 lg:right-8'
+            }`}
+          >
+            <div
+              onClick={() => handleNavigate('assistant')}
+              className="group relative bg-white/95 backdrop-blur-md text-gray-900 rounded-2xl shadow-xl hover:shadow-2xl border border-slate-200/90 p-3 sm:p-3.5 pr-8 flex items-center gap-3 cursor-pointer transition-all duration-200 hover:scale-102 active:scale-98"
+              title="Ask our AI Assistant"
+            >
+              {/* Close / Minimize Button */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsAiMinimized(true);
+                }}
+                className="absolute top-2 right-2 w-5 h-5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center cursor-pointer transition-colors"
+                title="Minimize Ask AI"
+                aria-label="Minimize Ask AI"
+              >
+                <X className="w-3 h-3" />
+              </button>
+
+              {/* AI Icon */}
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#002953] to-[#01BEFE] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#01BEFE]/20 group-hover:scale-105 transition-transform">
+                <Sparkles className="w-5 h-5 text-[#01BEFE] animate-pulse" />
+              </div>
+
+              {/* Message */}
+              <div className="text-left">
+                <p className="text-xs text-slate-500 font-sans font-medium leading-tight">
+                  Can't find what you want?
+                </p>
+                <p className="text-xs font-sans font-semibold text-[#002953] group-hover:text-[#01BEFE] transition-colors flex items-center gap-1 mt-0.5">
+                  <span>Ask AI</span>
+                  <ArrowRight className="w-3 h-3 text-[#01BEFE] group-hover:translate-x-0.5 transition-transform" />
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => handleNavigate('assistant')}
+            className={`fixed z-40 bg-[#002953] hover:bg-[#001f3f] text-white py-2.5 px-4 rounded-full font-sans font-semibold text-xs shadow-xl flex items-center gap-2 border border-[#01BEFE]/40 cursor-pointer transition-all hover:scale-105 active:scale-95 group ${
+              cart.length > 0
+                ? 'bottom-36 lg:bottom-24 right-4 lg:right-8'
+                : 'bottom-20 lg:bottom-8 right-4 lg:right-8'
+            }`}
+            title="Ask AI"
+          >
+            <Sparkles className="w-4 h-4 text-[#01BEFE] animate-pulse group-hover:scale-110 transition-transform" />
+            <span>Ask AI</span>
+          </button>
+        )
+      )}
 
       {/* Slide-over Cart Drawer */}
       <CartDrawer

@@ -1,11 +1,34 @@
-import { NextRequest } from 'next/server';
-import { withErrorHandler, successResponse } from '@/lib/api';
+import { NextRequest, NextResponse } from 'next/server';
+import { withErrorHandler, successResponse, getClientIp } from '@/lib/api';
 import { AuthService } from '@/services/AuthService';
 import { SessionService } from '@/services/SessionService';
+import { RateLimitService } from '@/services/RateLimitService';
 
 async function loginHandler(req: NextRequest) {
+    const clientIp = getClientIp(req);
+
+    // Rate limit login attempts: 10 per minute per IP
+    const rateCheck = await RateLimitService.checkLimit({
+        key: `auth:login:${clientIp}`,
+        maxRequests: 10,
+        windowSeconds: 60,
+    });
+    if (!rateCheck.allowed) {
+        return NextResponse.json(
+            { error: 'Too many login attempts. Please try again later.' },
+            { 
+                status: 429, 
+                headers: { 
+                    'Retry-After': String(rateCheck.resetInSeconds),
+                    'X-RateLimit-Limit': String(rateCheck.limit),
+                    'X-RateLimit-Remaining': '0',
+                    'X-RateLimit-Reset': rateCheck.resetAt.toISOString(),
+                } 
+            }
+        );
+    }
+
     const body = await req.json();
-    const clientIp = req.headers.get('x-forwarded-for') || 'unknown';
     
     const result = await AuthService.login(body, clientIp);
     const portal = body.portal || 'customer';
@@ -21,9 +44,22 @@ async function loginHandler(req: NextRequest) {
         ipAddress: clientIp,
     });
 
-    (result as any).csrfToken = csrfToken;
+    const isNonBrowserClient = req.headers.get('x-client-type') === 'mobile' ||
+        req.headers.get('x-auth-transport') === 'token' ||
+        body.clientType === 'mobile' ||
+        body.returnToken === true;
 
-    const response = successResponse(result);
+    const responseData: any = {
+        ...result,
+        csrfToken
+    };
+
+    // BFF Architecture: Suppress browser-accessible JWT exposure in response body for cookie-based browser sessions
+    if (!isNonBrowserClient) {
+        delete responseData.token;
+    }
+
+    const response = successResponse(responseData);
     const cookieConfig = SessionService.getCookieConfig(portal);
     response.cookies.set(cookieConfig.name, sessionId, cookieConfig.options);
 

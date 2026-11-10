@@ -69,5 +69,11 @@
         "service": "customer"
       }
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/v1/system/cron",
+      "schedule": "*/15 * * * *"
+    }
   ]
 }

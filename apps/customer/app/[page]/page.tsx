@@ -1,4 +1,5 @@
 import React from 'react';
+import { redirect } from 'next/navigation';
 import AppClient from '../AppClient';
 
 interface PageProps {
@@ -8,6 +9,10 @@ interface PageProps {
 export default async function DynamicPage({ params }: PageProps) {
   const resolvedParams = await params;
   const rawPage = resolvedParams.page;
+
+  if (rawPage === 'verify-email') {
+    redirect('/verify-email');
+  }
 
   let tabName = 'home';
   if (rawPage === 'services') tabName = 'services';

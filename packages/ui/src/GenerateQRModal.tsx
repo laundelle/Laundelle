@@ -118,7 +118,7 @@ export const GenerateQRModal: React.FC<GenerateQRModalProps> = ({ isOpen, onClos
                         className={`w-full py-3 rounded-2xl font-black text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
                             confirmed
                                 ? 'bg-emerald-600 text-white'
-                                : 'bg-[#03045E] hover:bg-[#023E8A] text-white'
+                                : 'bg-[#01BEFE] hover:bg-[#00a6e0] text-white'
                         }`}
                     >
                         {confirming ? (
@@ -126,7 +126,7 @@ export const GenerateQRModal: React.FC<GenerateQRModalProps> = ({ isOpen, onClos
                         ) : confirmed ? (
                             <CheckCircle2 className="w-4 h-4" />
                         ) : (
-                            <Building2 className="w-4 h-4 text-[#48CAE4]" />
+                            <Building2 className="w-4 h-4 text-white" />
                         )}
                         <span>{confirmed ? 'Handover Confirmed!' : confirming ? 'Confirming...' : 'Confirm Handover to Plant'}</span>
                     </button>

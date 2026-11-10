@@ -17,6 +17,7 @@ import { OrderCustomerEnrichmentService } from './OrderCustomerEnrichmentService
 import { isPostcodeInServiceArea, extractOutwardCode } from '@laundelle/utils';
 import { Auth0Service } from './Auth0Service';
 import { NotFoundError, BadRequestError } from '@/lib/api';
+import { SessionService } from './SessionService';
 
 export class AdminService {
     static async getDashboardMetrics(location?: string, dateFilter?: string, startDate?: string, endDate?: string) {
@@ -232,23 +233,30 @@ export class AdminService {
         const db = await getDb();
         const now = new Date().toISOString();
         
-        const driver = await db.collection('users').findOne({ _id: driverId, role: 'driver', is_active: true } as any);
+        const driver = await db.collection('users').findOne({
+            ...buildEntityLookupQuery(driverId, 'user', (id) => ObjectId.isValid(id) ? new ObjectId(id) : null),
+            role: 'driver',
+            is_active: true
+        } as any);
         if (!driver) throw new Error('Valid, active driver not found.');
 
-        const order = await db.collection('orders').findOne({ id: orderId });
+        const order = await db.collection('orders').findOne(
+            buildEntityLookupQuery(orderId, 'order', (id) => ObjectId.isValid(id) ? new ObjectId(id) : null)
+        );
         if (!order) throw new Error('Order not found.');
 
+        const effectiveDriverId = driver.publicId || driver.staffId || driver.id || driverId;
         await db.collection('orders').updateOne(
-            { id: orderId },
+            { _id: order._id },
             {
-                $set: { assigned_driver_id: driverId, status: 'collection_scheduled', statusLabel: 'Collection Scheduled', updated_at: now },
+                $set: { assigned_driver_id: effectiveDriverId, status: 'collection_scheduled', statusLabel: 'Collection Scheduled', updated_at: now },
                 $push: {
                     timeline_events: {
                         event: 'driver_assigned',
                         label: 'Driver Assigned',
                         actor: 'admin',
                         actorId: adminId,
-                        driverId,
+                        driverId: effectiveDriverId,
                         timestamp: now
                     }
                 } as any
@@ -261,23 +269,30 @@ export class AdminService {
         const db = await getDb();
         const now = new Date().toISOString();
         
-        const processor = await db.collection('users').findOne({ _id: processorId, role: 'processor', is_active: true } as any);
+        const processor = await db.collection('users').findOne({
+            ...buildEntityLookupQuery(processorId, 'user', (id) => ObjectId.isValid(id) ? new ObjectId(id) : null),
+            role: 'processor',
+            is_active: true
+        } as any);
         if (!processor) throw new Error('Valid, active processor not found.');
 
-        const order = await db.collection('orders').findOne({ id: orderId });
+        const order = await db.collection('orders').findOne(
+            buildEntityLookupQuery(orderId, 'order', (id) => ObjectId.isValid(id) ? new ObjectId(id) : null)
+        );
         if (!order) throw new Error('Order not found.');
 
+        const effectiveProcessorId = processor.publicId || processor.staffId || processor.id || processorId;
         await db.collection('orders').updateOne(
-            { id: orderId },
+            { _id: order._id },
             {
-                $set: { assigned_processor_id: processorId, status: 'received_at_facility', statusLabel: 'Received at Facility', updated_at: now },
+                $set: { assigned_processor_id: effectiveProcessorId, status: 'received_at_facility', statusLabel: 'Received at Facility', updated_at: now },
                 $push: {
                     timeline_events: {
                         event: 'processor_assigned',
                         label: 'Processor Assigned',
                         actor: 'admin',
                         actorId: adminId,
-                        processorId,
+                        processorId: effectiveProcessorId,
                         timestamp: now
                     }
                 } as any
@@ -541,6 +556,7 @@ export class AdminService {
                 customerLookup as any,
                 { $set: { status: 'blocked', customer_status: 'blocked', is_blocked: true } }
             );
+            await SessionService.revokeAllUserSessions(flagData.customerId).catch(() => {});
         }
 
         await AuditService.recordEvent({
@@ -1212,7 +1228,9 @@ export class AdminService {
 
     // ─── Helper: Sync a single staff member's postcodes from their manager's plant ──
     static async syncStaffPostcodesFromManager(db: any, staffId: string): Promise<void> {
-        const staff = await db.collection('users').findOne({ _id: staffId } as any);
+        const staff = await db.collection('users').findOne(
+            buildEntityLookupQuery(staffId, 'user', (id) => ObjectId.isValid(id) ? new ObjectId(id) : null) as any
+        );
         if (!staff) return;
         const managerId = staff.manager_id;
         const plantId = staff.plant_id;
@@ -1220,12 +1238,18 @@ export class AdminService {
 
         let plant: any = null;
         if (plantId) {
-            plant = await db.collection('plants').findOne({ _id: plantId } as any);
+            plant = await db.collection('plants').findOne(
+                buildEntityLookupQuery(plantId, 'plant', (id) => ObjectId.isValid(id) ? new ObjectId(id) : null) as any
+            );
         }
         if (!plant && managerId) {
-            const manager = await db.collection('users').findOne({ _id: managerId } as any);
+            const manager = await db.collection('users').findOne(
+                buildEntityLookupQuery(managerId, 'user', (id) => ObjectId.isValid(id) ? new ObjectId(id) : null) as any
+            );
             if (manager?.plant_id) {
-                plant = await db.collection('plants').findOne({ _id: manager.plant_id } as any);
+                plant = await db.collection('plants').findOne(
+                    buildEntityLookupQuery(manager.plant_id, 'plant', (id) => ObjectId.isValid(id) ? new ObjectId(id) : null) as any
+                );
             }
             if (!plant) {
                 plant = await db.collection('plants').findOne({ manager_id: managerId } as any);
@@ -1238,7 +1262,7 @@ export class AdminService {
             : (plant.service_pincodes || '').split(',').map((p: string) => p.trim().toUpperCase()).filter(Boolean);
 
         await db.collection('users').updateOne(
-            { _id: staffId } as any,
+            { _id: staff._id },
             { $set: { assigned_postcodes: pincodes, assignedSectors: pincodes } }
         );
     }

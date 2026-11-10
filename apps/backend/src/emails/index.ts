@@ -11,7 +11,19 @@ export * from './EmailVerificationEmail';
 export * from './OrderConfirmedEmail';
 export * from './OrderCompletedEmail';
 
-const DEFAULT_APP_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.CUSTOMER_APP_URL || 'https://laundelle.com';
+export function getCanonicalAppUrl(): string {
+  const explicit = process.env.PUBLIC_CUSTOMER_URL || process.env.VERIFICATION_BASE_URL;
+  if (explicit && !explicit.includes('devtunnels.ms') && !explicit.includes('ngrok')) {
+    return explicit.replace(/\/$/, '');
+  }
+  const fallback = process.env.NEXT_PUBLIC_APP_URL || process.env.CUSTOMER_APP_URL;
+  if (fallback && !fallback.includes('devtunnels.ms') && !fallback.includes('ngrok') && !fallback.includes('localhost') && !fallback.includes('127.0.0.1')) {
+    return fallback.replace(/\/$/, '');
+  }
+  return 'https://laundelle.co.uk';
+}
+
+const DEFAULT_APP_URL = getCanonicalAppUrl();
 
 // ==========================================
 // RENDER HELPERS
@@ -90,20 +102,26 @@ export async function sendVerificationEmail({
   to,
   customerName = 'Valued Customer',
   verificationUrl,
-  appUrl = DEFAULT_APP_URL,
+  appUrl,
 }: {
   to: string;
   customerName?: string;
   verificationUrl?: string;
   appUrl?: string;
 }) {
-  const targetUrl = verificationUrl || `${appUrl}/verify-email?email=${encodeURIComponent(to)}`;
+  const canonicalBase = getCanonicalAppUrl();
+  const safeAppUrl = (appUrl && typeof appUrl === 'string' && appUrl.trim()) ? appUrl.trim() : canonicalBase;
+
+  let targetUrl = verificationUrl;
+  if (!targetUrl) {
+    targetUrl = `${safeAppUrl}/verify-email?email=${encodeURIComponent(to)}`;
+  }
 
   const html = await renderVerificationEmail({
     customerName,
     email: to,
     verificationUrl: targetUrl,
-    appUrl,
+    appUrl: safeAppUrl,
   });
 
   return await sendEmail({

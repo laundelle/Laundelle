@@ -45,10 +45,10 @@ export const SchedulePickupModal: React.FC<SchedulePickupModalProps> = ({
 
       {/* Modal Dialog */}
       <div className="relative w-full max-w-lg max-h-[85vh] sm:max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col my-auto">
-        <div className="p-5 sm:p-6 bg-[#03045E] text-white flex items-center justify-between shrink-0">
+        <div className="p-5 sm:p-6 bg-[#002953] text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-[#00B4D8]/20 rounded-2xl">
-              <Calendar className="w-5 h-5 text-[#48CAE4]" />
+            <div className="p-2.5 bg-[#01BEFE]/20 rounded-2xl">
+              <Calendar className="w-5 h-5 text-[#01BEFE]" />
             </div>
             <div>
               <h3 className="text-base font-bold">Quick Schedule Pickup</h3>
@@ -67,9 +67,9 @@ export const SchedulePickupModal: React.FC<SchedulePickupModalProps> = ({
           {/* Services Selector */}
           <div>
             <label className="block text-xs font-bold text-gray-700 mb-1.5">Services Required</label>
-            <div className="space-y-2 max-h-40 overflow-y-auto bg-[#CAF0F8]/10 p-2 rounded-xl border border-[#CAF0F8]/50">
+            <div className="space-y-2 max-h-40 overflow-y-auto bg-[#01BEFE]/15/10 p-2 rounded-xl border border-[#01BEFE]/50">
               {services.map((s) => (
-                <label key={s.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#CAF0F8]/20 cursor-pointer transition-colors">
+                <label key={s.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#01BEFE]/15/20 cursor-pointer transition-colors">
                   <input
                     type="checkbox"
                     checked={selectedServiceIds.includes(s.id)}
@@ -80,7 +80,7 @@ export const SchedulePickupModal: React.FC<SchedulePickupModalProps> = ({
                         setSelectedServiceIds(selectedServiceIds.filter(id => id !== s.id));
                       }
                     }}
-                    className="w-4 h-4 rounded text-[#03045E] focus:ring-[#03045E] accent-[#03045E]"
+                    className="w-4 h-4 rounded text-[#002953] focus:ring-[#002953] accent-[#002953]"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold text-gray-800">{s.name}</p>
@@ -102,14 +102,14 @@ export const SchedulePickupModal: React.FC<SchedulePickupModalProps> = ({
                   max="50"
                   value={weightOrQty}
                   onChange={(e) => setWeightOrQty(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-full px-4 py-3 bg-[#CAF0F8]/20 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#03045E] focus:outline-hidden"
+                  className="w-full px-4 py-3 bg-[#01BEFE]/15/20 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#002953] focus:outline-hidden"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1.5">Estimated Base Price</label>
-              <div className="px-4 py-3 bg-[#CAF0F8] rounded-xl text-xs font-bold text-[#03045E] flex items-center justify-between">
+              <div className="px-4 py-3 bg-[#01BEFE]/15 rounded-xl text-xs font-bold text-[#002953] flex items-center justify-between">
                 <span>Total</span>
                 <span className="font-extrabold">£{(selectedServiceIds.reduce((sum, id) => sum + (services.find(s => s.id === id)?.price || 0), 0) * weightOrQty).toFixed(2)}</span>
               </div>
@@ -125,8 +125,8 @@ export const SchedulePickupModal: React.FC<SchedulePickupModalProps> = ({
                   key={addr.id}
                   className={`p-4 rounded-2xl text-xs flex items-center gap-3 cursor-pointer transition-all ${
                     selectedAddressId === addr.id
-                      ? 'bg-[#CAF0F8] font-medium shadow-xs ring-1 ring-[#03045E]'
-                      : 'bg-[#CAF0F8]/20 hover:bg-gray-100'
+                      ? 'bg-[#01BEFE]/15 font-medium shadow-xs ring-1 ring-[#002953]'
+                      : 'bg-[#01BEFE]/15/20 hover:bg-gray-100'
                   }`}
                 >
                   <input
@@ -134,7 +134,7 @@ export const SchedulePickupModal: React.FC<SchedulePickupModalProps> = ({
                     name="modal_address"
                     checked={selectedAddressId === addr.id}
                     onChange={() => setSelectedAddressId(addr.id)}
-                    className="accent-[#03045E]"
+                    className="accent-[#002953]"
                   />
                   <div className="flex-1 min-w-0">
                     <span className="font-bold text-gray-800">{addr.label}</span>
@@ -155,16 +155,16 @@ export const SchedulePickupModal: React.FC<SchedulePickupModalProps> = ({
               value={specialNote}
               onChange={(e) => setSpecialNote(e.target.value)}
               placeholder="e.g. Please use eco-enzyme detergent, separate whites, or ring doorbell twice."
-              className="w-full px-4 py-3 bg-[#CAF0F8]/20 rounded-xl text-xs focus:ring-2 focus:ring-[#03045E] focus:outline-hidden"
+              className="w-full px-4 py-3 bg-[#01BEFE]/15/20 rounded-xl text-xs focus:ring-2 focus:ring-[#002953] focus:outline-hidden"
             />
           </div>
 
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full bg-[#03045E] hover:bg-[#023E8A] text-white py-3.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+              className="w-full bg-[#002953] hover:bg-[#002953] text-white py-3.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
             >
-              <CheckCircle2 className="w-4 h-4 text-[#48CAE4]" />
+              <CheckCircle2 className="w-4 h-4 text-[#01BEFE]" />
               <span>Proceed to Booking Cart</span>
             </button>
           </div>

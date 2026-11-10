@@ -6,7 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
     throw new Error('FATAL: JWT_SECRET environment variable is not set. Application cannot start securely.');
 }
-const SECRET = JWT_SECRET || crypto.randomBytes(32).toString('hex');
+const SECRET = JWT_SECRET || 'dev-laundelle-jwt-secret-stable-local-fallback';
 
 // ---------------------------------------------------------------------------
 // Cryptographic Password Hashing (OWASP-Compliant PBKDF2 with Per-User Salt)
@@ -230,15 +230,23 @@ export function isTokenRevoked(token: string): boolean {
 /**
  * Asynchronously checks whether a token is revoked by verifying against the cache
  * and directly checking MongoDB if not cached. Recommended for critical endpoints.
+ * Fails securely if authentication/revocation storage is unreachable.
  */
-export async function isTokenRevokedAsync(token: string): Promise<boolean> {
+export async function isTokenRevokedAsync(token: string, userId?: string): Promise<boolean> {
     if (!token) return true;
     if (REVOKED_TOKENS_CACHE.has(token)) return true;
+    if (userId && REVOKED_TOKENS_CACHE.has(`user_revoked_${userId}`)) return true;
 
     try {
         const db = await getDb();
+        const conditions: any[] = [{ token }];
+        if (userId) {
+            conditions.push({ token: `user_revoked_${userId}` });
+            conditions.push({ userId });
+        }
+
         const record = await db.collection('revoked_tokens').findOne({
-            token,
+            $or: conditions,
             expiresAt: { $gt: new Date() },
         });
 
@@ -246,8 +254,10 @@ export async function isTokenRevokedAsync(token: string): Promise<boolean> {
             REVOKED_TOKENS_CACHE.add(token);
             return true;
         }
-    } catch {
-        // Fall back to memory cache
+    } catch (err) {
+        // Fail securely: When session/revocation storage is unavailable, do not silently assume valid
+        console.error('[Token Revocation] Error querying revocation storage:', err);
+        throw new Error('AUTH_STORAGE_UNAVAILABLE: Authentication and revocation storage is temporarily unreachable.');
     }
 
     return false;
@@ -476,14 +486,14 @@ async function verifyAuth0Rs256Async(token: string): Promise<JwtPayload | null> 
         const rawPayload = JSON.parse(base64UrlDecode(parsed.encodedPayload));
         const nowSec = Math.floor(Date.now() / 1000);
 
-        // Check expiration with 60-second clock skew tolerance
-        if (rawPayload.exp && nowSec > rawPayload.exp + 60) {
+        // Check expiration with 10-second clock skew tolerance
+        if (rawPayload.exp && nowSec > rawPayload.exp + 10) {
             console.warn(`[Auth0 Verify] Token expired: exp=${rawPayload.exp}, nowSec=${nowSec}, expired ${nowSec - rawPayload.exp}s ago`);
             return null; // Expired
         }
 
-        // Check not-before claim with 60-second clock skew tolerance
-        if (rawPayload.nbf && nowSec < rawPayload.nbf - 60) {
+        // Check not-before claim with 10-second clock skew tolerance
+        if (rawPayload.nbf && nowSec < rawPayload.nbf - 10) {
             return null; // Not yet valid
         }
 
@@ -507,6 +517,7 @@ async function verifyAuth0Rs256Async(token: string): Promise<JwtPayload | null> 
             process.env.AUTH0_API_IDENTIFIER,
             process.env.AUTH0_CLIENT_ID,
             process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID,
+            expectedDomain ? `https://${expectedDomain}/userinfo` : '',
         ].filter(Boolean) as string[];
 
         if (allowedAudiences.length > 0) {
@@ -540,8 +551,8 @@ function verifyLegacyHs256(token: string): JwtPayload | null {
     const parsed = parseTokenParts(token);
     if (!parsed || parsed.header.alg !== 'HS256') return null;
 
-    if (process.env.ALLOW_HS256_LEGACY === 'false') {
-        console.warn('[AUTH REJECTED] HS256 legacy token rejected because ALLOW_HS256_LEGACY is set to false.');
+    if (process.env.ALLOW_HS256_LEGACY === 'false' || (process.env.NODE_ENV === 'production' && process.env.ALLOW_HS256_LEGACY !== 'true')) {
+        console.warn('[AUTH REJECTED] HS256 legacy token rejected. Production requires Auth0 RS256 JWKS tokens.');
         return null;
     }
 
@@ -597,18 +608,28 @@ export async function verifyJwtAsync(token: string): Promise<JwtPayload | null> 
         const parsed = parseTokenParts(token);
         if (!parsed) return null;
 
+        let payload: JwtPayload | null = null;
+
         // 1. Primary path: Auth0 RS256 token
         if (parsed.header.alg === 'RS256') {
-            return await verifyAuth0Rs256Async(token);
+            payload = await verifyAuth0Rs256Async(token);
+        } else if (parsed.header.alg === 'HS256') {
+            // 2. Legacy fallback path: deprecated HS256 token
+            payload = verifyLegacyHs256(token);
         }
 
-        // 2. Legacy fallback path: deprecated HS256 token
-        if (parsed.header.alg === 'HS256') {
-            return verifyLegacyHs256(token);
+        if (!payload) return null;
+
+        // Exhaustive check: Verify user-level revocation
+        if (payload.sub && (await isTokenRevokedAsync(token, payload.sub))) {
+            return null;
         }
 
-        return null;
-    } catch {
+        return payload;
+    } catch (err: any) {
+        if (err?.message?.includes('AUTH_STORAGE_UNAVAILABLE')) {
+            throw err;
+        }
         return null;
     }
 }
@@ -640,7 +661,7 @@ export function verifyJwt(token: string): JwtPayload | null {
                 );
                 if (isValid) {
                     const rawPayload = JSON.parse(base64UrlDecode(parsed.encodedPayload));
-                    if (!rawPayload.exp || Math.floor(Date.now() / 1000) <= rawPayload.exp + 60) {
+                    if (!rawPayload.exp || Math.floor(Date.now() / 1000) <= rawPayload.exp + 10) {
                         return normalizeAuth0Payload(rawPayload);
                     }
                 }

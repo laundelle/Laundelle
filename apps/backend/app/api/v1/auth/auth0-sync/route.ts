@@ -24,31 +24,46 @@ async function auth0SyncHandler(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const clientIp = req.headers.get('x-forwarded-for') || 'unknown';
 
-    // Infer portal context accurately from origin/referer headers or honor explicitly specified portal
-    const origin = (req.headers.get('origin') || req.headers.get('referer') || '').toLowerCase();
+    // Capture caller origin to ensure verification emails point back to the actual running environment
+    const rawOrigin = req.headers.get('origin') || req.headers.get('referer') || '';
+    let parsedOrigin = '';
+    try {
+        if (rawOrigin) parsedOrigin = new URL(rawOrigin).origin;
+    } catch {}
+    if (parsedOrigin && !body.appUrl) {
+        body.appUrl = parsedOrigin;
+    }
 
-    const isAdminOrigin = origin.includes(':3002') ||
-        origin.includes('admin.') ||
-        origin.includes('3002.inc1.devtunnels.ms');
+    // Portal determination:
+    // 1. Explicit body.portal takes precedence if provided.
+    // 2. Secondary fallback based on trusted origin/referer headers for development/multi-domain routing.
+    // Note: Actual access control and permissions are enforced authoritatively by AuthService.syncAuth0User via database roles.
+    if (!body.portal) {
+        const origin = (req.headers.get('origin') || req.headers.get('referer') || '').toLowerCase();
 
-    const isOpsOrigin = origin.includes(':3001') ||
-        origin.includes('ops.') ||
-        origin.includes('operations.') ||
-        origin.includes('3001.inc1.devtunnels.ms');
+        const isAdminOrigin = origin.includes(':3002') ||
+            origin.includes('admin.') ||
+            origin.includes('3002.inc1.devtunnels.ms');
 
-    const isExplicitCustomerOrigin = origin.includes(':3000') ||
-        origin.includes('customer.') ||
-        origin.includes('3000.inc1.devtunnels.ms') ||
-        (!isAdminOrigin && !isOpsOrigin && (origin.includes('laundelle.co.uk') || origin.includes('localhost') || origin.includes('127.0.0.1')));
+        const isOpsOrigin = origin.includes(':3001') ||
+            origin.includes('ops.') ||
+            origin.includes('operations.') ||
+            origin.includes('3001.inc1.devtunnels.ms');
 
-    if (isAdminOrigin) {
-        body.portal = 'admin';
-    } else if (isOpsOrigin) {
-        body.portal = 'operations';
-    } else if (isExplicitCustomerOrigin) {
-        body.portal = 'customer';
-    } else if (!body.portal) {
-        body.portal = 'customer';
+        const isExplicitCustomerOrigin = origin.includes(':3000') ||
+            origin.includes('customer.') ||
+            origin.includes('3000.inc1.devtunnels.ms') ||
+            (!isAdminOrigin && !isOpsOrigin && (origin.includes('laundelle.co.uk') || origin.includes('localhost') || origin.includes('127.0.0.1')));
+
+        if (isAdminOrigin) {
+            body.portal = 'admin';
+        } else if (isOpsOrigin) {
+            body.portal = 'operations';
+        } else if (isExplicitCustomerOrigin) {
+            body.portal = 'customer';
+        } else {
+            body.portal = 'customer';
+        }
     }
     
     const result = await AuthService.syncAuth0User(body, clientIp, verifiedToken);

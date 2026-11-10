@@ -73,7 +73,7 @@ export const AdditionalChargeModal: React.FC<AdditionalChargeModalProps> = ({
 
             <div className="border-t border-gray-200 pt-2.5 flex justify-between items-baseline text-sm font-extrabold text-gray-900">
               <span>Updated Total Amount:</span>
-              <span className="text-xl text-[#03045E]">£{charge.updatedAmount.toFixed(2)}</span>
+              <span className="text-xl text-[#002953]">£{charge.updatedAmount.toFixed(2)}</span>
             </div>
           </div>
 
@@ -86,9 +86,9 @@ export const AdditionalChargeModal: React.FC<AdditionalChargeModalProps> = ({
           <div className="space-y-2 pt-1">
             <button
               onClick={() => onAccept(orderId, charge.id)}
-              className="w-full bg-[#03045E] hover:bg-[#023E8A] text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full bg-[#002953] hover:bg-[#002953] text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Check className="w-4 h-4 text-[#48CAE4]" />
+              <Check className="w-4 h-4 text-[#01BEFE]" />
               <span>Accept & Authorize £{charge.additionalAmount.toFixed(2)}</span>
             </button>
 

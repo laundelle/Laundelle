@@ -13,6 +13,7 @@ import { generateBagId, generateOrderItemId, buildEntityLookupQuery, generateId,
 import { normalizeRole } from '@laundelle/auth';
 import { OrderCustomerEnrichmentService } from './OrderCustomerEnrichmentService';
 import { ManagerService } from './ManagerService';
+import { QRBagService } from './QRBagService';
 
 export class ProcessorService {
     public static userFilter(userId: string) {
@@ -853,6 +854,16 @@ export class ProcessorService {
 
         if (additionalCharge) {
             updateFields.additionalCharge = additionalCharge;
+        }
+
+        const intakeBagQr = packageQr || order.evidence?.bagQrCode || order.bag_id || order.qr_tracking?.qrTagId;
+        if (intakeBagQr) {
+            await QRBagService.recordPlantIntake(
+                intakeBagQr,
+                String(matchResult.processorPlantId || order.plant_id || 'main_plant'),
+                bagCondition?.toLowerCase() as any,
+                String(processor._id)
+            ).catch(err => console.warn('[ProcessorService] QR Bag intake update notice:', err.message));
         }
 
         const eventsPush: any[] = [{

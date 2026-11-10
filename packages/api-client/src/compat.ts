@@ -226,7 +226,7 @@ export function authHeaders(): HeadersInit {
 // ─── Auth Actions ─────────────────────────────────────────────────────────────
 
 export interface AuthResult {
-    user: { id: string; publicId?: string; email: string; name: string; phone?: string; role?: string; plantId?: string; plant_id?: string } | null;
+    user: { id: string; publicId?: string; email: string; name: string; phone?: string; role?: string; plantId?: string; plant_id?: string; emailVerified?: boolean } | null;
     token: string | null;
     error: string | null;
     needsProfileCompletion?: boolean;
@@ -348,6 +348,44 @@ export async function dbAuth0Sync(auth0User: {
         };
     } catch (e: any) {
         return { user: null, token: null, error: e.message || 'Network error' };
+    }
+}
+
+/**
+ * Verifies email via token and establishes authenticated customer session.
+ */
+export async function dbVerifyEmail(email: string, token: string): Promise<AuthResult> {
+    try {
+        const res = await apiFetch('/api/v1/auth/verify-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, token }),
+        });
+        const json = await res.json();
+        const data = json.success ? json.data : json;
+        if (!res.ok || data.error) {
+            return { user: null, token: null, error: getErrorMessage(data.error, 'Email verification failed') };
+        }
+
+        const effectiveToken = data.token || '';
+        const session: MongoAuthSession = {
+            token: effectiveToken,
+            user: data.user,
+            isAuthenticated: true,
+            csrfToken: data.csrfToken,
+        };
+        if (data.csrfToken) {
+            setCsrfToken(data.csrfToken);
+        }
+        saveSession(session);
+        return {
+            user: data.user,
+            token: effectiveToken,
+            error: null,
+            csrfToken: data.csrfToken
+        };
+    } catch (e: any) {
+        return { user: null, token: null, error: e.message || 'Network error during email verification' };
     }
 }
 

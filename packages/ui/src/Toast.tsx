@@ -15,7 +15,7 @@ export const Toast: React.FC<ToastProps> = ({
   if (!message) return null;
 
   const bgStyles = {
-    success: 'bg-[#03045E] text-white border-blue-900',
+    success: 'bg-[#002953] text-white border-[#01BEFE]',
     error: 'bg-rose-700 text-white border-rose-800',
     info: 'bg-gray-900 text-white border-gray-800',
   }[type];

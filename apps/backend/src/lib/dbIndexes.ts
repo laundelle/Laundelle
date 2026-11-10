@@ -10,11 +10,31 @@ let indexesEnsured = false;
  */
 async function ensureSafeUniqueStringIndex(collection: any, field: string, indexName?: string) {
   const name = indexName || `${field}_1`;
+
+  // Pre-flight normalization: unset empty strings so they never collide on unique index
+  try {
+    await collection.updateMany(
+      { [field]: "" },
+      { $unset: { [field]: "" } }
+    );
+  } catch {}
+
   const existingIndexes = await collection.indexes().catch(() => []);
   const existing = existingIndexes.find((idx: any) => idx.name === name);
 
-  if (existing && (!existing.partialFilterExpression || !existing.unique)) {
-    // Drop outdated sparse or non-partial index so it upgrades cleanly to partialFilterExpression
+  // Exclude empty strings and nulls: only non-empty strings are indexed
+  const expectedFilter = { [field]: { $type: 'string', $gt: '' } };
+
+  if (existing) {
+    const hasCorrectFilter = existing.unique &&
+      existing.partialFilterExpression &&
+      JSON.stringify(existing.partialFilterExpression) === JSON.stringify(expectedFilter);
+
+    if (hasCorrectFilter) {
+      return;
+    }
+
+    // Drop outdated sparse, non-partial, or $type:'string'-only index so it upgrades safely
     await collection.dropIndex(name).catch(() => {});
   }
 
@@ -22,7 +42,7 @@ async function ensureSafeUniqueStringIndex(collection: any, field: string, index
     { [field]: 1 },
     {
       unique: true,
-      partialFilterExpression: { [field]: { $type: 'string' } },
+      partialFilterExpression: expectedFilter,
       background: true,
       name
     }
@@ -108,7 +128,7 @@ export async function ensureDatabaseIndexes() {
 
     // 5. Operational Exceptions
     await Promise.all([
-      db.collection('exceptions').createIndex({ publicId: 1 }, { unique: true, sparse: true, background: true }),
+      ensureSafeUniqueStringIndex(db.collection('exceptions'), 'publicId'),
       db.collection('exceptions').createIndex({ id: 1 }, { unique: true, background: true }),
       db.collection('exceptions').createIndex({ plantId: 1, status: 1, priority: 1 }, { background: true }),
       db.collection('exceptions').createIndex({ orderId: 1, status: 1 }, { background: true })
@@ -123,7 +143,10 @@ export async function ensureDatabaseIndexes() {
 
     // 7. COD Collections
     await Promise.all([
-      db.collection('cod_collections').createIndex({ publicId: 1 }, { unique: true, sparse: true, background: true }),
+      ensureSafeUniqueStringIndex(db.collection('cod_collections'), 'publicId'),
+      ensureSafeUniqueStringIndex(db.collection('cod_collections'), 'idempotencyKey'),
+      ensureSafeUniqueStringIndex(db.collection('cod_collections'), 'receiptNumber'),
+      ensureSafeUniqueStringIndex(db.collection('cod_collections'), 'referenceNumber'),
       db.collection('cod_collections').createIndex({ id: 1 }, { unique: true, background: true }),
       db.collection('cod_collections').createIndex({ orderId: 1 }, { background: true }),
       db.collection('cod_collections').createIndex({ reconciliationStatus: 1 }, { background: true }),
@@ -132,7 +155,7 @@ export async function ensureDatabaseIndexes() {
 
     // 8. Evidence Metadata
     await Promise.all([
-      db.collection('evidence').createIndex({ publicId: 1 }, { unique: true, sparse: true, background: true }),
+      ensureSafeUniqueStringIndex(db.collection('evidence'), 'publicId'),
       db.collection('evidence').createIndex({ fileId: 1 }, { unique: true, background: true }),
       db.collection('evidence').createIndex({ orderId: 1, type: 1 }, { background: true })
     ]);
@@ -140,7 +163,18 @@ export async function ensureDatabaseIndexes() {
     // 9. Notifications
     await Promise.all([
       db.collection('notifications').createIndex({ id: 1 }, { unique: true, background: true }),
-      db.collection('notifications').createIndex({ userId: 1, read: 1, createdAt: -1 }, { background: true })
+      ensureSafeUniqueStringIndex(db.collection('notifications'), 'idempotencyKey'),
+      db.collection('notifications').createIndex({ userId: 1, read: 1, createdAt: -1 }, { background: true }),
+      db.collection('notifications').createIndex({ status: 1, scheduledAt: 1 }, { background: true })
+    ]);
+
+    // 9b. Offline Sync Queue & Vouchers
+    await Promise.all([
+      ensureSafeUniqueStringIndex(db.collection('offline_sync_queue'), 'operationId'),
+      ensureSafeUniqueStringIndex(db.collection('offline_sync_queue'), 'clientMutationId'),
+      ensureSafeUniqueStringIndex(db.collection('consumed_vouchers'), 'voucherHash'),
+      ensureSafeUniqueStringIndex(db.collection('consumed_vouchers'), 'voucherId'),
+      ensureSafeUniqueStringIndex(db.collection('registered_devices'), 'deviceId')
     ]);
 
     // 10. Audit Log (Tamper-evident chain)
@@ -210,7 +244,7 @@ export async function ensureDatabaseIndexes() {
 
     // 20. Inventory Items (P2)
     await Promise.all([
-      db.collection('inventory_items').createIndex({ publicId: 1 }, { unique: true, sparse: true, background: true }),
+      ensureSafeUniqueStringIndex(db.collection('inventory_items'), 'publicId'),
       db.collection('inventory_items').createIndex({ id: 1 }, { unique: true, background: true }),
       db.collection('inventory_items').createIndex({ plantId: 1, sku: 1 }, { unique: true, background: true }),
       db.collection('inventory_items').createIndex({ plantId: 1, category: 1 }, { background: true }),
@@ -235,21 +269,21 @@ export async function ensureDatabaseIndexes() {
 
     // 23. Registered Devices (P2 Offline sync)
     await Promise.all([
-      db.collection('registered_devices').createIndex({ deviceId: 1 }, { unique: true, background: true }),
+      ensureSafeUniqueStringIndex(db.collection('registered_devices'), 'deviceId'),
       db.collection('registered_devices').createIndex({ userId: 1, status: 1 }, { background: true }),
       db.collection('registered_devices').createIndex({ lastSyncAt: -1 }, { background: true })
     ]);
 
     // 24. Offline Sync Queue (P2)
     await Promise.all([
-      db.collection('offline_sync_queue').createIndex({ operationId: 1 }, { unique: true, background: true }),
+      ensureSafeUniqueStringIndex(db.collection('offline_sync_queue'), 'operationId'),
       db.collection('offline_sync_queue').createIndex({ deviceId: 1, syncStatus: 1 }, { background: true }),
       db.collection('offline_sync_queue').createIndex({ clientTimestamp: 1 }, { background: true })
     ]);
 
     // 25. Unified Alerts (P2 Alert Center)
     await Promise.all([
-      db.collection('unified_alerts').createIndex({ publicId: 1 }, { unique: true, sparse: true, background: true }),
+      ensureSafeUniqueStringIndex(db.collection('unified_alerts'), 'publicId'),
       db.collection('unified_alerts').createIndex({ id: 1 }, { unique: true, background: true }),
       db.collection('unified_alerts').createIndex({ plantId: 1, resolved: 1, severity: 1 }, { background: true }),
       db.collection('unified_alerts').createIndex({ createdAt: -1 }, { background: true })
@@ -262,7 +296,10 @@ export async function ensureDatabaseIndexes() {
       ensureSafeUniqueStringIndex(db.collection('users'), 'publicId'),
       ensureSafeUniqueStringIndex(db.collection('users'), 'customerId'),
       ensureSafeUniqueStringIndex(db.collection('users'), 'staffId'),
+      ensureSafeUniqueStringIndex(db.collection('users'), 'driverId'),
       ensureSafeUniqueStringIndex(db.collection('users'), 'email'),
+      ensureSafeUniqueStringIndex(db.collection('users'), 'phone'),
+      ensureSafeUniqueStringIndex(db.collection('users'), 'secondaryPhone'),
       db.collection('users').createIndex({ role: 1 }, { background: true })
     ]);
 
@@ -270,6 +307,7 @@ export async function ensureDatabaseIndexes() {
     // 27. Plants & Facilities
     await Promise.all([
       ensureSafeUniqueStringIndex(db.collection('plants'), 'publicId'),
+      ensureSafeUniqueStringIndex(db.collection('plants'), 'id'),
       ensureSafeUniqueStringIndex(db.collection('plants'), 'code')
     ]);
 
@@ -375,6 +413,37 @@ export async function ensureDatabaseIndexes() {
         db.collection('revoked_tokens'),
         { expiresAt: 1 },
         { expireAfterSeconds: 0, background: true, name: 'ttl_revoked_tokens_expiresAt' }
+      ),
+      // 12. Rate Limits collection (Distributed atomic rate limiting)
+      ensureSafeIndex(
+        db.collection('rate_limits'),
+        { key: 1 },
+        { unique: true, background: true, name: 'uniq_rate_limits_key' }
+      ),
+      ensureSafeIndex(
+        db.collection('rate_limits'),
+        { expiresAt: 1 },
+        { expireAfterSeconds: 0, background: true, name: 'ttl_rate_limits_expiresAt' }
+      ),
+      // 13. Job Locks collection (Distributed background job locking)
+      ensureSafeIndex(
+        db.collection('job_locks'),
+        { lockedUntil: 1 },
+        { background: true, name: 'idx_job_locks_lockedUntil' }
+      ),
+      // 14. QR Bags collection (Reusable laundry bag fleet tracking)
+      ensureSafeUniqueStringIndex(db.collection('qr_bags'), 'qrCode'),
+      ensureSafeUniqueStringIndex(db.collection('qr_bags'), 'bagNumber'),
+      ensureSafeUniqueStringIndex(db.collection('qr_bags'), 'publicId'),
+      ensureSafeIndex(
+        db.collection('qr_bags'),
+        { plantId: 1, status: 1 },
+        { background: true, name: 'idx_qr_bags_plantId_status' }
+      ),
+      ensureSafeIndex(
+        db.collection('qr_bags'),
+        { currentOrderId: 1 },
+        { background: true, name: 'idx_qr_bags_currentOrderId' }
       )
     ]);
 

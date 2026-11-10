@@ -696,9 +696,9 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
       case 'out_for_delivery':
       case 'driver_assigned':
       case 'collection_scheduled':
-        return 'bg-[#f1ebff] text-[#6544ed]';
+        return 'bg-[#f1ebff] text-[#01BEFE]';
       default:
-        return 'bg-[#eaf0ff] text-[#2457d5]';
+        return 'bg-[#eaf0ff] text-[#01BEFE]';
     }
   };
 
@@ -754,7 +754,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
       case 'pending':
         return 'bg-amber-50 text-amber-600 border border-amber-200/90 shadow-2xs';
       case 'under_process':
-        return 'bg-[#edf3ff] text-[#2459db] border border-[#d6e2ff] shadow-2xs';
+        return 'bg-[#edf3ff] text-[#01BEFE] border border-[#d6e2ff] shadow-2xs';
       case 'completed':
         return 'bg-emerald-50 text-emerald-600 border border-emerald-200/90 shadow-2xs';
     }
@@ -775,7 +775,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#f9fbff] md:bg-[#f8fafc] text-[#071844] font-sans pb-16 md:pb-8">
+    <div className="min-h-screen bg-[#f9fbff] md:bg-[#f8fafc] text-[#002953] font-sans pb-16 md:pb-8">
       <style>{`
         .page-container {
           background:
@@ -826,7 +826,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
           height: 20px;
           margin-left: auto;
           border-radius: 3px;
-          background: #173975;
+          background: #002953;
         }
 
         .machine-door {
@@ -835,7 +835,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
           margin: 16px auto;
           border-radius: 50%;
           border: 8px solid #dce5fc;
-          background: radial-gradient(circle at 35% 30%, #7897d9, #3559a0 42%, #17366f 45%, #122d64 70%);
+          background: radial-gradient(circle at 35% 30%, #7897d9, #3559a0 42%, #002953 45%, #002953 70%);
           box-shadow: inset 0 0 0 2px rgba(255,255,255,.25), 0 5px 15px rgba(20, 48, 110, .15);
         }
 
@@ -997,7 +997,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
         {/* ======================================================
              PAGE CONTAINER
         ======================================================= */}
-        <main className="page-container mx-auto max-w-[1500px] w-full overflow-x-hidden rounded-none border-0 md:rounded-[28px] md:border md:border-[#dce2ee] md:shadow-soft flex flex-col flex-1">
+        <main className="page-container mx-auto max-w-[1500px] w-full overflow-x-hidden rounded-none border-0 md:rounded-[28px] md:border md:border-[#e2e8f0] md:shadow-soft flex flex-col flex-1">
           {/* Hero Section */}
           <section className="hero-section relative px-4 sm:px-10 md:px-12 lg:px-14 xl:px-16 pb-6 pt-5 sm:pb-8 sm:pt-7 md:pb-9 md:pt-8 lg:pb-11 lg:pt-10 overflow-hidden">
             {/* Decorative Elements (Desktop) */}
@@ -1007,12 +1007,12 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
             <div className="grid items-center gap-4 md:grid-cols-[1fr_1fr] md:gap-8">
               {/* Hero Content */}
               <div>
-                <p className="mb-2 text-[12px] font-semibold tracking-[.15em] text-[#6544ed] md:text-[13px] lg:text-[14px] md:text-[#1f61bd] uppercase">
+                <p className="mb-2 text-[12px] font-semibold tracking-[.15em] text-[#01BEFE] md:text-[13px] lg:text-[14px] md:text-[#01BEFE] uppercase">
                   <span className="md:hidden">CUSTOMER PORTAL</span>
                   <span className="hidden md:inline">CUSTOMER LAUNDRY PORTAL</span>
                 </p>
 
-                <h1 className="max-w-2xl lg:max-w-none text-[32px] font-extrabold leading-[1.08] tracking-[-.04em] text-[#071844] sm:text-[40px] md:text-[46px] lg:text-[52px]">
+                <h1 className="max-w-2xl lg:max-w-none text-[32px] font-serif font-semibold leading-[1.08] tracking-tight text-[#002953] sm:text-[40px] md:text-[46px] lg:text-[52px]">
                   My Orders & Collections
                 </h1>
 
@@ -1053,8 +1053,8 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                   <div className="laundry-basket">
                     <div className="basket-handle" />
                     <div className="shirt" />
-                    <div className="absolute bottom-2 left-5 h-5 w-5 rounded bg-[#172d6e]" />
-                    <div className="absolute bottom-2 left-12 h-5 w-5 rounded bg-[#172d6e]" />
+                    <div className="absolute bottom-2 left-5 h-5 w-5 rounded bg-[#002953]" />
+                    <div className="absolute bottom-2 left-12 h-5 w-5 rounded bg-[#002953]" />
                   </div>
                 </div>
 
@@ -1065,7 +1065,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                 {/* Desktop Book Button */}
                 <button
                   onClick={onOpenBookNow}
-                  className="absolute right-0 top-1/2 hidden -translate-y-1/2 items-center gap-3 rounded-2xl bg-[#102e78] hover:bg-[#0c235c] px-7 py-4 text-base font-bold text-white shadow-xl shadow-blue-900/15 transition-all hover:-translate-y-[55%] hover:shadow-2xl lg:flex cursor-pointer"
+                  className="absolute right-0 top-1/2 hidden -translate-y-1/2 items-center gap-3 rounded-2xl bg-[#002953] hover:bg-[#002953] px-7 py-4 text-base font-bold text-white shadow-xl shadow-blue-900/15 transition-all hover:-translate-y-[55%] hover:shadow-2xl lg:flex cursor-pointer"
                 >
                   <Calendar className="w-5 h-5 text-sky-300" />
                   <span>Book New Collection</span>
@@ -1075,12 +1075,12 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                 <div className="absolute right-0 top-[-2px] flex flex-col items-center md:right-2 lg:hidden">
                   <button
                     onClick={onOpenBookNow}
-                    className="book-button flex h-[66px] w-[66px] items-center justify-center rounded-full bg-gradient-to-br from-[#7851f4] to-[#5127dc] text-white cursor-pointer active:scale-95 transition-transform"
+                    className="book-button flex h-[66px] w-[66px] items-center justify-center rounded-full bg-gradient-to-br from-[#01BEFE] to-[#01BEFE] text-white cursor-pointer active:scale-95 transition-transform"
                     title="Book New Collection"
                   >
                     <Calendar className="w-6 h-6 stroke-[1.8]" />
                   </button>
-                  <div className="mt-1 text-center text-[12px] font-bold leading-tight text-[#071844]">
+                  <div className="mt-1 text-center text-[12px] font-bold leading-tight text-[#002953]">
                     Book New
                     <br />
                     Collection
@@ -1105,7 +1105,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                     setCurrentPage(1);
                   }}
                   placeholder="Search by Order ID or item..."
-                  className="h-10 sm:h-11 md:h-12 w-full rounded-xl md:rounded-2xl border border-[#dce2ee] bg-white pl-10 sm:pl-11 pr-9 text-xs sm:text-sm md:text-[15px] text-[#1d2f5c] outline-none placeholder:text-[#8793ae] focus:border-[#8296d0] focus:ring-2 focus:ring-[#315bdc]/10 shadow-2xs"
+                  className="h-10 sm:h-11 md:h-12 w-full rounded-xl md:rounded-2xl border border-[#e2e8f0] bg-white pl-10 sm:pl-11 pr-9 text-xs sm:text-sm md:text-[15px] text-[#002953] outline-none placeholder:text-[#8793ae] focus:border-[#8296d0] focus:ring-2 focus:ring-[#01BEFE]/10 shadow-2xs"
                 />
                 {searchQuery && (
                   <button
@@ -1123,19 +1123,19 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
             </div>
             {/* Orders Grid */}
             {paginatedOrders.length === 0 ? (
-              <div className="text-center py-10 md:py-16 bg-white rounded-2xl md:rounded-3xl border border-dashed border-[#dce2ee] p-6 md:p-10 space-y-3 md:space-y-4 my-auto">
-                <div className="w-12 h-12 md:w-16 md:h-16 bg-[#eaf1ff] text-[#102e78] rounded-xl md:rounded-2xl flex items-center justify-center mx-auto shadow-xs">
+              <div className="text-center py-10 md:py-16 bg-white rounded-2xl md:rounded-3xl border border-dashed border-[#e2e8f0] p-6 md:p-10 space-y-3 md:space-y-4 my-auto">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-[#e6f8ff] text-[#002953] rounded-xl md:rounded-2xl flex items-center justify-center mx-auto shadow-xs">
                   <Package className="w-6 h-6 md:w-8 md:h-8 stroke-[1.8]" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm md:text-lg font-bold text-[#071844]">No orders found</h3>
+                  <h3 className="text-sm md:text-lg font-bold text-[#002953]">No orders found</h3>
                   <p className="text-xs md:text-sm text-slate-500 max-w-sm mx-auto">
                     {searchQuery ? 'No orders match your search query.' : 'You have not placed any orders yet.'}
                   </p>
                 </div>
                 <button
                   onClick={onOpenBookNow}
-                  className="mt-2 bg-[#102e78] hover:bg-[#0c235c] text-white px-5 md:px-7 py-2.5 md:py-3 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold shadow-sm cursor-pointer transition-all"
+                  className="mt-2 bg-[#002953] hover:bg-[#002953] text-white px-5 md:px-7 py-2.5 md:py-3 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold shadow-sm cursor-pointer transition-all"
                 >
                   Book New Collection
                 </button>
@@ -1158,7 +1158,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                       }}
                       className={`order-card w-full min-w-0 rounded-2xl md:rounded-3xl border bg-white p-3.5 sm:p-4 md:p-5 lg:p-5.5 shadow-card hover:shadow-lg transition-all cursor-pointer select-none group box-border flex items-center justify-between gap-3 sm:gap-4 ${category === 'cancelled'
                         ? 'border-rose-200/90 hover:border-rose-300'
-                        : 'border-[#e7eaf2] hover:border-[#102e78]/40'
+                        : 'border-[#e7eaf2] hover:border-[#002953]/40'
                         }`}
                     >
                       <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
@@ -1171,14 +1171,14 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                              <h3 className="text-[14px] sm:text-[15px] md:text-base lg:text-[17px] font-bold text-[#071844] group-hover:text-[#102e78] transition-colors truncate">
+                              <h3 className="text-[14px] sm:text-[15px] md:text-base lg:text-[17px] font-bold text-[#002953] group-hover:text-[#002953] transition-colors truncate">
                                 #{orderId}
                               </h3>
                               <span className={`text-[9px] sm:text-[10px] md:text-[11px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${cardBadge.style}`}>
                                 {cardBadge.label}
                               </span>
                             </div>
-                            <span className={`text-[14px] sm:text-[15px] md:text-base lg:text-lg xl:text-xl font-extrabold shrink-0 ${category === 'cancelled' ? 'line-through text-slate-400' : 'text-[#071844]'
+                            <span className={`text-[14px] sm:text-[15px] md:text-base lg:text-lg xl:text-xl font-extrabold shrink-0 ${category === 'cancelled' ? 'line-through text-slate-400' : 'text-[#002953]'
                               }`}>
                               £{Number(order.total ?? (order as any).total_price ?? (order as any).amount ?? 0).toFixed(2)}
                             </span>
@@ -1208,7 +1208,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                               handleRetryPayment(order);
                             }}
                             disabled={retryingOrderId === orderId}
-                            className="px-2.5 py-1 bg-[#102e78] hover:bg-[#0c235c] text-white rounded-lg text-[11px] font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                            className="px-2.5 py-1 bg-[#002953] hover:bg-[#002953] text-white rounded-lg text-[11px] font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
                           >
                             <CreditCard className="w-3 h-3" />
                             <span>{retryingOrderId === orderId ? '...' : 'Resume Payment'}</span>
@@ -1232,7 +1232,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                             <span>{order.rating || order.customerRating?.rating ? `${order.rating || order.customerRating?.rating} ★` : 'Rate Order'}</span>
                           </button>
                         )}
-                        <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:text-[#102e78] group-hover:translate-x-1 transition-all" />
+                        <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:text-[#002953] group-hover:translate-x-1 transition-all" />
                       </div>
                     </article>
                   );
@@ -1246,14 +1246,14 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 py-2.5 sm:py-3 md:py-4 border-t border-slate-100">
                 <span className="text-xs sm:text-sm md:text-[15px] text-slate-500 font-medium">
                   Showing{' '}
-                  <span className="font-bold text-[#071844]">
+                  <span className="font-bold text-[#002953]">
                     {filteredOrders.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}
                   </span>{' '}
                   to{' '}
-                  <span className="font-bold text-[#071844]">
+                  <span className="font-bold text-[#002953]">
                     {Math.min(currentPage * itemsPerPage, filteredOrders.length)}
                   </span>{' '}
-                  of <span className="font-bold text-[#071844]">{filteredOrders.length}</span> orders
+                  of <span className="font-bold text-[#002953]">{filteredOrders.length}</span> orders
                 </span>
 
                 <div className="flex items-center gap-1.5 sm:gap-2">
@@ -1261,7 +1261,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                     type="button"
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    className="flex h-8.5 w-8.5 sm:h-9.5 sm:w-9.5 md:h-10.5 md:w-10.5 items-center justify-center rounded-lg md:rounded-xl border border-[#e1e5ee] bg-white text-[#172e6e] transition hover:bg-[#f5f7ff] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-xs"
+                    className="flex h-8.5 w-8.5 sm:h-9.5 sm:w-9.5 md:h-10.5 md:w-10.5 items-center justify-center rounded-lg md:rounded-xl border border-[#e2e8f0] bg-white text-[#002953] transition hover:bg-[#f5f7ff] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-xs"
                     title="Previous page"
                   >
                     <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
@@ -1273,8 +1273,8 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                       type="button"
                       onClick={() => setCurrentPage(pageNum)}
                       className={`flex h-8.5 w-8.5 sm:h-9.5 sm:w-9.5 md:h-10.5 md:w-10.5 items-center justify-center rounded-lg md:rounded-xl text-xs sm:text-sm md:text-base font-semibold transition-all cursor-pointer ${currentPage === pageNum
-                        ? 'bg-[#102e78] text-white shadow-xs'
-                        : 'border border-[#e1e5ee] bg-white text-[#172e6e] hover:bg-[#f5f7ff]'
+                        ? 'bg-[#002953] text-white shadow-xs'
+                        : 'border border-[#e2e8f0] bg-white text-[#002953] hover:bg-[#f5f7ff]'
                         }`}
                     >
                       {pageNum}
@@ -1285,7 +1285,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                     type="button"
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    className="flex h-8.5 w-8.5 sm:h-9.5 sm:w-9.5 md:h-10.5 md:w-10.5 items-center justify-center rounded-lg md:rounded-xl border border-[#e1e5ee] bg-white text-[#172e6e] transition hover:bg-[#f5f7ff] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-xs"
+                    className="flex h-8.5 w-8.5 sm:h-9.5 sm:w-9.5 md:h-10.5 md:w-10.5 items-center justify-center rounded-lg md:rounded-xl border border-[#e2e8f0] bg-white text-[#002953] transition hover:bg-[#f5f7ff] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-xs"
                     title="Next page"
                   >
                     <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
@@ -1298,11 +1298,11 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                 <div className="grid grid-cols-2 md:grid-cols-4 divide-y divide-x md:divide-y-0 divide-[#e5e8f5]">
                   {/* Feature 1 */}
                   <div className="flex items-center gap-3 sm:gap-3.5 md:gap-4 px-3.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-4 lg:px-6 lg:py-5">
-                    <div className="flex h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 lg:h-12 lg:w-12 shrink-0 items-center justify-center rounded-full border border-[#d7caff] bg-white text-[#5c45e9] shadow-xs">
+                    <div className="flex h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 lg:h-12 lg:w-12 shrink-0 items-center justify-center rounded-full border border-[#d7caff] bg-white text-[#01BEFE] shadow-xs">
                       <Truck className="w-4 h-4 sm:w-5 sm:h-5 md:w-5.5 md:h-5.5 lg:w-6 lg:h-6 stroke-[1.8]" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-xs sm:text-sm md:text-base lg:text-[17px] font-bold text-[#10265e] truncate">Real-time Tracking</h4>
+                      <h4 className="text-xs sm:text-sm md:text-base lg:text-[17px] font-bold text-[#002953] truncate">Real-time Tracking</h4>
                       <p className="text-[10px] sm:text-[11px] md:text-xs lg:text-[13px] leading-tight md:leading-normal text-[#637194] mt-0.5">
                         Track your order <br className="hidden sm:block" />at every step
                       </p>
@@ -1311,11 +1311,11 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
 
                   {/* Feature 2 */}
                   <div className="flex items-center gap-3 sm:gap-3.5 md:gap-4 px-3.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-4 lg:px-6 lg:py-5">
-                    <div className="flex h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 lg:h-12 lg:w-12 shrink-0 items-center justify-center rounded-full border border-[#cbd8ff] bg-white text-[#3264e6] shadow-xs">
+                    <div className="flex h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 lg:h-12 lg:w-12 shrink-0 items-center justify-center rounded-full border border-[#cbd8ff] bg-white text-[#01BEFE] shadow-xs">
                       <FileText className="w-4 h-4 sm:w-5 sm:h-5 md:w-5.5 md:h-5.5 lg:w-6 lg:h-6 stroke-[1.8]" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-xs sm:text-sm md:text-base lg:text-[17px] font-bold text-[#10265e] truncate">Digital Invoices</h4>
+                      <h4 className="text-xs sm:text-sm md:text-base lg:text-[17px] font-bold text-[#002953] truncate">Digital Invoices</h4>
                       <p className="text-[10px] sm:text-[11px] md:text-xs lg:text-[13px] leading-tight md:leading-normal text-[#637194] mt-0.5">
                         View & download <br className="hidden sm:block" />official invoices
                       </p>
@@ -1328,7 +1328,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                       <Calendar className="w-4 h-4 sm:w-5 sm:h-5 md:w-5.5 md:h-5.5 lg:w-6 lg:h-6 stroke-[1.8]" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-xs sm:text-sm md:text-base lg:text-[17px] font-bold text-[#10265e] truncate">Reschedule Easily</h4>
+                      <h4 className="text-xs sm:text-sm md:text-base lg:text-[17px] font-bold text-[#002953] truncate">Reschedule Easily</h4>
                       <p className="text-[10px] sm:text-[11px] md:text-xs lg:text-[13px] leading-tight md:leading-normal text-[#637194] mt-0.5">
                         Change your slot <br className="hidden sm:block" />anytime
                       </p>
@@ -1337,11 +1337,11 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
 
                   {/* Feature 4 */}
                   <div className="flex items-center gap-3 sm:gap-3.5 md:gap-4 px-3.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-4 lg:px-6 lg:py-5">
-                    <div className="flex h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 lg:h-12 lg:w-12 shrink-0 items-center justify-center rounded-full border border-[#d8cfff] bg-white text-[#5b45e8] shadow-xs">
+                    <div className="flex h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 lg:h-12 lg:w-12 shrink-0 items-center justify-center rounded-full border border-[#d8cfff] bg-white text-[#01BEFE] shadow-xs">
                       <Headphones className="w-4 h-4 sm:w-5 sm:h-5 md:w-5.5 md:h-5.5 lg:w-6 lg:h-6 stroke-[1.8]" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-xs sm:text-sm md:text-base lg:text-[17px] font-bold text-[#10265e] truncate">Need Help?</h4>
+                      <h4 className="text-xs sm:text-sm md:text-base lg:text-[17px] font-bold text-[#002953] truncate">Need Help?</h4>
                       <p className="text-[10px] sm:text-[11px] md:text-xs lg:text-[13px] leading-tight md:leading-normal text-[#637194] mt-0.5">
                         Our support team is <br className="hidden sm:block" />here for you
                       </p>
@@ -1467,7 +1467,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
               {/* Modal Top Bar */}
               <div className="shrink-0 bg-white border-b border-gray-100 px-4 sm:px-6 md:px-8 py-3.5 sm:py-4 flex items-center justify-between shadow-xs">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 mr-2">
-                  <span className="text-sm sm:text-base md:text-lg font-extrabold text-[#091942] truncate">Order #{selectedOrder.id}</span>
+                  <span className="text-sm sm:text-base md:text-lg font-extrabold text-[#002953] truncate">Order #{selectedOrder.id}</span>
                   <span className={`text-[9px] sm:text-[10px] md:text-xs font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full uppercase tracking-wider shrink-0 ${getStatusBadgeStyle(selectedOrder.status)}`}>
                     {isOrderCompleted(selectedOrder.status) || selectedJourney?.isAllCompleted
                       ? 'Completed'
@@ -1491,7 +1491,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-gray-100">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 min-w-0">
-                      <h2 className="text-lg sm:text-xl md:text-2xl font-heading font-extrabold text-gray-900 truncate">Order #{selectedOrder.id}</h2>
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-semibold text-[#002953] truncate">Order #{selectedOrder.id}</h2>
                     </div>
                     <p className="text-xs sm:text-sm text-gray-400 mt-0.5">
                       Booked on {new Date(selectedOrder.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -1510,8 +1510,8 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                         }, 50);
                       }}
                       className={`px-3 sm:px-4 md:px-4.5 py-1.5 sm:py-2 md:py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer ${isTimelineOpen
-                        ? 'bg-[#102e78] text-white'
-                        : 'bg-white border border-[#dce2ee] text-[#102e78] hover:bg-slate-50'
+                        ? 'bg-[#002953] text-white'
+                        : 'bg-white border border-[#e2e8f0] text-[#002953] hover:bg-slate-50'
                         }`}
                     >
                       <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -1520,9 +1520,9 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
 
                     <button
                       onClick={() => onOpenInvoice(selectedOrder)}
-                      className="bg-white hover:bg-slate-50 text-gray-800 px-3 sm:px-3.5 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-[#dce2ee] shadow-xs"
+                      className="bg-white hover:bg-slate-50 text-gray-800 px-3 sm:px-3.5 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-[#e2e8f0] shadow-xs"
                     >
-                      <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#102e78]" />
+                      <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#002953]" />
                       <span>Invoice</span>
                     </button>
 
@@ -1708,12 +1708,12 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                   ['booking_confirmed', 'collection_scheduled', 'driver_assigned', 'pickup_in_progress'].includes(selectedOrder.status) && (
                   <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                     <div className="flex items-start sm:items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-xl bg-[#102e78] text-white flex items-center justify-center shrink-0 shadow-md">
+                      <div className="w-11 h-11 rounded-xl bg-[#002953] text-white flex items-center justify-center shrink-0 shadow-md">
                         <ShieldCheck className="w-6 h-6 stroke-[2.2]" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#102e78]">
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#002953]">
                             In-App Collection PIN
                           </span>
                           <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-200/70 text-blue-900 rounded-full">
@@ -1731,7 +1731,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                         {String(selectedOrder.pickup_pin || selectedOrder.pickup_otp || '').split('').map((char, i) => (
                           <span
                             key={i}
-                            className="w-8 h-10 sm:w-9 sm:h-11 bg-white border-2 border-blue-300 text-[#102e78] font-mono font-black text-xl rounded-xl flex items-center justify-center shadow-xs"
+                            className="w-8 h-10 sm:w-9 sm:h-11 bg-white border-2 border-blue-300 text-[#002953] font-mono font-black text-xl rounded-xl flex items-center justify-center shadow-xs"
                           >
                             {char}
                           </span>
@@ -1846,7 +1846,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => onOpenRescheduleCancel(selectedOrder, 'reschedule_pickup')}
-                              className="px-3.5 py-1.5 bg-white border border-gray-200 hover:border-[#102e78] text-gray-800 rounded-xl font-bold cursor-pointer transition-colors shadow-2xs"
+                              className="px-3.5 py-1.5 bg-white border border-gray-200 hover:border-[#002953] text-gray-800 rounded-xl font-bold cursor-pointer transition-colors shadow-2xs"
                             >
                               Reschedule Pickup
                             </button>
@@ -1864,7 +1864,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => onOpenRescheduleCancel(selectedOrder, 'reschedule_delivery')}
-                              className="px-3.5 py-1.5 bg-white border border-gray-200 hover:border-[#102e78] text-gray-800 rounded-xl font-bold cursor-pointer transition-colors shadow-2xs"
+                              className="px-3.5 py-1.5 bg-white border border-gray-200 hover:border-[#002953] text-gray-800 rounded-xl font-bold cursor-pointer transition-colors shadow-2xs"
                             >
                               Reschedule Delivery
                             </button>
@@ -1881,15 +1881,15 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                   if (!activeCourier) return null;
 
                   return (
-                    <div className="p-4 bg-[#eaf1ff] border border-[#cbd8ff] rounded-2xl flex items-center justify-between shadow-xs">
+                    <div className="p-4 bg-[#e6f8ff] border border-[#cbd8ff] rounded-2xl flex items-center justify-between shadow-xs">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#102e78] text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                        <div className="w-10 h-10 rounded-full bg-[#002953] text-white flex items-center justify-center font-bold text-sm shadow-sm">
                           {activeCourier.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold text-gray-900 block">{activeCourier.name}</span>
-                            <span className="px-1.5 py-0.5 bg-blue-100 text-[#102e78] text-[9px] font-bold rounded-md">
+                            <span className="px-1.5 py-0.5 bg-blue-100 text-[#002953] text-[9px] font-bold rounded-md">
                               {activeCourier.roleLabel}
                             </span>
                           </div>
@@ -1901,10 +1901,10 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                       {activeCourier.phone ? (
                         <a
                           href={`tel:${activeCourier.phone}`}
-                          className="px-3 py-2 bg-white hover:bg-gray-50 text-[#102e78] rounded-xl shadow-xs transition-colors border border-[#cbd8ff] flex items-center gap-1.5 font-bold text-xs cursor-pointer"
+                          className="px-3 py-2 bg-white hover:bg-gray-50 text-[#002953] rounded-xl shadow-xs transition-colors border border-[#cbd8ff] flex items-center gap-1.5 font-bold text-xs cursor-pointer"
                           title={`Call ${activeCourier.roleLabel}`}
                         >
-                          <Phone className="w-3.5 h-3.5 text-[#102e78]" />
+                          <Phone className="w-3.5 h-3.5 text-[#002953]" />
                           <span>Call Driver</span>
                         </a>
                       ) : (
@@ -1923,7 +1923,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                     {/* Collection Slot info */}
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#eaf1ff] text-[#102e78] flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-[#e6f8ff] text-[#002953] flex items-center justify-center shrink-0">
                         <Calendar className="w-4 h-4 stroke-[1.8]" />
                       </div>
                       <div>
@@ -1968,7 +1968,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
 
                     {/* Address info */}
                     <div className="sm:col-span-2 flex items-start gap-3 pt-1 border-t border-gray-100">
-                      <div className="w-9 h-9 rounded-xl bg-[#eaf1ff] text-[#102e78] flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-[#e6f8ff] text-[#002953] flex items-center justify-center shrink-0">
                         <MapPin className="w-4 h-4 stroke-[1.8]" />
                       </div>
                       <div>
@@ -1996,22 +1996,22 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${selectedJourney.isAllCompleted
                           ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-[#eaf1ff] text-[#102e78]'
+                          : 'bg-[#e6f8ff] text-[#002953]'
                           }`}>
                           {selectedJourney.isAllCompleted ? (
                             <CheckCircle2 className="w-5 h-5 stroke-[2.2]" />
                           ) : (
-                            <Navigation className="w-5 h-5 text-[#285BEA]" />
+                            <Navigation className="w-5 h-5 text-[#01BEFE]" />
                           )}
                         </div>
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-xs sm:text-sm font-extrabold text-[#091942] uppercase tracking-wider">
+                            <h3 className="text-xs sm:text-sm font-extrabold text-[#002953] uppercase tracking-wider">
                               Order Timeline & Live Status
                             </h3>
                             <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${selectedJourney.isAllCompleted
                               ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-blue-100 text-[#102e78]'
+                              : 'bg-blue-100 text-[#002953]'
                               }`}>
                               {selectedJourney.isAllCompleted ? 'Completed 🎉' : `${selectedJourney.completedCount}/7 Stages`}
                             </span>
@@ -2028,7 +2028,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                         <span className="text-[11px] font-bold text-gray-400 hidden sm:inline">
                           {isTimelineOpen ? 'Collapse' : 'Expand Timeline'}
                         </span>
-                        <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-gray-50 text-gray-600 transition-transform duration-200 ${isTimelineOpen ? 'rotate-180 bg-blue-50 text-[#102e78]' : ''
+                        <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-gray-50 text-gray-600 transition-transform duration-200 ${isTimelineOpen ? 'rotate-180 bg-blue-50 text-[#002953]' : ''
                           }`}>
                           <ChevronDown className="w-4 h-4" />
                         </div>
@@ -2069,7 +2069,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                           <div className="p-4 bg-gradient-to-r from-blue-50/90 to-indigo-50/70 border border-blue-200/80 rounded-2xl space-y-3 shadow-xs">
                             <div className="space-y-1.5 pt-1">
                               <div className="flex justify-between items-center text-xs">
-                                <span className="font-extrabold text-[#102e78]">
+                                <span className="font-extrabold text-[#002953]">
                                   {selectedJourney.currentStage.title}
                                 </span>
                                 <span className="text-slate-500 font-bold">
@@ -2078,7 +2078,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                               </div>
                               <div className="w-full bg-blue-200/60 rounded-full h-2 overflow-hidden">
                                 <div
-                                  className="bg-gradient-to-r from-[#102e78] to-[#285BEA] h-2 rounded-full transition-all duration-500"
+                                  className="bg-gradient-to-r from-[#002953] to-[#01BEFE] h-2 rounded-full transition-all duration-500"
                                   style={{ width: `${Math.max(12, Math.round((selectedJourney.completedCount / 7) * 100))}%` }}
                                 />
                               </div>
@@ -2114,7 +2114,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                                         isDone
                                           ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs shadow-emerald-600/30'
                                           : isCurrent
-                                            ? 'bg-[#102e78] border-[#102e78] text-white ring-2 sm:ring-4 ring-blue-100 animate-pulse'
+                                            ? 'bg-[#002953] border-[#002953] text-white ring-2 sm:ring-4 ring-blue-100 animate-pulse'
                                             : 'bg-white border-slate-300 text-slate-400'
                                       }`}
                                     >
@@ -2132,7 +2132,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                                           isDone
                                             ? 'text-gray-900'
                                             : isCurrent
-                                              ? 'text-[#102e78] font-extrabold'
+                                              ? 'text-[#002953] font-extrabold'
                                               : 'text-gray-400'
                                         }`}
                                       >
@@ -2159,14 +2159,14 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                             (selectedOrder.isPaid || selectedOrder.paymentStatus === 'Paid') && (
                             <div className="mt-4 p-3 bg-white border border-blue-200 rounded-xl flex items-center justify-between shadow-2xs">
                               <div className="flex items-center gap-2">
-                                <ShieldCheck className="w-4 h-4 text-[#102e78]" />
-                                <span className="text-xs font-bold text-[#102e78]">Your Pickup PIN:</span>
+                                <ShieldCheck className="w-4 h-4 text-[#002953]" />
+                                <span className="text-xs font-bold text-[#002953]">Your Pickup PIN:</span>
                               </div>
                               <div className="flex items-center gap-1">
                                 {String(selectedOrder.pickup_pin || selectedOrder.pickup_otp || '').split('').map((char, i) => (
                                   <span
                                     key={i}
-                                    className="w-6 h-8 sm:w-7 sm:h-9 bg-blue-50 border border-blue-200 text-[#102e78] font-mono font-black text-sm sm:text-base rounded-md sm:rounded-lg flex items-center justify-center shadow-2xs"
+                                    className="w-6 h-8 sm:w-7 sm:h-9 bg-blue-50 border border-blue-200 text-[#002953] font-mono font-black text-sm sm:text-base rounded-md sm:rounded-lg flex items-center justify-center shadow-2xs"
                                   >
                                     {char}
                                   </span>
@@ -2214,7 +2214,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">Garment Care Items & Inspection</h3>
                     {orderItems.length > 0 && (
-                      <span className="text-[11px] font-bold text-[#102e78] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                      <span className="text-[11px] font-bold text-[#002953] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
                         {orderItems.length} Garments Tracked
                       </span>
                     )}
@@ -2297,7 +2297,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                   </div>
                   <div className="pt-2 border-t border-gray-100 flex justify-between text-sm font-extrabold text-gray-900">
                     <span>Total Paid ({selectedOrder.paymentMethod?.toUpperCase() || 'CARD'})</span>
-                    <span className="text-[#102e78]">
+                    <span className="text-[#002953]">
                       £{((Number(selectedOrder.total ?? (selectedOrder as any).total_price ?? (selectedOrder as any).amount ?? 0)) + (selectedOrder.additionalCharge?.status === 'paid' ? Number(selectedOrder.additionalCharge.additionalAmount || 0) : 0)).toFixed(2)}
                     </span>
                   </div>
@@ -2323,7 +2323,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                       onRepeatOrder(selectedOrder);
                       setSelectedOrderIdState(null);
                     }}
-                    className="w-full py-3.5 bg-gradient-to-r from-[#102e78] to-[#1e4ab8] hover:from-[#0c235c] hover:to-[#15388F] text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                    className="w-full py-3.5 bg-gradient-to-r from-[#002953] to-[#1e4ab8] hover:from-[#002953] hover:to-[#15388F] text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                   >
                     <RefreshCw className="w-4 h-4" />
                     <span>Repeat This Exact Order</span>

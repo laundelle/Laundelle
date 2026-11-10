@@ -872,7 +872,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       {/* =========================================================================
           TOP NAVBAR: LAUNDELLE BRANDING & STEP INDICATOR
       ========================================================================= */}
-      <header className="w-full bg-[#082b78] text-white px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-md shrink-0 sticky top-0 z-30">
+      <header className="w-full bg-[#002953] text-white px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-md shrink-0 sticky top-0 z-30">
         <div className="flex items-center gap-4">
           {currentStep !== 'cart' && (
             <button
@@ -904,22 +904,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         {/* Dynamic Stepper Header Pills for multi-screen navigation */}
         {currentStep !== 'cart' && cart.length > 0 && (
           <div className="hidden md:flex items-center gap-2 text-xs font-semibold text-white/80">
-            <span className={`px-2.5 py-1 rounded-full text-[11px] transition-all ${currentStep === 'slots' ? 'bg-white text-[#082b78] font-bold shadow-sm' : 'bg-white/10 text-white/90'
+            <span className={`px-2.5 py-1 rounded-full text-[11px] transition-all ${currentStep === 'slots' ? 'bg-white text-[#002953] font-bold shadow-sm' : 'bg-white/10 text-white/90'
               }`}>
               1. Time Slots
             </span>
             <span className="text-white/40">›</span>
-            <span className={`px-2.5 py-1 rounded-full text-[11px] transition-all ${currentStep === 'contact' ? 'bg-white text-[#082b78] font-bold shadow-sm' : 'bg-white/10 text-white/90'
+            <span className={`px-2.5 py-1 rounded-full text-[11px] transition-all ${currentStep === 'contact' ? 'bg-white text-[#002953] font-bold shadow-sm' : 'bg-white/10 text-white/90'
               }`}>
               2. Contact Details
             </span>
             <span className="text-white/40">›</span>
-            <span className={`px-2.5 py-1 rounded-full text-[11px] transition-all ${currentStep === 'review' ? 'bg-white text-[#082b78] font-bold shadow-sm' : 'bg-white/10 text-white/90'
+            <span className={`px-2.5 py-1 rounded-full text-[11px] transition-all ${currentStep === 'review' ? 'bg-white text-[#002953] font-bold shadow-sm' : 'bg-white/10 text-white/90'
               }`}>
               3. Review & Confirm
             </span>
             <span className="text-white/40">›</span>
-            <span className={`px-2.5 py-1 rounded-full text-[11px] transition-all ${currentStep === 'payment' ? 'bg-white text-[#082b78] font-bold shadow-sm' : 'bg-white/10 text-white/90'
+            <span className={`px-2.5 py-1 rounded-full text-[11px] transition-all ${currentStep === 'payment' ? 'bg-white text-[#002953] font-bold shadow-sm' : 'bg-white/10 text-white/90'
               }`}>
               4. Payment
             </span>
@@ -950,7 +950,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         {cart.length === 0 ? (
           /* EMPTY CART SCREEN */
           <div className="rounded-3xl border border-gray-200/80 bg-white p-8 sm:p-14 text-center space-y-4 shadow-xs my-auto">
-            <div className="w-20 h-20 rounded-3xl bg-[#eef4ff] text-[#1d5bd8] mx-auto flex items-center justify-center shadow-2xs">
+            <div className="w-20 h-20 rounded-3xl bg-[#e6f8ff] text-[#01BEFE] mx-auto flex items-center justify-center shadow-2xs">
               <Shirt className="w-10 h-10" />
             </div>
             <div className="space-y-1.5 max-w-md mx-auto">
@@ -965,7 +965,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-navy hover:bg-[#072465] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer active:scale-98"
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-navy hover:bg-[#002953] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer active:scale-98"
               >
                 <span>Browse Services</span>
                 <ArrowRight className="w-4 h-4" />
@@ -1006,7 +1006,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-5 shadow-xs flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap"
                     >
                       <div className="flex items-center gap-3.5 min-w-0">
-                        <div className="w-14 h-14 rounded-2xl bg-[#eef4ff] p-1 flex items-center justify-center shrink-0 overflow-hidden border border-blue-100/60 shadow-2xs">
+                        <div className="w-14 h-14 rounded-2xl bg-[#e6f8ff] p-1 flex items-center justify-center shrink-0 overflow-hidden border border-blue-100/60 shadow-2xs">
                           {item.image ? (
                             <img
                               src={item.image}
@@ -1014,7 +1014,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                               className="w-full h-full object-contain drop-shadow-xs rounded-xl"
                             />
                           ) : (
-                            <Shirt className="w-7 h-7 text-[#1d5bd8]" />
+                            <Shirt className="w-7 h-7 text-[#01BEFE]" />
                           )}
                         </div>
 
@@ -1029,7 +1029,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                             </span>
                           </div>
                           {item.selectedOption && (
-                            <span className="inline-block mt-1.5 text-[10px] font-bold bg-[#eef4ff] text-[#1d5bd8] px-2.5 py-0.5 rounded-md">
+                            <span className="inline-block mt-1.5 text-[10px] font-bold bg-[#e6f8ff] text-[#01BEFE] px-2.5 py-0.5 rounded-md">
                               {item.selectedOption}
                             </span>
                           )}
@@ -1083,14 +1083,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className={`rounded-2xl bg-white p-4 sm:p-5 shadow-xs border transition-colors space-y-2 ${declaredItemCountError ? 'border-red-400 bg-red-50/20' : 'border-gray-100'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs font-bold text-navy uppercase tracking-wider">
-                      <Shirt className="w-4 h-4 text-[#1d5bd8]" />
+                      <Shirt className="w-4 h-4 text-[#01BEFE]" />
                       <span>Estimated Total Items in Bag <span className="text-red-500">*</span></span>
                     </div>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">
                       Required
                     </span>
                   </div>
-                  <div className={`rounded-xl p-3 bg-[#f8fbff] border ${declaredItemCountError ? 'border-red-400' : 'border-dashed border-[#d0e1fd]'} flex items-center gap-3`}>
+                  <div className={`rounded-xl p-3 bg-[#f8fafc] border ${declaredItemCountError ? 'border-red-400' : 'border-dashed border-[#d0e1fd]'} flex items-center gap-3`}>
                     <input
                       type="text"
                       value={declaredItemCount}
@@ -1119,7 +1119,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider block">Items Subtotal</span>
-                      <span className="text-2xl font-extrabold text-[#03045E]">£{subtotal.toFixed(2)}</span>
+                      <span className="text-2xl font-extrabold text-[#002953]">£{subtotal.toFixed(2)}</span>
                     </div>
                     <button
                       type="button"
@@ -1131,7 +1131,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         setDeclaredItemCountError(null);
                         setCurrentStep('slots');
                       }}
-                      className="px-8 py-3.5 bg-navy hover:bg-[#072465] text-white text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 active:scale-98"
+                      className="px-8 py-3.5 bg-navy hover:bg-[#002953] text-white text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 active:scale-98"
                     >
                       <span>Proceed to Time Slots</span>
                       <ArrowRight className="w-4 h-4" />
@@ -1148,7 +1148,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <div className="space-y-6 animate-in fade-in-50 duration-200">
                 {/* Mobile Stepper Header */}
                 <div className="flex md:hidden items-center justify-between text-xs font-bold text-gray-400 pb-2 border-b border-gray-100">
-                  <span className="text-[#1d5bd8]">Step 1 of 4: Select Time Slots</span>
+                  <span className="text-[#01BEFE]">Step 1 of 4: Select Time Slots</span>
                   <button
                     type="button"
                     onClick={() => setCurrentStep('cart')}
@@ -1168,17 +1168,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
 
                 {/* 1. SERVICE LOCATION & POSTCODE SLOT CHECKER */}
-                <div className="rounded-2xl border-2 border-blue-200 bg-[#f8fbff] p-5 shadow-sm space-y-4">
+                <div className="rounded-2xl border-2 border-blue-200 bg-[#f8fafc] p-5 shadow-sm space-y-4">
                   <div className="flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
                     <div className="flex items-start gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-[#03045E] text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <div className="w-10 h-10 rounded-xl bg-[#002953] text-white flex items-center justify-center shrink-0 shadow-xs">
                         <MapPin className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-extrabold text-[#03045E]">1. Service Location</span>
+                          <span className="text-sm font-extrabold text-[#002953]">1. Service Location</span>
                           {currentPostcode && (
-                            <span className="font-mono text-xs font-extrabold bg-[#CAF0F8] text-[#03045E] px-2.5 py-0.5 rounded-md">
+                            <span className="font-mono text-xs font-extrabold bg-[#01BEFE]/15 text-[#002953] px-2.5 py-0.5 rounded-md">
                               {currentPostcode}
                             </span>
                           )}
@@ -1227,7 +1227,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           setAddressToEdit(null);
                           setAddressModalOpen(true);
                         }}
-                        className="px-4 py-2.5 rounded-xl bg-[#03045E] hover:bg-[#023E8A] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                        className="px-4 py-2.5 rounded-xl bg-[#002953] hover:bg-[#002953] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
                       >
                         <Plus className="w-4 h-4" />
                         <span>{activeAddr?.street && activeAddr.id !== 'cart_postcode_loc' ? 'Change Address' : 'Add Full Address'}</span>
@@ -1239,12 +1239,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <div className="pt-3 border-t border-blue-100">
                     <div className="mb-2 flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 text-[#082b78]" />
+                        <MapPin className="w-3.5 h-3.5 text-[#002953]" />
                         <span>Check Area Slot Availability</span>
                       </span>
                       {currentPostcode && (
                         <span className="text-[11px] text-slate-500 font-medium">
-                          Checking: <strong className="font-mono text-[#082b78]">{currentPostcode}</strong>
+                          Checking: <strong className="font-mono text-[#002953]">{currentPostcode}</strong>
                         </span>
                       )}
                     </div>
@@ -1263,7 +1263,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 {/* 2. TIME SLOTS SECTION (Revealed ONLY after Service Location / Postcode is set and plant has slots) */}
                 {!currentPostcode ? (
                   <div className="rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/50 p-8 text-center space-y-4">
-                    <div className="w-12 h-12 rounded-full bg-blue-100 text-[#1d5bd8] flex items-center justify-center mx-auto">
+                    <div className="w-12 h-12 rounded-full bg-blue-100 text-[#01BEFE] flex items-center justify-center mx-auto">
                       <MapPin className="w-6 h-6 animate-bounce" />
                     </div>
                     <div className="max-w-md mx-auto space-y-1">
@@ -1275,7 +1275,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
                 ) : slotsLoading ? (
                   <div className="rounded-2xl border border-blue-100 bg-white p-8 text-center space-y-3 shadow-xs">
-                    <div className="w-8 h-8 rounded-full border-2 border-[#03045E] border-t-transparent animate-spin mx-auto" />
+                    <div className="w-8 h-8 rounded-full border-2 border-[#002953] border-t-transparent animate-spin mx-auto" />
                     <p className="text-xs font-semibold text-gray-600">Loading service slots for {currentPostcode}...</p>
                   </div>
                 ) : dynamicSlots.length === 0 ? (
@@ -1297,7 +1297,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           setAddressToEdit(null);
                           setAddressModalOpen(true);
                         }}
-                        className="px-5 py-2.5 bg-[#03045E] hover:bg-[#023E8A] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2"
+                        className="px-5 py-2.5 bg-[#002953] hover:bg-[#002953] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2"
                       >
                         <MapPin className="w-4 h-4" />
                         <span>Try Another Postcode / Address</span>
@@ -1311,7 +1311,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className="rounded-2xl border border-gray-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
                   <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1d5bd8] flex items-center justify-center font-bold text-xs">
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#01BEFE] flex items-center justify-center font-bold text-xs">
                         1
                       </div>
                       <div>
@@ -1331,7 +1331,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         type="button"
                         onClick={() => handleQuickCollectionDay(0)}
                         className={`py-3 px-3 rounded-xl border text-xs font-bold transition-all text-center cursor-pointer ${pickupDate === todayYyyyMmDd
-                          ? 'border-[#1d5bd8] bg-[#eef4ff] text-[#1d5bd8] shadow-2xs ring-1 ring-[#1d5bd8]'
+                          ? 'border-[#01BEFE] bg-[#e6f8ff] text-[#01BEFE] shadow-2xs ring-1 ring-[#01BEFE]'
                           : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                           }`}
                       >
@@ -1343,7 +1343,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         type="button"
                         onClick={() => handleQuickCollectionDay(1)}
                         className={`py-3 px-3 rounded-xl border text-xs font-bold transition-all text-center cursor-pointer ${pickupDate === tomorrowYyyyMmDd
-                          ? 'border-[#1d5bd8] bg-[#eef4ff] text-[#1d5bd8] shadow-2xs ring-1 ring-[#1d5bd8]'
+                          ? 'border-[#01BEFE] bg-[#e6f8ff] text-[#01BEFE] shadow-2xs ring-1 ring-[#01BEFE]'
                           : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                           }`}
                       >
@@ -1357,7 +1357,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           value={formatDateToYyyyMmDd(pickupDate)}
                           min={todayYyyyMmDd}
                           onChange={(e) => handlePickupDateChange(e.target.value)}
-                          className="w-full h-full min-h-[46px] px-3 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#1d5bd8]"
+                          className="w-full h-full min-h-[46px] px-3 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#01BEFE]"
                         />
                       </div>
                     </div>
@@ -1387,7 +1387,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                               className={`py-3 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${disabled
                                 ? 'opacity-40 cursor-not-allowed bg-gray-50 border-gray-200 text-gray-400'
                                 : isSelected
-                                  ? 'border-[#1d5bd8] bg-[#1d5bd8] text-white shadow-xs'
+                                  ? 'border-[#01BEFE] bg-[#01BEFE] text-white shadow-xs'
                                   : 'border-gray-200 bg-white hover:border-gray-300 text-gray-800'
                                 }`}
                             >
@@ -1412,7 +1412,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <select
                         value={pickupInstruction}
                         onChange={(e) => setPickupInstruction(e.target.value)}
-                        className="w-full h-11 pl-4 pr-10 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#1d5bd8] appearance-none"
+                        className="w-full h-11 pl-4 pr-10 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#01BEFE] appearance-none"
                       >
                         <option value="Collect from me in person">Collect from me in person</option>
                         <option value="Collect from outside">Collect from outside</option>
@@ -1427,7 +1427,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className="rounded-2xl border border-gray-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
                   <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1d5bd8] flex items-center justify-center font-bold text-xs">
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#01BEFE] flex items-center justify-center font-bold text-xs">
                         2
                       </div>
                       <div>
@@ -1447,7 +1447,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         type="button"
                         onClick={() => handleQuickDeliveryDay(1)}
                         className={`py-3 px-3 rounded-xl border text-xs font-bold transition-all text-center cursor-pointer ${deliveryDate === deliveryTomorrowYyyyMmDd
-                          ? 'border-[#1d5bd8] bg-[#eef4ff] text-[#1d5bd8] shadow-2xs ring-1 ring-[#1d5bd8]'
+                          ? 'border-[#01BEFE] bg-[#e6f8ff] text-[#01BEFE] shadow-2xs ring-1 ring-[#01BEFE]'
                           : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                           }`}
                       >
@@ -1459,7 +1459,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         type="button"
                         onClick={() => handleQuickDeliveryDay(2)}
                         className={`py-3 px-3 rounded-xl border text-xs font-bold transition-all text-center cursor-pointer ${deliveryDate === deliveryIn2DaysYyyyMmDd
-                          ? 'border-[#1d5bd8] bg-[#eef4ff] text-[#1d5bd8] shadow-2xs ring-1 ring-[#1d5bd8]'
+                          ? 'border-[#01BEFE] bg-[#e6f8ff] text-[#01BEFE] shadow-2xs ring-1 ring-[#01BEFE]'
                           : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                           }`}
                       >
@@ -1474,7 +1474,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           min={deliveryTomorrowYyyyMmDd || todayYyyyMmDd}
                           disabled={!pickupDate}
                           onChange={(e) => handleDeliveryDateChange(e.target.value)}
-                          className="w-full h-full min-h-[46px] px-3 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#1d5bd8] disabled:opacity-50"
+                          className="w-full h-full min-h-[46px] px-3 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#01BEFE] disabled:opacity-50"
                         />
                       </div>
                     </div>
@@ -1505,7 +1505,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                               className={`py-3 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${disabled || !deliveryDate
                                 ? 'opacity-40 cursor-not-allowed bg-gray-50 border-gray-200 text-gray-400'
                                 : isSelected
-                                  ? 'border-[#1d5bd8] bg-[#1d5bd8] text-white shadow-xs'
+                                  ? 'border-[#01BEFE] bg-[#01BEFE] text-white shadow-xs'
                                   : 'border-gray-200 bg-white hover:border-gray-300 text-gray-800'
                                 }`}
                             >
@@ -1530,7 +1530,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <select
                         value={deliveryInstruction}
                         onChange={(e) => setDeliveryInstruction(e.target.value)}
-                        className="w-full h-11 pl-4 pr-10 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#1d5bd8] appearance-none"
+                        className="w-full h-11 pl-4 pr-10 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#01BEFE] appearance-none"
                       >
                         <option value="Deliver to me in person">Deliver to me in person</option>
                         <option value="Leave at the door">Leave at the door</option>
@@ -1568,7 +1568,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     className={`px-8 py-3.5 rounded-xl text-white text-sm font-bold flex items-center gap-2 shadow-md transition-all ${
                       !slotsLoading && dynamicSlots.length === 0
                         ? 'bg-gray-400 cursor-not-allowed opacity-60'
-                        : 'bg-navy hover:bg-[#072465] cursor-pointer active:scale-98'
+                        : 'bg-navy hover:bg-[#002953] cursor-pointer active:scale-98'
                     }`}
                   >
                     <span>{(!slotsLoading && dynamicSlots.length === 0) ? 'There is no plant in the area' : 'Continue to Contact Details'}</span>
@@ -1585,7 +1585,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <div className="space-y-6 animate-in fade-in-50 duration-200">
                 {/* Mobile Stepper Header */}
                 <div className="flex md:hidden items-center justify-between text-xs font-bold text-gray-400 pb-2 border-b border-gray-100">
-                  <span className="text-[#1d5bd8]">Step 2 of 4: Contact Details</span>
+                  <span className="text-[#01BEFE]">Step 2 of 4: Contact Details</span>
                   <button
                     type="button"
                     onClick={() => setCurrentStep('slots')}
@@ -1605,15 +1605,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
 
                 {!effectiveIsLoggedIn && (
-                  <div className="p-3.5 rounded-2xl bg-[#eef4ff] border border-[#d6e5ff] flex items-center justify-between gap-3">
+                  <div className="p-3.5 rounded-2xl bg-[#e6f8ff] border border-[#d6e5ff] flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 text-xs text-navy">
-                      <User className="w-4 h-4 text-[#1d5bd8] shrink-0" />
+                      <User className="w-4 h-4 text-[#01BEFE] shrink-0" />
                       <span>Have a Laundelle account? Sign in for saved addresses and quick checkout.</span>
                     </div>
                     <button
                       type="button"
                       onClick={onRequireLogin}
-                      className="px-3.5 py-1.5 bg-navy text-white text-xs font-bold rounded-lg hover:bg-[#072465] transition-all shrink-0 cursor-pointer"
+                      className="px-3.5 py-1.5 bg-navy text-white text-xs font-bold rounded-lg hover:bg-[#002953] transition-all shrink-0 cursor-pointer"
                     >
                       Log In
                     </button>
@@ -1657,7 +1657,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         value={companyName}
                         onChange={(e) => setCompanyName(e.target.value)}
                         placeholder="e.g. Acme Hospitality Ltd"
-                        className="w-full h-11 px-3.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#1d5bd8]"
+                        className="w-full h-11 px-3.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#01BEFE]"
                       />
                     </div>
                   )}
@@ -1673,7 +1673,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         placeholder="First name"
-                        className="w-full h-11 px-3.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#1d5bd8]"
+                        className="w-full h-11 px-3.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#01BEFE]"
                       />
                     </div>
                     <div>
@@ -1685,7 +1685,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         placeholder="Last name"
-                        className="w-full h-11 px-3.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#1d5bd8]"
+                        className="w-full h-11 px-3.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#01BEFE]"
                       />
                     </div>
                   </div>
@@ -1699,7 +1699,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <select
                         value={phoneCountryCode}
                         onChange={(e) => setPhoneCountryCode(e.target.value)}
-                        className="h-11 px-2.5 bg-gray-100 border border-r-0 border-gray-200 rounded-l-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-[#1d5bd8] cursor-pointer shrink-0"
+                        className="h-11 px-2.5 bg-gray-100 border border-r-0 border-gray-200 rounded-l-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-[#01BEFE] cursor-pointer shrink-0"
                       >
                         <option value="+44">🇬🇧 +44 (UK)</option>
                         <option value="+1">🇺🇸 +1 (US)</option>
@@ -1715,7 +1715,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="7700 900000"
-                        className="w-full h-11 px-3.5 rounded-r-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#1d5bd8]"
+                        className="w-full h-11 px-3.5 rounded-r-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#01BEFE]"
                       />
                     </div>
                     <p className="text-[11px] text-gray-400 mt-1">We send SMS driver tracking updates to this number.</p>
@@ -1731,7 +1731,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@example.com"
-                      className="w-full h-11 px-3.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#1d5bd8]"
+                      className="w-full h-11 px-3.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-navy focus:outline-none focus:border-[#01BEFE]"
                     />
                   </div>
                 </div>
@@ -1739,16 +1739,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 {/* READ-ONLY SELECTED COLLECTION & DELIVERY ADDRESS CARD */}
                 <div className="rounded-2xl border border-gray-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-3">
                   <div className="flex items-center gap-2 text-xs font-bold text-navy uppercase tracking-wider">
-                    <MapPin className="w-4 h-4 text-[#1d5bd8]" />
+                    <MapPin className="w-4 h-4 text-[#01BEFE]" />
                     <span>Selected Collection & Delivery Address</span>
                   </div>
 
                   {selectedAddress ? (
-                    <div className="p-4 rounded-xl border border-[#1d5bd8] bg-[#f8fbff] text-xs space-y-1">
+                    <div className="p-4 rounded-xl border border-[#01BEFE] bg-[#f8fafc] text-xs space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="font-extrabold text-navy text-sm">{selectedAddress.label || 'Home Location'}</span>
                         {selectedAddress.isDefault && (
-                          <span className="text-[10px] font-bold bg-blue-100 text-[#1d5bd8] px-2.5 py-0.5 rounded-full">
+                          <span className="text-[10px] font-bold bg-blue-100 text-[#01BEFE] px-2.5 py-0.5 rounded-full">
                             Default Address
                           </span>
                         )}
@@ -1786,11 +1786,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <button
                     type="button"
                     onClick={effectiveIsLoggedIn ? handleProceedFromContact : () => { if (onRequireLogin) onRequireLogin(); }}
-                    className="px-8 py-3.5 rounded-xl bg-navy hover:bg-[#072465] text-white text-sm font-bold flex items-center gap-2 shadow-md transition-all cursor-pointer active:scale-98"
+                    className="px-8 py-3.5 rounded-xl bg-navy hover:bg-[#002953] text-white text-sm font-bold flex items-center gap-2 shadow-md transition-all cursor-pointer active:scale-98"
                   >
                     {!effectiveIsLoggedIn ? (
                       <>
-                        <Lock className="w-4 h-4 text-[#48CAE4]" />
+                        <Lock className="w-4 h-4 text-[#01BEFE]" />
                         <span>Log In to Continue</span>
                       </>
                     ) : (
@@ -1811,7 +1811,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <div className="space-y-6 animate-in fade-in-50 duration-200">
                 {/* Mobile Stepper Header */}
                 <div className="flex md:hidden items-center justify-between text-xs font-bold text-gray-400 pb-2 border-b border-gray-100">
-                  <span className="text-[#1d5bd8]">Step 3 of 4: Review and Confirm</span>
+                  <span className="text-[#01BEFE]">Step 3 of 4: Review and Confirm</span>
                   <button
                     type="button"
                     onClick={() => setCurrentStep('contact')}
@@ -1830,7 +1830,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <button
                       type="button"
                       onClick={() => setHowChargesWorkOpen(true)}
-                      className="text-[#1d5bd8] font-bold hover:underline"
+                      className="text-[#01BEFE] font-bold hover:underline"
                     >
                       Learn more
                     </button>
@@ -1838,9 +1838,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
 
                 {/* Slots & Delivery Summary Banner */}
-                <div className="rounded-2xl border border-blue-100 bg-[#f8fbff] p-4 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 text-xs">
+                <div className="rounded-2xl border border-blue-100 bg-[#f8fafc] p-4 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#eef4ff] text-[#1d5bd8] flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0">
                       <Calendar className="w-4 h-4" />
                     </div>
                     <div>
@@ -1855,7 +1855,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <button
                     type="button"
                     onClick={() => setCurrentStep('slots')}
-                    className="text-[11px] font-bold text-[#1d5bd8] hover:underline shrink-0"
+                    className="text-[11px] font-bold text-[#01BEFE] hover:underline shrink-0"
                   >
                     Change Slots
                   </button>
@@ -1865,7 +1865,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className="rounded-2xl border border-gray-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
                   <div className="flex items-baseline justify-between border-b border-gray-100 pb-3">
                     <span className="text-sm font-bold text-navy uppercase tracking-wider">Estimated total</span>
-                    <span className="text-2xl sm:text-3xl font-extrabold text-[#1d5bd8] font-sans">
+                    <span className="text-2xl sm:text-3xl font-extrabold text-[#01BEFE] font-sans">
                       ~£{estimatedTotal.toFixed(2)}
                     </span>
                   </div>
@@ -1932,7 +1932,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                     {/* Driver Tip */}
                     {driverTip > 0 && (
-                      <div className="flex items-center justify-between text-[#1d5bd8]">
+                      <div className="flex items-center justify-between text-[#01BEFE]">
                         <span>Driver tip</span>
                         <span className="font-bold">£{driverTip.toFixed(2)}</span>
                       </div>
@@ -1964,13 +1964,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value)}
                         placeholder="Enter promo code"
-                        className="px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs w-full uppercase font-mono placeholder:normal-case placeholder:font-sans focus:outline-none focus:border-[#1d5bd8]"
+                        className="px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs w-full uppercase font-mono placeholder:normal-case placeholder:font-sans focus:outline-none focus:border-[#01BEFE]"
                       />
                       <button
                         type="button"
                         onClick={handleApplyCoupon}
                         disabled={couponApplying}
-                        className="px-6 py-2.5 bg-navy hover:bg-[#072465] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                        className="px-6 py-2.5 bg-navy hover:bg-[#002953] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer shrink-0 disabled:opacity-50"
                       >
                         {couponApplying ? 'Applying...' : 'Enter'}
                       </button>
@@ -2000,7 +2000,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           type="button"
                           onClick={() => setDriverTip(tipOpt.value)}
                           className={`py-2.5 rounded-xl border text-xs font-bold transition-all text-center cursor-pointer ${driverTip === tipOpt.value
-                            ? 'border-[#1d5bd8] bg-[#1d5bd8] text-white shadow-xs'
+                            ? 'border-[#01BEFE] bg-[#01BEFE] text-white shadow-xs'
                             : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                             }`}
                         >
@@ -2023,7 +2023,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-gray-50/60 transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Receipt className="w-4 h-4 text-[#1d5bd8]" />
+                      <Receipt className="w-4 h-4 text-[#01BEFE]" />
                       <span className="text-sm font-bold text-navy">How charges work</span>
                     </div>
                     {howChargesWorkOpen ? (
@@ -2037,7 +2037,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <div className="p-4 sm:p-5 pt-0 border-t border-gray-100 space-y-4">
                       {/* Step 1 */}
                       <div className="flex items-start gap-3 pt-2">
-                        <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#1d5bd8] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                        <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#01BEFE] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                           1
                         </div>
                         <div className="space-y-0.5">
@@ -2051,12 +2051,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                       {/* Step 2 */}
                       <div className="flex items-start gap-3">
-                        <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#1d5bd8] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                        <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#01BEFE] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                           2
                         </div>
                         <div className="space-y-0.5">
                           <h4 className="text-xs sm:text-sm font-bold text-navy">2. Facility checks bags</h4>
-                          <span className="text-[11px] font-bold text-[#1d5bd8] block">Items are weighed and counted</span>
+                          <span className="text-[11px] font-bold text-[#01BEFE] block">Items are weighed and counted</span>
                           <p className="text-xs text-gray-500 leading-relaxed">
                             Our local cleaning partner will check your bags and issue an itemised online receipt as per our pricelist.
                           </p>
@@ -2065,7 +2065,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                       {/* Step 3 */}
                       <div className="flex items-start gap-3">
-                        <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#1d5bd8] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                        <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#01BEFE] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                           3
                         </div>
                         <div className="space-y-0.5">
@@ -2084,7 +2084,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className="rounded-2xl border border-gray-200/90 bg-white shadow-sm overflow-hidden divide-y divide-gray-100">
                   <div className="p-4 sm:p-5 bg-gray-50/50">
                     <h3 className="text-sm font-bold text-navy flex items-center gap-2">
-                      <HelpCircle className="w-4 h-4 text-[#1d5bd8]" />
+                      <HelpCircle className="w-4 h-4 text-[#01BEFE]" />
                       <span>Frequently asked questions</span>
                     </h3>
                   </div>
@@ -2146,11 +2146,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <button
                     type="button"
                     onClick={effectiveIsLoggedIn ? () => setCurrentStep('payment') : () => { if (onRequireLogin) onRequireLogin(); }}
-                    className="px-8 py-3.5 rounded-xl bg-navy hover:bg-[#072465] text-white text-sm font-bold flex items-center gap-2 shadow-md transition-all cursor-pointer active:scale-98"
+                    className="px-8 py-3.5 rounded-xl bg-navy hover:bg-[#002953] text-white text-sm font-bold flex items-center gap-2 shadow-md transition-all cursor-pointer active:scale-98"
                   >
                     {!effectiveIsLoggedIn ? (
                       <>
-                        <Lock className="w-4 h-4 text-[#48CAE4]" />
+                        <Lock className="w-4 h-4 text-[#01BEFE]" />
                         <span>Log In to Proceed to Payment</span>
                       </>
                     ) : (
@@ -2171,7 +2171,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <div className="space-y-6 animate-in fade-in-50 duration-200">
                 {/* Mobile Stepper Header */}
                 <div className="flex md:hidden items-center justify-between text-xs font-bold text-gray-400 pb-2 border-b border-gray-100">
-                  <span className="text-[#1d5bd8]">Step 4 of 4: Payment</span>
+                  <span className="text-[#01BEFE]">Step 4 of 4: Payment</span>
                   <button
                     type="button"
                     onClick={() => setCurrentStep('review')}
@@ -2205,16 +2205,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
                 </div>
 
-                <div className="rounded-2xl border-2 border-[#1d5bd8] bg-[#f8fbff] p-5 sm:p-6 shadow-sm space-y-4">
+                <div className="rounded-2xl border-2 border-[#01BEFE] bg-[#f8fafc] p-5 sm:p-6 shadow-sm space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#1d5bd8] text-white flex items-center justify-center shadow-xs">
+                      <div className="w-10 h-10 rounded-xl bg-[#01BEFE] text-white flex items-center justify-center shadow-xs">
                         <CreditCard className="w-5 h-5" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="text-sm font-bold text-navy">Stripe Secure Checkout</h4>
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-[#1d5bd8] uppercase">
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-[#01BEFE] uppercase">
                             Hosted by Stripe
                           </span>
                         </div>
@@ -2224,7 +2224,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       </div>
                     </div>
 
-                    <div className="w-6 h-6 rounded-full bg-[#1d5bd8] flex items-center justify-center text-white">
+                    <div className="w-6 h-6 rounded-full bg-[#01BEFE] flex items-center justify-center text-white">
                       <Check className="w-3.5 h-3.5 stroke-[3]" />
                     </div>
                   </div>
@@ -2232,7 +2232,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <div className="p-3 bg-white rounded-xl border border-blue-100 text-xs text-gray-600 space-y-1">
                     <div className="flex items-center justify-between font-semibold">
                       <span>Estimated Total:</span>
-                      <span className="text-base font-extrabold text-[#1d5bd8]">~£{estimatedTotal.toFixed(2)}</span>
+                      <span className="text-base font-extrabold text-[#01BEFE]">~£{estimatedTotal.toFixed(2)}</span>
                     </div>
                     <p className="text-[11px] text-gray-400">
                       You'll be redirected to Stripe's secure page to enter your card. Final amount adjusts based on bag weight and piece count.
@@ -2271,11 +2271,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     type="button"
                     onClick={effectiveIsLoggedIn ? handleCompletePayment : () => { if (onRequireLogin) onRequireLogin(); }}
                     disabled={isSubmitting}
-                    className="flex-1 py-4 rounded-xl bg-navy hover:bg-[#072465] text-white text-sm sm:text-base font-bold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer active:scale-98 disabled:opacity-50"
+                    className="flex-1 py-4 rounded-xl bg-navy hover:bg-[#002953] text-white text-sm sm:text-base font-bold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer active:scale-98 disabled:opacity-50"
                   >
                     {!effectiveIsLoggedIn ? (
                       <>
-                        <Lock className="w-4 h-4 text-[#48CAE4]" />
+                        <Lock className="w-4 h-4 text-[#01BEFE]" />
                         <span>Log In to Authorise & Book Order</span>
                       </>
                     ) : isSubmitting ? (

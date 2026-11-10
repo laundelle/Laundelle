@@ -73,7 +73,7 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-gray-900 font-sans flex flex-col antialiased selection:bg-[#CAF0F8] selection:text-[#03045E]">
+    <div className="min-h-screen bg-[#f8fafc] text-gray-900 font-sans flex flex-col antialiased selection:bg-[#01BEFE]/15 selection:text-[#002953]">
       {/* Top Sticky Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
@@ -81,21 +81,21 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
           <div className="flex items-center gap-4 sm:gap-6">
             <Link
               href="/"
-              className="group flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:text-[#03045E] hover:bg-slate-100 transition-colors"
+              className="group flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:text-[#002953] hover:bg-slate-100 transition-colors"
             >
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-[#00B4D8]" />
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-[#01BEFE]" />
               <span className="hidden sm:inline">Back to Home</span>
             </Link>
 
             <div className="h-5 w-px bg-slate-200 hidden sm:block" />
 
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#03045E] flex items-center justify-center text-white shadow-xs">
-                <WashingMachine className="w-5 h-5 text-[#00B4D8]" />
+              <div className="w-9 h-9 rounded-xl bg-[#002953] flex items-center justify-center text-white shadow-xs">
+                <WashingMachine className="w-5 h-5 text-[#01BEFE]" />
               </div>
               <div>
-                <span className="font-heading font-black text-lg block leading-tight tracking-wider uppercase text-[#03045E]">
-                  LAUN<span className="text-[#00B4D8]">DELLE</span>
+                <span className="font-heading font-black text-lg block leading-tight tracking-wider uppercase text-[#002953]">
+                  LAUN<span className="text-[#01BEFE]">DELLE</span>
                 </span>
                 <span className="text-[10px] text-slate-500 font-semibold block uppercase tracking-wider">
                   Garment Care Legal
@@ -117,17 +117,17 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
 
             <Link
               href="/support"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-xs font-bold text-[#03045E] transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-xs font-bold text-[#002953] transition-colors"
             >
-              <HelpCircle className="w-3.5 h-3.5 text-[#00B4D8]" />
+              <HelpCircle className="w-3.5 h-3.5 text-[#01BEFE]" />
               <span>Support</span>
             </Link>
 
             <Link
               href="/services"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#03045E] hover:bg-[#023E8A] text-xs font-bold text-white shadow-xs hover:shadow-md transition-all active:scale-95"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#002953] hover:bg-[#002953] text-xs font-bold text-white shadow-xs hover:shadow-md transition-all active:scale-95"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#00B4D8]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#01BEFE]" />
               <span>Book Clean</span>
             </Link>
           </div>
@@ -135,14 +135,14 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
       </header>
 
       {/* Hero Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#03045E] via-[#092d67] to-[#075985] text-white py-14 sm:py-18 px-4 sm:px-6 lg:px-8 shadow-inner">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#002953] via-[#002953] to-[#075985] text-white py-14 sm:py-18 px-4 sm:px-6 lg:px-8 shadow-inner">
         {/* Subtle decorative background circles */}
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-cyan-400/10 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-10 -mb-20 w-60 h-60 rounded-full bg-blue-500/15 blur-2xl pointer-events-none" />
 
         <div className="max-w-5xl mx-auto relative z-10 text-center sm:text-left">
           {/* Breadcrumb */}
-          <nav className="flex items-center justify-center sm:justify-start gap-2 text-xs font-medium text-[#ADE8F4] mb-4">
+          <nav className="flex items-center justify-center sm:justify-start gap-2 text-xs font-medium text-blue-100/80 mb-4">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>
             <ChevronRight className="w-3.5 h-3.5 opacity-60" />
             <span>Legal &amp; Compliance</span>
@@ -151,16 +151,16 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
           </nav>
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-[#00B4D8] shadow-lg shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-[#01BEFE] shadow-lg shrink-0">
               {icon}
             </div>
 
             <div className="space-y-2">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                <span className="px-3 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#00B4D8] text-[#03045E]">
+                <span className="px-3 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#01BEFE] text-[#002953]">
                   {badge}
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-xs text-[#ADE8F4]">
+                <span className="inline-flex items-center gap-1.5 text-xs text-blue-100/80">
                   <Clock className="w-3.5 h-3.5" />
                   Last Updated: {lastUpdated}
                 </span>
@@ -170,7 +170,7 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
                 {title}
               </h1>
 
-              <p className="text-sm sm:text-base text-[#CAF0F8] max-w-3xl leading-relaxed pt-1">
+              <p className="text-sm sm:text-base text-[#01BEFE] max-w-3xl leading-relaxed pt-1">
                 {description}
               </p>
             </div>
@@ -182,7 +182,7 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
               href="/termsandconditions"
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activePath === '/termsandconditions'
-                  ? 'bg-white text-[#03045E] shadow-md scale-102'
+                  ? 'bg-white text-[#002953] shadow-md scale-102'
                   : 'bg-white/10 text-white hover:bg-white/20'
               }`}
             >
@@ -192,7 +192,7 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
               href="/privacypolicy"
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activePath === '/privacypolicy'
-                  ? 'bg-white text-[#03045E] shadow-md scale-102'
+                  ? 'bg-white text-[#002953] shadow-md scale-102'
                   : 'bg-white/10 text-white hover:bg-white/20'
               }`}
             >
@@ -202,7 +202,7 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
               href="/cancellationandrefund"
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activePath === '/cancellationandrefund'
-                  ? 'bg-white text-[#03045E] shadow-md scale-102'
+                  ? 'bg-white text-[#002953] shadow-md scale-102'
                   : 'bg-white/10 text-white hover:bg-white/20'
               }`}
             >
@@ -221,11 +221,11 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
                 key={idx}
                 className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-md flex items-start gap-3.5 hover:shadow-lg transition-shadow"
               >
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#00B4D8] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#01BEFE] flex items-center justify-center shrink-0">
                   {item.icon}
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#03045E]">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#002953]">
                     {item.title}
                   </h4>
                   <p className="text-xs text-slate-600 mt-1 leading-normal">
@@ -244,8 +244,8 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
           {/* Table of Contents - Desktop Sticky Sidebar */}
           <aside className="lg:col-span-4 hidden lg:block">
             <div className="sticky top-26 bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
-              <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-[#03045E]">
-                <ShieldCheck className="w-4 h-4 text-[#00B4D8]" />
+              <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-[#002953]">
+                <ShieldCheck className="w-4 h-4 text-[#01BEFE]" />
                 <span>Document Contents</span>
               </div>
 
@@ -258,7 +258,7 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
                       href={`#${section.id}`}
                       className={`block px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                         isCurrent
-                          ? 'bg-[#03045E] text-white shadow-xs font-bold translate-x-1'
+                          ? 'bg-[#002953] text-white shadow-xs font-bold translate-x-1'
                           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                       }`}
                     >
@@ -272,22 +272,22 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
               {/* Need Help Box */}
               <div className="pt-4 border-t border-slate-100 space-y-3">
                 <div className="bg-gradient-to-br from-blue-50 to-cyan-50/50 rounded-2xl p-4 border border-blue-100">
-                  <h5 className="text-xs font-bold text-[#03045E] flex items-center gap-1.5">
-                    <HelpCircle className="w-4 h-4 text-[#00B4D8]" />
+                  <h5 className="text-xs font-bold text-[#002953] flex items-center gap-1.5">
+                    <HelpCircle className="w-4 h-4 text-[#01BEFE]" />
                     <span>Have Legal Questions?</span>
                   </h5>
                   <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
                     Our compliance &amp; customer care team is available 7 days a week.
                   </p>
-                  <div className="mt-3 space-y-1 text-[11px] font-semibold text-[#03045E]">
+                  <div className="mt-3 space-y-1 text-[11px] font-semibold text-[#002953]">
                     <p className="flex items-center gap-2">
-                      <Mail className="w-3.5 h-3.5 text-[#00B4D8]" />
+                      <Mail className="w-3.5 h-3.5 text-[#01BEFE]" />
                       <a href="mailto:care@laundelle.co.uk" className="hover:underline">
                         care@laundelle.co.uk
                       </a>
                     </p>
                     <p className="flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-[#00B4D8]" />
+                      <Phone className="w-3.5 h-3.5 text-[#01BEFE]" />
                       <span>+44 20 1234 5678</span>
                     </p>
                   </div>
@@ -306,15 +306,15 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
                   className={`scroll-mt-28 ${idx > 0 ? 'pt-8' : ''}`}
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#CAF0F8] text-[#03045E] text-xs font-extrabold">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#01BEFE]/15 text-[#002953] text-xs font-extrabold">
                       {idx + 1}
                     </span>
-                    <h2 className="font-heading font-extrabold text-xl sm:text-2xl text-[#03045E]">
+                    <h2 className="font-serif font-semibold text-2xl sm:text-3xl text-[#002953]">
                       {section.title}
                     </h2>
                   </div>
 
-                  <div className="prose prose-slate prose-sm max-w-none text-slate-700 leading-relaxed space-y-3.5 text-xs sm:text-sm">
+                  <div className="prose prose-slate prose-sm max-w-none text-slate-700 leading-relaxed space-y-3.5 text-sm sm:text-base font-sans">
                     {section.content}
                   </div>
                 </article>
@@ -324,7 +324,7 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
             {/* Bottom Contact / Assistance Banner */}
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
               <div className="space-y-1 text-center sm:text-left">
-                <h3 className="font-heading font-bold text-lg text-[#03045E]">
+                <h3 className="font-sans font-semibold text-lg sm:text-xl text-[#002953]">
                   Need clarification on this policy?
                 </h3>
                 <p className="text-xs text-slate-600">
@@ -335,7 +335,7 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <Link
                   href="/support"
-                  className="px-5 py-2.5 rounded-xl bg-[#03045E] hover:bg-[#023E8A] text-white text-xs font-bold shadow-xs hover:shadow-md transition-all"
+                  className="px-5 py-2.5 rounded-xl bg-[#002953] hover:bg-[#002953] text-white text-xs font-bold shadow-xs hover:shadow-md transition-all"
                 >
                   Visit Support Center
                 </Link>
@@ -343,7 +343,7 @@ export const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
                   href="mailto:care@laundelle.co.uk"
                   className="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5"
                 >
-                  <Mail className="w-3.5 h-3.5 text-[#00B4D8]" />
+                  <Mail className="w-3.5 h-3.5 text-[#01BEFE]" />
                   <span>Email Care Team</span>
                 </a>
               </div>

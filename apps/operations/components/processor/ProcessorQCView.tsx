@@ -183,13 +183,13 @@ export const ProcessorQCView: React.FC<ProcessorQCViewProps> = ({ onNavigateTab 
               customerName: (o.customerName && o.customerName !== 'Valued Customer' && o.customerName !== 'Customer')
                 ? o.customerName
                 : (o.customer_name && o.customer_name !== 'Valued Customer' && o.customer_name !== 'Customer')
-                ? o.customer_name
-                : (o.contactDetails ? `${o.contactDetails.firstName || ''} ${o.contactDetails.lastName || ''}`.trim() : '')
-                || o.customer?.full_name
-                || o.customer?.name
-                || o.user_name
-                || (o.customerEmail ? o.customerEmail.split('@')[0] : '')
-                || 'Customer',
+                  ? o.customer_name
+                  : (o.contactDetails ? `${o.contactDetails.firstName || ''} ${o.contactDetails.lastName || ''}`.trim() : '')
+                  || o.customer?.full_name
+                  || o.customer?.name
+                  || o.user_name
+                  || (o.customerEmail ? o.customerEmail.split('@')[0] : '')
+                  || 'Customer',
               customerPhone: o.customerPhone || o.phone || o.customer?.phone || o.contactDetails?.phone || o.customer_phone || '',
               customerEmail: o.customerEmail || o.email || o.contactDetails?.email || o.customer?.email || '',
               customerAddress: o.address || o.customerAddress || o.deliveryAddress?.street || (typeof o.deliveryAddress === 'string' ? o.deliveryAddress : '') || 'Plant Bay Lon-01 Delivery Area',
@@ -491,26 +491,6 @@ export const ProcessorQCView: React.FC<ProcessorQCViewProps> = ({ onNavigateTab 
           </button>
         </div>
       )}
-
-      {/* ── Page Header & Controls ── */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-2xs flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Quality Inspection
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Verify washed laundry batches before dispatch handover.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => loadQCOrders(true)}
-          className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/60 transition-colors cursor-pointer"
-          title="Refresh Queue"
-        >
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
-        </button>
-      </div>
 
       {/* ── Sticky Search Toolbar ── */}
       <div className="sticky top-16 md:top-[68px] z-10 py-2.5 -my-2.5 bg-slate-50/95 backdrop-blur-md">

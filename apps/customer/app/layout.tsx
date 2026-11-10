@@ -1,40 +1,33 @@
 import type { Metadata, Viewport } from 'next';
-import { Outfit, Plus_Jakarta_Sans, DM_Sans, Playfair_Display } from 'next/font/google';
+import { Cormorant_Garamond, Manrope, IBM_Plex_Mono } from 'next/font/google';
 import { LAUNDELLE_IMAGES, getOptimizedImageUrl } from '@laundelle/config';
 import './globals.css';
 
-const outfit = Outfit({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
-  variable: '--font-outfit',
-  display: 'swap',
-});
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
-  variable: '--font-plus-jakarta-sans',
-  display: 'swap',
-});
-
-const dmSans = DM_Sans({
+const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-  variable: '--font-dm-sans',
+  variable: '--font-cormorant',
   display: 'swap',
 });
 
-const playfairDisplay = Playfair_Display({
+const manrope = Manrope({
   subsets: ['latin'],
-  weight: ['600', '700', '800'],
-  variable: '--font-playfair',
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-manrope',
+  display: 'swap',
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-ibm-plex-mono',
   display: 'swap',
 });
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0d3462',
+  themeColor: '#002953',
 };
 
 const getBaseUrl = (fallback: string) => {
@@ -119,7 +112,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${outfit.variable} ${plusJakartaSans.variable} ${dmSans.variable} ${playfairDisplay.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${manrope.variable} ${ibmPlexMono.variable}`}>
       <head>
         {/* Preload Homepage LCP Hero Image for immediate early discovery */}
         <link
@@ -137,7 +130,7 @@ export default function RootLayout({
           fetchPriority="high"
         />
       </head>
-      <body className="bg-[#f8fafc] text-gray-900 font-sans antialiased">
+      <body className="bg-white text-gray-900 font-sans antialiased">
         <Auth0ProviderWrapper>
           {children}
         </Auth0ProviderWrapper>

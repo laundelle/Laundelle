@@ -69,8 +69,21 @@ export class IdMigrationService {
     };
 
     try {
+      const unmigratedFilter = {
+        $or: [
+          { publicId: { $exists: false } },
+          { publicId: null },
+          { publicId: '' }
+        ]
+      };
+
       // 1. Migrate Users
-      const users = await db.collection('users').find({}).toArray();
+      const users = await db.collection('users').find({
+        $or: [
+          ...unmigratedFilter.$or,
+          { 'addresses.publicId': { $exists: false } }
+        ]
+      }).toArray();
       for (const u of users) {
         const isStaff = ['driver', 'processor', 'manager', 'admin', 'super_admin'].includes(u.role);
         let publicId = u.publicId;
@@ -79,7 +92,7 @@ export class IdMigrationService {
           publicId = isStaff ? generateStaffId() : generateCustomerId();
         }
 
-        const updates: any = { publicId };
+        const updates: any = { publicId, id: u.id || publicId };
         if (isStaff) {
           updates.staffId = publicId;
         } else {
@@ -100,7 +113,7 @@ export class IdMigrationService {
       }
 
       // 2. Migrate Plants
-      const plants = await db.collection('plants').find({}).toArray();
+      const plants = await db.collection('plants').find(unmigratedFilter).toArray();
       for (const p of plants) {
         let publicId = p.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -108,13 +121,13 @@ export class IdMigrationService {
         }
         await db.collection('plants').updateOne(
           { _id: p._id },
-          { $set: { publicId, plantId: publicId } }
+          { $set: { publicId, plantId: publicId, id: p.id || publicId } }
         );
         summary.plantsMigrated++;
       }
 
       // 3. Migrate Orders
-      const orders = await db.collection('orders').find({}).toArray();
+      const orders = await db.collection('orders').find(unmigratedFilter).toArray();
       for (const o of orders) {
         let publicId = o.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -139,7 +152,7 @@ export class IdMigrationService {
       }
 
       // 4. Migrate Vehicles
-      const vehicles = await db.collection('vehicles').find({}).toArray();
+      const vehicles = await db.collection('vehicles').find(unmigratedFilter).toArray();
       for (const v of vehicles) {
         let publicId = v.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -147,13 +160,13 @@ export class IdMigrationService {
         }
         await db.collection('vehicles').updateOne(
           { _id: v._id },
-          { $set: { publicId, vehicleId: publicId } }
+          { $set: { publicId, vehicleId: publicId, id: v.id || publicId } }
         );
         summary.vehiclesMigrated++;
       }
 
       // 5. Migrate Machines
-      const machines = await db.collection('machines').find({}).toArray();
+      const machines = await db.collection('machines').find(unmigratedFilter).toArray();
       for (const m of machines) {
         let publicId = m.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -161,13 +174,13 @@ export class IdMigrationService {
         }
         await db.collection('machines').updateOne(
           { _id: m._id },
-          { $set: { publicId, machineId: publicId } }
+          { $set: { publicId, machineId: publicId, id: m.id || publicId } }
         );
         summary.machinesMigrated++;
       }
 
       // 6. Migrate Incidents
-      const incidents = await db.collection('incidents').find({}).toArray();
+      const incidents = await db.collection('incidents').find(unmigratedFilter).toArray();
       for (const inc of incidents) {
         let publicId = inc.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -175,13 +188,13 @@ export class IdMigrationService {
         }
         await db.collection('incidents').updateOne(
           { _id: inc._id },
-          { $set: { publicId, incidentId: publicId, incidentNumber: publicId } }
+          { $set: { publicId, incidentId: publicId, incidentNumber: publicId, id: inc.id || publicId } }
         );
         summary.incidentsMigrated++;
       }
 
       // 7. Migrate Payments
-      const payments = await db.collection('payments').find({}).toArray();
+      const payments = await db.collection('payments').find(unmigratedFilter).toArray();
       for (const pay of payments) {
         let publicId = pay.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -189,13 +202,13 @@ export class IdMigrationService {
         }
         await db.collection('payments').updateOne(
           { _id: pay._id },
-          { $set: { publicId, paymentId: publicId } }
+          { $set: { publicId, paymentId: publicId, id: pay.id || publicId } }
         );
         summary.paymentsMigrated++;
       }
 
       // 8. Migrate Subscriptions
-      const subscriptions = await db.collection('subscriptions').find({}).toArray();
+      const subscriptions = await db.collection('subscriptions').find(unmigratedFilter).toArray();
       for (const sub of subscriptions) {
         let publicId = sub.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -203,13 +216,13 @@ export class IdMigrationService {
         }
         await db.collection('subscriptions').updateOne(
           { _id: sub._id },
-          { $set: { publicId, subscriptionId: publicId } }
+          { $set: { publicId, subscriptionId: publicId, id: sub.id || publicId } }
         );
         summary.subscriptionsMigrated++;
       }
 
       // 9. Migrate Support Tickets
-      const tickets = await db.collection('tickets').find({}).toArray();
+      const tickets = await db.collection('tickets').find(unmigratedFilter).toArray();
       for (const t of tickets) {
         let publicId = t.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -217,13 +230,13 @@ export class IdMigrationService {
         }
         await db.collection('tickets').updateOne(
           { _id: t._id },
-          { $set: { publicId, ticketId: publicId } }
+          { $set: { publicId, ticketId: publicId, id: t.id || publicId } }
         );
         summary.ticketsMigrated++;
       }
 
       // 10. Migrate Unified Alerts
-      const alerts = await db.collection('unified_alerts').find({}).toArray();
+      const alerts = await db.collection('unified_alerts').find(unmigratedFilter).toArray();
       for (const a of alerts) {
         let publicId = a.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -231,13 +244,13 @@ export class IdMigrationService {
         }
         await db.collection('unified_alerts').updateOne(
           { _id: a._id },
-          { $set: { publicId } }
+          { $set: { publicId, id: a.id || publicId } }
         );
         summary.alertsMigrated++;
       }
 
       // 11. Migrate Evidence
-      const evidence = await db.collection('evidence').find({}).toArray();
+      const evidence = await db.collection('evidence').find(unmigratedFilter).toArray();
       for (const ev of evidence) {
         let publicId = ev.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -245,13 +258,13 @@ export class IdMigrationService {
         }
         await db.collection('evidence').updateOne(
           { _id: ev._id },
-          { $set: { publicId, evidenceId: publicId } }
+          { $set: { publicId, evidenceId: publicId, id: ev.id || publicId } }
         );
         summary.evidenceMigrated++;
       }
 
       // 12. Migrate Operational Exceptions
-      const exceptions = await db.collection('exceptions').find({}).toArray();
+      const exceptions = await db.collection('exceptions').find(unmigratedFilter).toArray();
       for (const exc of exceptions) {
         let publicId = exc.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -259,13 +272,13 @@ export class IdMigrationService {
         }
         await db.collection('exceptions').updateOne(
           { _id: exc._id },
-          { $set: { publicId } }
+          { $set: { publicId, id: exc.id || publicId } }
         );
         summary.exceptionsMigrated++;
       }
 
       // 13. Migrate Inventory Items
-      const inventory = await db.collection('inventory_items').find({}).toArray();
+      const inventory = await db.collection('inventory_items').find(unmigratedFilter).toArray();
       for (const itm of inventory) {
         let publicId = itm.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -273,13 +286,13 @@ export class IdMigrationService {
         }
         await db.collection('inventory_items').updateOne(
           { _id: itm._id },
-          { $set: { publicId } }
+          { $set: { publicId, id: itm.id || publicId } }
         );
         summary.inventoryMigrated++;
       }
 
       // 14. Migrate COD Collections
-      const cods = await db.collection('cod_collections').find({}).toArray();
+      const cods = await db.collection('cod_collections').find(unmigratedFilter).toArray();
       for (const c of cods) {
         let publicId = c.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -287,13 +300,13 @@ export class IdMigrationService {
         }
         await db.collection('cod_collections').updateOne(
           { _id: c._id },
-          { $set: { publicId, codRecordId: publicId } }
+          { $set: { publicId, codRecordId: publicId, id: c.id || publicId } }
         );
         summary.codMigrated++;
       }
 
       // 15. Migrate Services
-      const services = await db.collection('services').find({}).toArray();
+      const services = await db.collection('services').find(unmigratedFilter).toArray();
       for (const s of services) {
         let publicId = s.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -301,13 +314,13 @@ export class IdMigrationService {
         }
         await db.collection('services').updateOne(
           { _id: s._id },
-          { $set: { publicId, serviceId: publicId } }
+          { $set: { publicId, serviceId: publicId, id: s.id || publicId } }
         );
         summary.servicesMigrated++;
       }
 
       // 16. Migrate Booking Slots
-      const slots = await db.collection('booking_slots').find({}).toArray();
+      const slots = await db.collection('booking_slots').find(unmigratedFilter).toArray();
       for (const slt of slots) {
         let publicId = slt.publicId;
         if (!publicId || !isValidCanonicalId(publicId)) {
@@ -315,7 +328,7 @@ export class IdMigrationService {
         }
         await db.collection('booking_slots').updateOne(
           { _id: slt._id },
-          { $set: { publicId, slotId: publicId } }
+          { $set: { publicId, slotId: publicId, id: slt.id || publicId } }
         );
         summary.slotsMigrated++;
       }

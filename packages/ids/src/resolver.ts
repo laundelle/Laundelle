@@ -28,43 +28,44 @@ function tryGetObjectId(id: string, customConverter?: (val: string) => any): any
       return null;
     }
     try {
-      // Use dynamic runtime resolution so bundlers (Webpack / Next.js / Vite) do not statically trace and bundle 'mongodb' into client builds
-      const runtimeRequire =
-        typeof (globalThis as any).__non_webpack_require__ === 'function'
-          ? (globalThis as any).__non_webpack_require__
-          : typeof eval === 'function'
-            ? eval('require')
-            : null;
+      // Use dynamic module loader that won't trigger Webpack's critical dependency warning
+      const getModule = typeof (globalThis as any).__non_webpack_require__ === 'function'
+        ? (globalThis as any).__non_webpack_require__
+        : new Function('moduleName', 'try { return require(moduleName); } catch { return null; }');
 
-      if (runtimeRequire) {
-        try {
-          const mongodb = runtimeRequire('mongodb');
-          const OId = mongodb.ObjectId || mongodb.default?.ObjectId;
-          if (OId) return new OId(id);
-        } catch {}
-
-        try {
-          const path = runtimeRequire('path');
-          if (typeof process !== 'undefined' && process.cwd) {
-            const resolved = runtimeRequire(path.resolve(process.cwd(), 'apps/backend/node_modules/mongodb'));
-            const OId = resolved.ObjectId || resolved.default?.ObjectId;
-            if (OId) return new OId(id);
-          }
-        } catch {}
-      }
+      const mongodb = getModule('mongodb');
+      const OId = mongodb?.ObjectId || mongodb?.default?.ObjectId;
+      if (OId) return new OId(id);
     } catch {}
   }
   return null;
 }
 
 /**
+ * Maps entity types to their authoritative canonical prefixes.
+ */
+const ENTITY_PREFIX_MAP: Record<string, string[]> = {
+  order: [ID_PREFIXES.ORDER, ID_PREFIXES.BAG, 'LD', 'ORD', 'BAG'],
+  user: [ID_PREFIXES.CUSTOMER, ID_PREFIXES.STAFF, 'USR', 'CUS', 'STF'],
+  plant: [ID_PREFIXES.PLANT, 'PLT'],
+  vehicle: [ID_PREFIXES.VEHICLE, 'VEH'],
+  machine: [ID_PREFIXES.MACHINE, 'MAC'],
+  incident: [ID_PREFIXES.INCIDENT, 'INC'],
+  ticket: [ID_PREFIXES.SUPPORT_TICKET, 'SUP', 'TKT'],
+  payment: [ID_PREFIXES.PAYMENT, 'PAY'],
+  subscription: [ID_PREFIXES.SUBSCRIPTION, 'SUB'],
+  cod: [ID_PREFIXES.COD_RECORD, 'COD']
+};
+
+/**
  * Builds a backward-compatible MongoDB query for resolving entities by canonical publicId,
  * legacy id, or internal database ID. Safely converts 24-character hexadecimal identifiers
  * to BSON ObjectId in server environments to bridge native and string storage.
+ * Enforces entity prefix boundaries to prevent cross-entity identifier confusion.
  */
 export function buildEntityLookupQuery(
   identifier: string,
-  entityType: 'order' | 'user' | 'plant' | 'vehicle' | 'machine' | 'incident' | 'ticket' | 'general' = 'general',
+  entityType: 'order' | 'user' | 'plant' | 'vehicle' | 'machine' | 'incident' | 'ticket' | 'payment' | 'subscription' | 'cod' | 'general' = 'general',
   objectIdConverter?: (val: string) => any
 ): Record<string, any> {
   const clean = sanitizeIdInput(identifier);
@@ -72,9 +73,27 @@ export function buildEntityLookupQuery(
 
   const objectId = tryGetObjectId(clean, objectIdConverter);
 
+  const prefixCandidate = clean.includes('-')
+    ? clean.split('-')[0]?.toUpperCase()
+    : clean.includes('_')
+      ? clean.split('_')[0]?.toUpperCase()
+      : null;
+
+  const allowedPrefixes = ENTITY_PREFIX_MAP[entityType];
+  const allKnownPrefixes = Array.from(new Set(Object.values(ENTITY_PREFIX_MAP).flat()));
+
+  // Entity boundary enforcement: reject known prefixes belonging to other entities
+  if (allowedPrefixes && prefixCandidate) {
+    const isCrossEntityPrefix = allKnownPrefixes.includes(prefixCandidate) && !allowedPrefixes.includes(prefixCandidate);
+    if (isCrossEntityPrefix) {
+      return { _id: '__non_existent_cross_entity_id__' };
+    }
+  }
+
   // If already canonical public ID, match on publicId first, with fallback to legacy id
   if (clean.includes('-')) {
     const isCanonical = isValidCanonicalId(clean);
+
     if (isCanonical) {
       if (entityType === 'order') {
         return {

@@ -1,10 +1,11 @@
 import { getDb } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 import { SubscriptionPlan, SubscriptionPlanId, SubscriptionStatus, UserSubscription } from '@laundelle/types';
 import { BadRequestError, NotFoundError, ForbiddenError } from '@/lib/api';
 import { NotificationService } from './NotificationService';
 import { AuditService } from './AuditService';
 import crypto from 'crypto';
-import { generateSubscriptionId, generateOrderId, generateOrderItemId } from '@laundelle/ids';
+import { generateSubscriptionId, generateOrderId, generateOrderItemId, buildEntityLookupQuery } from '@laundelle/ids';
 import { generateSecureNumericPin } from '@/lib/orderPin';
 
 export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanId, SubscriptionPlan> = {
@@ -73,8 +74,23 @@ export class SubscriptionService {
    */
   static async getCustomerSubscription(customerId: string): Promise<UserSubscription | null> {
     const db = await getDb();
-    const sub = await db.collection('subscriptions').findOne({
+    const userDoc = await db.collection('users').findOne(
+      buildEntityLookupQuery(customerId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+    );
+    const possibleCustomerIds = [
       customerId,
+      userDoc?.publicId,
+      userDoc?.customerId,
+      userDoc?.id,
+      userDoc ? String(userDoc._id) : null
+    ].filter(Boolean);
+
+    const sub = await db.collection('subscriptions').findOne({
+      $or: [
+        { customerId: { $in: possibleCustomerIds } },
+        { customer_id: { $in: possibleCustomerIds } },
+        { userId: { $in: possibleCustomerIds } }
+      ],
       status: { $in: ['ACTIVE', 'PAUSED', 'TRIAL', 'PAST_DUE'] }
     });
     return sub as unknown as UserSubscription | null;
@@ -99,9 +115,24 @@ export class SubscriptionService {
 
     const db = await getDb();
 
+    const userDoc = await db.collection('users').findOne(
+      buildEntityLookupQuery(customerId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+    );
+    const possibleCustomerIds = [
+      customerId,
+      userDoc?.publicId,
+      userDoc?.customerId,
+      userDoc?.id,
+      userDoc ? String(userDoc._id) : null
+    ].filter(Boolean);
+
     // Check if customer already has an active subscription
     const existing = await db.collection('subscriptions').findOne({
-      customerId,
+      $or: [
+        { customerId: { $in: possibleCustomerIds } },
+        { customer_id: { $in: possibleCustomerIds } },
+        { userId: { $in: possibleCustomerIds } }
+      ],
       status: { $in: ['ACTIVE', 'PAUSED'] }
     });
     if (existing) {
@@ -143,7 +174,7 @@ export class SubscriptionService {
 
     // Update user profile active subscription
     await db.collection('users').updateOne(
-      { _id: customerId } as any,
+      buildEntityLookupQuery(customerId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any,
       {
         $set: {
           activeSubscription: {
@@ -185,18 +216,34 @@ export class SubscriptionService {
    */
   static async pauseSubscription(subscriptionId: string, customerId: string): Promise<UserSubscription> {
     const db = await getDb();
-    const sub = await db.collection('subscriptions').findOne({ id: subscriptionId });
+    const sub = await db.collection('subscriptions').findOne({
+      $or: [{ id: subscriptionId }, { publicId: subscriptionId }, { subscriptionId }]
+    });
     if (!sub) throw new NotFoundError('Subscription not found.');
-    if (sub.customerId !== customerId) throw new ForbiddenError('Access denied: You do not own this subscription.');
+
+    const userDoc = await db.collection('users').findOne(
+      buildEntityLookupQuery(customerId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+    );
+    const possibleCustomerIds = [
+      customerId,
+      userDoc?.publicId,
+      userDoc?.customerId,
+      userDoc?.id,
+      userDoc ? String(userDoc._id) : null
+    ].filter(Boolean);
+
+    if (!possibleCustomerIds.includes(sub.customerId) && !possibleCustomerIds.includes(sub.userId)) {
+      throw new ForbiddenError('Access denied: You do not own this subscription.');
+    }
 
     const now = new Date().toISOString();
     await db.collection('subscriptions').updateOne(
-      { id: subscriptionId },
+      { _id: sub._id },
       { $set: { status: 'PAUSED', pausedAt: now, updatedAt: now } }
     );
 
     await db.collection('users').updateOne(
-      { _id: customerId } as any,
+      buildEntityLookupQuery(customerId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any,
       { $set: { 'activeSubscription.status': 'paused', updated_at: now } }
     );
 
@@ -216,18 +263,34 @@ export class SubscriptionService {
    */
   static async resumeSubscription(subscriptionId: string, customerId: string): Promise<UserSubscription> {
     const db = await getDb();
-    const sub = await db.collection('subscriptions').findOne({ id: subscriptionId });
+    const sub = await db.collection('subscriptions').findOne({
+      $or: [{ id: subscriptionId }, { publicId: subscriptionId }, { subscriptionId }]
+    });
     if (!sub) throw new NotFoundError('Subscription not found.');
-    if (sub.customerId !== customerId) throw new ForbiddenError('Access denied: You do not own this subscription.');
+
+    const userDoc = await db.collection('users').findOne(
+      buildEntityLookupQuery(customerId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+    );
+    const possibleCustomerIds = [
+      customerId,
+      userDoc?.publicId,
+      userDoc?.customerId,
+      userDoc?.id,
+      userDoc ? String(userDoc._id) : null
+    ].filter(Boolean);
+
+    if (!possibleCustomerIds.includes(sub.customerId) && !possibleCustomerIds.includes(sub.userId)) {
+      throw new ForbiddenError('Access denied: You do not own this subscription.');
+    }
 
     const now = new Date().toISOString();
     await db.collection('subscriptions').updateOne(
-      { id: subscriptionId },
+      { _id: sub._id },
       { $set: { status: 'ACTIVE', resumedAt: now, updatedAt: now } }
     );
 
     await db.collection('users').updateOne(
-      { _id: customerId } as any,
+      buildEntityLookupQuery(customerId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any,
       { $set: { 'activeSubscription.status': 'active', updated_at: now } }
     );
 
@@ -247,18 +310,34 @@ export class SubscriptionService {
    */
   static async cancelSubscription(subscriptionId: string, customerId: string): Promise<UserSubscription> {
     const db = await getDb();
-    const sub = await db.collection('subscriptions').findOne({ id: subscriptionId });
+    const sub = await db.collection('subscriptions').findOne({
+      $or: [{ id: subscriptionId }, { publicId: subscriptionId }, { subscriptionId }]
+    });
     if (!sub) throw new NotFoundError('Subscription not found.');
-    if (sub.customerId !== customerId) throw new ForbiddenError('Access denied: You do not own this subscription.');
+
+    const userDoc = await db.collection('users').findOne(
+      buildEntityLookupQuery(customerId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any
+    );
+    const possibleCustomerIds = [
+      customerId,
+      userDoc?.publicId,
+      userDoc?.customerId,
+      userDoc?.id,
+      userDoc ? String(userDoc._id) : null
+    ].filter(Boolean);
+
+    if (!possibleCustomerIds.includes(sub.customerId) && !possibleCustomerIds.includes(sub.userId)) {
+      throw new ForbiddenError('Access denied: You do not own this subscription.');
+    }
 
     const now = new Date().toISOString();
     await db.collection('subscriptions').updateOne(
-      { id: subscriptionId },
+      { _id: sub._id },
       { $set: { status: 'CANCELLED', cancelledAt: now, updatedAt: now } }
     );
 
     await db.collection('users').updateOne(
-      { _id: customerId } as any,
+      buildEntityLookupQuery(customerId, 'user', (v) => ObjectId.isValid(v) ? new ObjectId(v) : null) as any,
       { $set: { 'activeSubscription.status': 'cancelled', updated_at: now } }
     );
 
@@ -289,7 +368,9 @@ export class SubscriptionService {
     overageAmount: number;
   }> {
     const db = await getDb();
-    const sub = await db.collection('subscriptions').findOne({ id: subscriptionId });
+    const sub = await db.collection('subscriptions').findOne({
+      $or: [{ id: subscriptionId }, { publicId: subscriptionId }, { subscriptionId }]
+    });
     if (!sub) throw new NotFoundError('Subscription not found.');
 
     const newUsedKg = (sub.usedKgCurrentPeriod || 0) + weightKg;
@@ -299,7 +380,7 @@ export class SubscriptionService {
     const overageAmount = Number((overageKg * (sub.overageRatePerKg || 2.00)).toFixed(2));
 
     await db.collection('subscriptions').updateOne(
-      { id: subscriptionId },
+      { _id: sub._id },
       {
         $set: {
           usedKgCurrentPeriod: newUsedKg,

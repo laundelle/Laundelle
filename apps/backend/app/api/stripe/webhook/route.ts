@@ -23,10 +23,6 @@ export async function POST(req: NextRequest) {
 
 
 export async function GET() {
-    // SECURITY: Do NOT reveal webhook configuration state (STRIPE_WEBHOOK_SECRET presence, etc.)
-    // Only return a generic liveness signal to confirm the endpoint is reachable.
-    return NextResponse.json({
-        status: 'ok',
-        timestamp: new Date().toISOString()
-    });
+    // Generic liveness signal confirming endpoint reachability
+    return NextResponse.json({ status: 'ok' });
 }

@@ -85,7 +85,7 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in">
       <div className="bg-white rounded-3xl w-full max-w-lg max-h-[85vh] sm:max-h-[90vh] overflow-hidden shadow-2xl transition-all border border-gray-100 flex flex-col my-auto">
         {/* Header */}
-        <div className="bg-[#03045E] text-white p-5 sm:p-6 relative shrink-0">
+        <div className="bg-[#002953] text-white p-5 sm:p-6 relative shrink-0">
           <button
             onClick={onClose}
             className="absolute top-5 right-5 text-white/80 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors"
@@ -93,7 +93,7 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
             <X className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-2 text-xs font-bold text-[#48CAE4] uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#01BEFE] uppercase tracking-wider mb-1">
             <MapPin className="w-4 h-4" />
             <span>Service Coverage Area</span>
           </div>
@@ -122,14 +122,14 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
                         if (checkedStatus !== 'idle') setCheckedStatus('idle');
                       }}
                       placeholder="e.g. SW1A 1AA, W1, EC1, 500001"
-                      className="w-full pl-10 pr-4 py-3 bg-[#CAF0F8]/20 border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:outline-hidden focus:border-[#03045E] uppercase"
+                      className="w-full pl-10 pr-4 py-3 bg-[#01BEFE]/15/20 border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:outline-hidden focus:border-[#002953] uppercase"
                       required
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={checking}
-                    className="bg-[#03045E] hover:bg-[#023E8A] text-white px-5 py-3 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-97 cursor-pointer shrink-0 disabled:opacity-50"
+                    className="bg-[#002953] hover:bg-[#002953] text-white px-5 py-3 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-97 cursor-pointer shrink-0 disabled:opacity-50"
                   >
                     Check Availability
                   </button>
@@ -141,11 +141,11 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
 
           {/* AVAILABLE STATE */}
           {checkedStatus === 'available' && (
-            <div className="p-5 bg-[#CAF0F8] border border-[#ADE8F4] rounded-2xl space-y-4 animate-in fade-in">
+            <div className="p-5 bg-[#01BEFE]/15 border border-[#01BEFE] rounded-2xl space-y-4 animate-in fade-in">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-6 h-6 text-[#03045E] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-6 h-6 text-[#002953] shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="text-base font-heading font-bold text-[#03045E]">
+                  <h3 className="text-base font-heading font-bold text-[#002953]">
                     Great News! Doorstep Laundry is Available in {postcode.toUpperCase()}
                   </h3>
                   <p className="text-xs text-gray-600 mt-1">
@@ -157,11 +157,11 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
               <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
                 <div className="bg-white p-2.5 rounded-xl text-center">
                   <span className="text-gray-500 block">Next Available Pickup</span>
-                  <span className="font-bold text-[#03045E]">Today, in 45 mins</span>
+                  <span className="font-bold text-[#002953]">Today, in 45 mins</span>
                 </div>
                 <div className="bg-white p-2.5 rounded-xl text-center">
                   <span className="text-gray-500 block">Express Turnaround</span>
-                  <span className="font-bold text-[#03045E]">Same-Day & 24h</span>
+                  <span className="font-bold text-[#002953]">Same-Day & 24h</span>
                 </div>
               </div>
 
@@ -170,7 +170,7 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
                   onClose();
                   onBookNow(postcode.trim().toUpperCase());
                 }}
-                className="w-full bg-[#03045E] hover:bg-[#023E8A] text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer"
+                className="w-full bg-[#002953] hover:bg-[#002953] text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer"
               >
                 <span>Book Your Laundry Now</span>
                 <ArrowRight className="w-4 h-4" />
@@ -207,7 +207,7 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Jane Doe"
-                      className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-hidden focus:border-[#03045E]"
+                      className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-hidden focus:border-[#002953]"
                       required
                     />
                   </div>
@@ -218,7 +218,7 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="jane@example.com"
-                      className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-hidden focus:border-[#03045E]"
+                      className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-hidden focus:border-[#002953]"
                       required
                     />
                   </div>
@@ -231,7 +231,7 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
                       <select
                         value={phoneCountryCode}
                         onChange={(e) => setPhoneCountryCode(e.target.value)}
-                        className="w-20 px-1.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#03045E] focus:outline-hidden focus:border-[#03045E] cursor-pointer shrink-0"
+                        className="w-20 px-1.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#002953] focus:outline-hidden focus:border-[#002953] cursor-pointer shrink-0"
                       >
                         <option value="+44">UK (+44)</option>
                         <option value="+1">US (+1)</option>
@@ -247,7 +247,7 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="7700 900000"
-                        className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-hidden focus:border-[#03045E]"
+                        className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-hidden focus:border-[#002953]"
                       />
                     </div>
                   </div>
@@ -256,7 +256,7 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
                     <select
                       value={requestedService}
                       onChange={(e) => setRequestedService(e.target.value)}
-                      className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-hidden focus:border-[#03045E]"
+                      className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-hidden focus:border-[#002953]"
                     >
                       <option value="Wash + Dry + Fold">Wash + Dry + Fold</option>
                       <option value="Wash + Steam Iron">Wash + Steam Iron</option>
@@ -274,7 +274,7 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
                     id="launchConsent"
                     checked={launchConsent}
                     onChange={(e) => setLaunchConsent(e.target.checked)}
-                    className="w-4 h-4 accent-[#03045E] rounded cursor-pointer"
+                    className="w-4 h-4 accent-[#002953] rounded cursor-pointer"
                   />
                   <label htmlFor="launchConsent" className="text-[11px] text-gray-600 cursor-pointer">
                     Send me a notification and £10 welcome credit when Laundelle launches in my area.
@@ -283,7 +283,7 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
 
                 <button
                   type="submit"
-                  className="w-full bg-[#03045E] hover:bg-[#023E8A] text-white py-3 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer mt-2"
+                  className="w-full bg-[#002953] hover:bg-[#002953] text-white py-3 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer mt-2"
                 >
                   Join Waiting List
                 </button>
@@ -293,11 +293,11 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
 
           {/* WAITING LIST SUCCESS */}
           {waitingListSuccess && (
-            <div className="p-6 bg-[#CAF0F8] rounded-2xl text-center space-y-3 animate-in zoom-in-95">
-              <div className="w-12 h-12 rounded-full bg-[#03045E] text-white flex items-center justify-center mx-auto shadow-md">
+            <div className="p-6 bg-[#01BEFE]/15 rounded-2xl text-center space-y-3 animate-in zoom-in-95">
+              <div className="w-12 h-12 rounded-full bg-[#002953] text-white flex items-center justify-center mx-auto shadow-md">
                 <Bell className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-heading font-extrabold text-[#03045E]">
+              <h3 className="text-base font-heading font-extrabold text-[#002953]">
                 You are on the VIP Waiting List!
               </h3>
               <p className="text-xs text-gray-600 max-w-sm mx-auto">
@@ -305,7 +305,7 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
               </p>
               <button
                 onClick={onClose}
-                className="bg-[#03045E] text-white px-6 py-2.5 rounded-xl text-xs font-bold hover:bg-[#023E8A] transition-all cursor-pointer"
+                className="bg-[#002953] text-white px-6 py-2.5 rounded-xl text-xs font-bold hover:bg-[#002953] transition-all cursor-pointer"
               >
                 Done
               </button>
@@ -315,12 +315,12 @@ export const PostcodeCheckerModal: React.FC<PostcodeCheckerModalProps> = ({
           {/* Trust Guarantees */}
           <div className="border-t border-gray-100 pt-4 flex items-center justify-between text-[11px] text-gray-500">
             <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#03045E]" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#002953]" />
               Eco-Friendly Hubs
             </span>
             <span className="flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-[#03045E]" />
-              Free Doorstep Pickup
+              <Sparkles className="w-3.5 h-3.5 text-[#002953]" />
+              Fast Doorstep Pickup
             </span>
             <span>24/7 Support</span>
           </div>

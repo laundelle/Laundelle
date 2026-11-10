@@ -1,10 +1,26 @@
 import crypto from 'crypto';
 
-// Secret key for HMAC hashing and AES encryption (fallback to JWT_SECRET or secure hardcoded development seed)
-const PIN_SECRET = process.env.ORDER_PIN_SECRET || process.env.JWT_SECRET || 'laundelle-secure-order-pin-key-2026';
+/**
+ * Derives the cryptographic secret for HMAC hashing and AES encryption.
+ * In production, fails securely if ORDER_PIN_SECRET is not configured.
+ */
+export function getOrderPinSecret(): string {
+  const secret = process.env.ORDER_PIN_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('FATAL: ORDER_PIN_SECRET environment variable is not set. Order PIN operations cannot run securely.');
+    }
+    return process.env.JWT_SECRET || 'dev-laundelle-order-pin-key-do-not-use-in-production';
+  }
+  return secret;
+}
 
-// Derive a 32-byte key for AES-256-GCM
-const ENCRYPTION_KEY = crypto.createHash('sha256').update(PIN_SECRET).digest();
+/**
+ * Derive a 32-byte key for AES-256-GCM.
+ */
+function getEncryptionKey(): Buffer {
+  return crypto.createHash('sha256').update(getOrderPinSecret()).digest();
+}
 
 /**
  * Generate a cryptographically secure random numeric PIN (4-6 digits).
@@ -29,7 +45,7 @@ export function generatePinSalt(): string {
  */
 export function hashOrderPin(pin: string, salt: string, orderId: string, customerId: string): string {
   const context = `${orderId}:${customerId}:${salt}:${pin.trim()}`;
-  return crypto.createHmac('sha256', ENCRYPTION_KEY).update(context).digest('hex');
+  return crypto.createHmac('sha256', getEncryptionKey()).update(context).digest('hex');
 }
 
 /**
@@ -38,7 +54,7 @@ export function hashOrderPin(pin: string, salt: string, orderId: string, custome
  */
 export function encryptOrderPin(pin: string, orderId: string, customerId: string): string {
   const iv = crypto.randomBytes(12); // 96-bit IV for GCM
-  const cipher = crypto.createCipheriv('aes-256-gcm', ENCRYPTION_KEY, iv);
+  const cipher = crypto.createCipheriv('aes-256-gcm', getEncryptionKey(), iv);
   
   // Bind orderId and customerId as Additional Authenticated Data (AAD)
   cipher.setAAD(Buffer.from(`${orderId}:${customerId}`, 'utf8'));
@@ -66,7 +82,7 @@ export function decryptOrderPin(encryptedPayload: string, orderId: string, custo
     const iv = Buffer.from(ivHex, 'hex');
     const authTag = Buffer.from(authTagHex, 'hex');
 
-    const decipher = crypto.createDecipheriv('aes-256-gcm', ENCRYPTION_KEY, iv);
+    const decipher = crypto.createDecipheriv('aes-256-gcm', getEncryptionKey(), iv);
     decipher.setAuthTag(authTag);
     decipher.setAAD(Buffer.from(`${orderId}:${customerId}`, 'utf8'));
 
@@ -101,15 +117,19 @@ export function verifyOrderPinAttempt(
     };
   }
 
+  if (expiresAt && new Date(expiresAt).getTime() < Date.now()) {
+    return {
+      valid: false,
+      error: 'Verification PIN has expired. Please request dispatch support to regenerate.'
+    };
+  }
+
   if (!expectedHash || !salt) {
     return {
       valid: false,
       error: 'No active PIN found or PIN has already been verified and consumed.'
     };
   }
-
-  // PINs do not expire to accommodate orders scheduled far in advance or with long lead times
-  // (Order verification PINs remain valid until driver confirms collection/delivery)
 
   if (!submittedPin || typeof submittedPin !== 'string') {
     return {

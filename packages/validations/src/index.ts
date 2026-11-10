@@ -66,7 +66,7 @@ export const driverPickupSchema = z.object({
 
 export const driverDeliverySchema = z.object({
   orderId: z.string(),
-  pin: z.string().length(6, 'PIN must be 6 digits'),
+  pin: z.string().min(4, 'PIN must be at least 4 digits').max(6, 'PIN must be at most 6 digits'),
   signature: z.string().optional(),
   photoEvidence: z.string().optional(),
 });

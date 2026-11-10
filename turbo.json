@@ -30,7 +30,8 @@
         "APP_URL",
         "GEMINI_API_KEY",
         "ORDER_PIN_SECRET",
-        "OFFLINE_VOUCHER_SECRET"
+        "OFFLINE_VOUCHER_SECRET",
+        "CRON_SECRET"
       ]
     },
     "customer#build": {

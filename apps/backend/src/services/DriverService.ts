@@ -13,6 +13,7 @@ import { PickupFailureReason, DeliveryFailureReason, PickupAttemptRecord, Delive
 import { generatePickupAttemptId, generateDeliveryAttemptId, generateBagId, buildEntityLookupQuery } from '@laundelle/ids';
 import { sendOrderCompletedEmail } from '@/emails';
 import { OrderCustomerEnrichmentService } from './OrderCustomerEnrichmentService';
+import { QRBagService } from './QRBagService';
 import crypto from 'crypto';
 
 export class DriverService {
@@ -700,7 +701,7 @@ export class DriverService {
         return { success: true, attempt: attemptRecord };
     }
 
-    private static verifyOrderVerificationPin(
+    public static verifyOrderVerificationPin(
         submittedPin: string,
         order: any,
         type: 'pickup' | 'delivery'
@@ -709,6 +710,12 @@ export class DriverService {
             return { valid: false, error: 'A valid numeric PIN is required.' };
         }
         const cleanPin = submittedPin.trim();
+
+        // Check PIN expiry
+        const pinExpiresAt = type === 'pickup' ? order.pickup_pin_expires_at : order.delivery_pin_expires_at;
+        if (pinExpiresAt && new Date(pinExpiresAt).getTime() < Date.now()) {
+            return { valid: false, error: `${type === 'pickup' ? 'Pickup' : 'Delivery'} PIN has expired. Contact dispatch support.` };
+        }
 
         // Prevent reuse if already verified/consumed
         if (type === 'pickup') {
@@ -753,6 +760,14 @@ export class DriverService {
             order.auth0_sub,
             order.auth0Id
         ].filter(Boolean).map(String);
+
+        if (custIdCandidates.length === 0) {
+            custIdCandidates.push('');
+        }
+
+        if (orderIdCandidates.length === 0) {
+            orderIdCandidates.push('');
+        }
 
         // 1. Try decrypting AES encrypted payload if stored
         const encPayload = type === 'pickup' ? order.pickup_pin_enc : order.delivery_pin_enc;
@@ -857,22 +872,33 @@ export class DriverService {
             throw new BadRequestError(`Cannot confirm pickup. Order is in '${order.status}' stage.`);
         }
 
+        if (order.pickup_pin_locked === true || (order.pickup_pin_attempts || 0) >= 5) {
+            throw new BadRequestError('Security Lockout: Too many incorrect PIN attempts. This order PIN is locked. Contact dispatch support.');
+        }
+
         const verifyResult = this.verifyOrderVerificationPin(otp, order, 'pickup');
 
         if (!verifyResult.valid) {
-            const currentAttempts = order.pickup_pin_attempts || order.pickup_otp_attempts || 0;
-            const newAttempts = currentAttempts + 1;
-            const willLock = newAttempts >= 5;
-            await db.collection('orders').updateOne(
+            const lockUpdate = await db.collection('orders').findOneAndUpdate(
                 { _id: order._id },
-                { 
-                    $set: {
-                        pickup_pin_attempts: newAttempts,
-                        pickup_otp_attempts: newAttempts,
-                        pickup_pin_locked: willLock
+                [
+                    {
+                        $set: {
+                            pickup_pin_attempts: { $add: [{ $ifNull: ['$pickup_pin_attempts', 0] }, 1] },
+                            pickup_otp_attempts: { $add: [{ $ifNull: ['$pickup_otp_attempts', 0] }, 1] }
+                        }
+                    },
+                    {
+                        $set: {
+                            pickup_pin_locked: { $gte: ['$pickup_pin_attempts', 5] }
+                        }
                     }
-                }
+                ],
+                { returnDocument: 'after' }
             );
+
+            const totalAttempts = lockUpdate?.pickup_pin_attempts || 1;
+            const willLock = totalAttempts >= 5;
 
             await AuditService.recordOrderEvent({
                 orderId: order.id,
@@ -880,7 +906,7 @@ export class DriverService {
                 actorId: driverId,
                 actorRole: 'driver',
                 reason: verifyResult.error,
-                metadata: { attempt: newAttempts, willLock }
+                metadata: { attempt: totalAttempts, willLock }
             });
 
             if (willLock) {
@@ -949,7 +975,9 @@ export class DriverService {
         const result = await db.collection('orders').updateOne(
             { 
                 _id: order._id,
-                status: { $in: validPickupStatuses }
+                status: { $in: validPickupStatuses },
+                pickup_pin_locked: { $ne: true },
+                pickup_pin_attempts: { $lt: 5 }
             },
             {
                 $set: {
@@ -994,10 +1022,21 @@ export class DriverService {
         );
 
         if (result.matchedCount === 0) {
+            const current = await db.collection('orders').findOne({ _id: order._id });
+            if (current?.pickup_pin_locked === true || (current?.pickup_pin_attempts || 0) >= 5) {
+                throw new BadRequestError('Security Lockout: Too many incorrect PIN attempts. This order PIN is locked. Contact dispatch support.');
+            }
             throw new BadRequestError('Pickup confirmation failed. Order status may have changed concurrently.');
         }
 
         if (qrTagId) {
+            await QRBagService.assignBagToOrder(
+                qrTagId,
+                orderId,
+                order.contactDetails?.firstName || order.customerName,
+                driverId
+            ).catch(err => console.warn('[DriverService] QR Bag lifecycle assignment notice:', err.message));
+
             await db.collection('qr_tags').updateOne(
                 { qrId: qrTagId }, 
                 { $set: { status: 'in_use', orderId, lastUsedAt: now } },
@@ -1535,10 +1574,9 @@ export class DriverService {
         if (!order) throw new NotFoundError('Order not found.');
         const { driverUser, driverIds } = await this.getDriverIdentifiers(driverId);
         const isOwner = driverIds.includes(String(order.assigned_driver_id)) ||
-            (order.driver?.id && driverIds.includes(String(order.driver.id))) ||
-            (['ready_for_delivery', 'qc_passed'].includes(order.status) && !order.assigned_driver_id);
+            (order.driver?.id && driverIds.includes(String(order.driver.id)));
 
-        if (!isOwner) {
+        if (!isOwner && driverUser?.role !== 'super_admin' && driverUser?.role !== 'admin') {
             throw new ForbiddenError('You do not own this assignment.');
         }
         
@@ -1557,6 +1595,15 @@ export class DriverService {
         ];
         if (!allowedStatuses.includes(order.status)) {
             throw new BadRequestError(`Order cannot be completed from '${order.status}' stage.`);
+        }
+
+        // Authoritative payment rule: Ineligible or unpaid orders cannot be delivered (unless Cash on Delivery)
+        const isPaid = order.isPaid === true || (order.paymentStatus || '').toLowerCase() === 'paid';
+        const isCod = (order.payment_method || order.paymentMethod || '').toLowerCase().includes('cash') ||
+            (order.payment_method || order.paymentMethod || '').toLowerCase().includes('cod');
+
+        if (!isPaid && !isCod) {
+            throw new BadRequestError(`Cannot complete delivery for unpaid order ${orderId}. Payment must be settled before delivery.`);
         }
 
         const deliveryInstruction = (order.deliveryInstructionType || order.deliveryInstruction || 'IN_PERSON').toUpperCase();
@@ -1635,7 +1682,9 @@ export class DriverService {
         const result = await db.collection('orders').updateOne(
             { 
                 _id: order._id,
-                status: { $in: allowedStatuses }
+                status: { $in: allowedStatuses },
+                delivery_pin_locked: { $ne: true },
+                delivery_pin_attempts: { $lt: 5 }
             },
             {
                 $set: {
@@ -1691,7 +1740,17 @@ export class DriverService {
         );
 
         if (result.matchedCount === 0) {
+            const current = await db.collection('orders').findOne({ _id: order._id });
+            if (current?.delivery_pin_locked === true || (current?.delivery_pin_attempts || 0) >= 5) {
+                throw new BadRequestError('Security Lockout: Too many incorrect PIN attempts. This order PIN is locked. Contact dispatch support.');
+            }
             throw new BadRequestError('Delivery completion failed. Status may have changed concurrently.');
+        }
+
+        const finalBagQr = order.qr_tracking?.qrTagId || order.bag_id || order.evidence?.bagQrCode;
+        if (finalBagQr) {
+            await QRBagService.returnBagToInventory(finalBagQr, 'good', driverId)
+                .catch(err => console.warn('[DriverService] Return bag notice:', err.message));
         }
 
         if (order.qr_tracking?.qrTagId) {
@@ -1781,31 +1840,42 @@ export class DriverService {
         return { success: true };
     }
 
-    private static async validateDeliveryPinInternal(db: any, order: any, deliveryPin: string) {
+    public static async validateDeliveryPinInternal(db: any, order: any, deliveryPin: string, driverId: string = 'driver') {
+        if (order.delivery_pin_locked === true || (order.delivery_pin_attempts || 0) >= 5) {
+            throw new BadRequestError('Security Lockout: Too many incorrect PIN attempts. This order PIN is locked. Contact dispatch support.');
+        }
+
         const verifyResult = this.verifyOrderVerificationPin(deliveryPin, order, 'delivery');
 
         if (!verifyResult.valid) {
-            const currentAttempts = order.delivery_pin_attempts || order.delivery_otp_attempts || 0;
-            const newAttempts = currentAttempts + 1;
-            const willLock = newAttempts >= 5;
-            await db.collection('orders').updateOne(
+            const lockUpdate = await db.collection('orders').findOneAndUpdate(
                 { _id: order._id },
-                { 
-                    $set: {
-                        delivery_pin_attempts: newAttempts,
-                        delivery_otp_attempts: newAttempts,
-                        delivery_pin_locked: willLock
+                [
+                    {
+                        $set: {
+                            delivery_pin_attempts: { $add: [{ $ifNull: ['$delivery_pin_attempts', 0] }, 1] },
+                            delivery_otp_attempts: { $add: [{ $ifNull: ['$delivery_otp_attempts', 0] }, 1] }
+                        }
+                    },
+                    {
+                        $set: {
+                            delivery_pin_locked: { $gte: ['$delivery_pin_attempts', 5] }
+                        }
                     }
-                }
+                ],
+                { returnDocument: 'after' }
             );
+
+            const totalAttempts = lockUpdate?.delivery_pin_attempts || 1;
+            const willLock = totalAttempts >= 5;
 
             await AuditService.recordOrderEvent({
                 orderId: order.id,
                 action: willLock ? 'delivery_pin_locked' : 'delivery_pin_attempt_failed',
-                actorId: 'driver',
+                actorId: driverId,
                 actorRole: 'driver',
                 reason: verifyResult.error,
-                metadata: { attempt: newAttempts, willLock }
+                metadata: { attempt: totalAttempts, willLock }
             });
 
             if (willLock) {

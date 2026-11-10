@@ -35,17 +35,17 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
   const getIconForType = (type: CustomerNotification['type']) => {
     switch (type) {
       case 'delivery':
-        return <Truck className="w-5 h-5 text-[#0077B6]" />;
+        return <Truck className="w-5 h-5 text-[#01BEFE]" />;
       case 'charge':
         return <AlertTriangle className="w-5 h-5 text-amber-600" />;
       case 'collection':
-        return <Clock className="w-5 h-5 text-[#03045E]" />;
+        return <Clock className="w-5 h-5 text-[#002953]" />;
       case 'processing':
-        return <Sparkles className="w-5 h-5 text-[#00B4D8]" />;
+        return <Sparkles className="w-5 h-5 text-[#01BEFE]" />;
       case 'promo':
         return <Tag className="w-5 h-5 text-purple-600" />;
       default:
-        return <CheckCircle2 className="w-5 h-5 text-[#03045E]" />;
+        return <CheckCircle2 className="w-5 h-5 text-[#002953]" />;
     }
   };
 
@@ -54,10 +54,10 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
       {/* Header */}
       <div className="max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold uppercase tracking-widest text-[#0077B6] block">
+          <span className="text-xs font-bold uppercase tracking-widest text-[#01BEFE] block">
             Customer Updates & Alerts
           </span>
-          <h1 className="text-2xl sm:text-4xl font-heading font-extrabold text-[#03045E]">
+          <h1 className="text-2xl sm:text-4xl font-heading font-extrabold text-[#002953]">
             Notification Centre
           </h1>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
@@ -71,7 +71,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
             <button
               onClick={() => setFilter('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                filter === 'all' ? 'bg-[#03045E] text-white shadow-xs' : 'text-gray-600 hover:text-gray-900'
+                filter === 'all' ? 'bg-[#002953] text-white shadow-xs' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               All ({notifications.length})
@@ -79,7 +79,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
             <button
               onClick={() => setFilter('unread')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                filter === 'unread' ? 'bg-[#03045E] text-white shadow-xs' : 'text-gray-600 hover:text-gray-900'
+                filter === 'unread' ? 'bg-[#002953] text-white shadow-xs' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               Unread ({unreadCount})
@@ -89,7 +89,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
           {unreadCount > 0 && (
             <button
               onClick={onMarkAllAsRead}
-              className="px-3.5 py-2 bg-[#CAF0F8] hover:bg-[#ADE8F4] text-[#03045E] rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              className="px-3.5 py-2 bg-[#01BEFE]/15 hover:bg-[#01BEFE] text-[#002953] rounded-xl text-xs font-bold transition-colors cursor-pointer"
             >
               Mark all read
             </button>
@@ -107,7 +107,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
 
           <button
             onClick={() => setIsPrefModalOpen(true)}
-            className="px-3.5 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-[#03045E] rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+            className="px-3.5 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-[#002953] rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
           >
             <span>Preferences</span>
           </button>
@@ -120,7 +120,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between pb-3 border-b border-gray-100">
               <div>
-                <h3 className="text-lg font-extrabold text-[#03045E]">Notification Preferences</h3>
+                <h3 className="text-lg font-extrabold text-[#002953]">Notification Preferences</h3>
                 <p className="text-xs text-gray-500">Configure your automated alert channels</p>
               </div>
               <button
@@ -141,7 +141,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
                   type="checkbox"
                   checked={prefs.smsNotifications}
                   onChange={(e) => setPrefs({ ...prefs, smsNotifications: e.target.checked })}
-                  className="w-4 h-4 rounded text-[#03045E] focus:ring-[#03045E]"
+                  className="w-4 h-4 rounded text-[#002953] focus:ring-[#002953]"
                 />
               </div>
 
@@ -154,7 +154,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
                   type="checkbox"
                   checked={prefs.emailReceipts}
                   onChange={(e) => setPrefs({ ...prefs, emailReceipts: e.target.checked })}
-                  className="w-4 h-4 rounded text-[#03045E] focus:ring-[#03045E]"
+                  className="w-4 h-4 rounded text-[#002953] focus:ring-[#002953]"
                 />
               </div>
 
@@ -167,7 +167,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
                   type="checkbox"
                   checked={prefs.whatsappUpdates}
                   onChange={(e) => setPrefs({ ...prefs, whatsappUpdates: e.target.checked })}
-                  className="w-4 h-4 rounded text-[#03045E] focus:ring-[#03045E]"
+                  className="w-4 h-4 rounded text-[#002953] focus:ring-[#002953]"
                 />
               </div>
 
@@ -180,7 +180,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
                   type="checkbox"
                   checked={prefs.marketingEmails}
                   onChange={(e) => setPrefs({ ...prefs, marketingEmails: e.target.checked })}
-                  className="w-4 h-4 rounded text-[#03045E] focus:ring-[#03045E]"
+                  className="w-4 h-4 rounded text-[#002953] focus:ring-[#002953]"
                 />
               </div>
 
@@ -197,7 +197,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsPrefModalOpen(false)}
-                className="flex-1 py-3 bg-[#03045E] hover:bg-[#023e8a] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                className="flex-1 py-3 bg-[#002953] hover:bg-[#002953] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
               >
                 Save Preferences
               </button>
@@ -224,7 +224,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
               }}
               className={`p-5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-4 ${
                 !notif.read
-                  ? 'bg-white border-[#03045E]/30 shadow-xs ring-1 ring-[#03045E]/5 hover:border-[#03045E]'
+                  ? 'bg-white border-[#002953]/30 shadow-xs ring-1 ring-[#002953]/5 hover:border-[#002953]'
                   : 'bg-white/80 border-gray-100 hover:border-gray-200'
               }`}
             >
@@ -236,7 +236,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
                   <div className="flex items-center gap-2">
                     <h4 className="font-heading font-bold text-xs sm:text-sm text-gray-900">{notif.title}</h4>
                     {!notif.read && (
-                      <span className="w-2 h-2 rounded-full bg-[#03045E]" />
+                      <span className="w-2 h-2 rounded-full bg-[#002953]" />
                     )}
                   </div>
                   <p className="text-xs text-gray-600 leading-relaxed max-w-2xl">{notif.message}</p>
@@ -246,7 +246,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
 
               <div className="flex items-center gap-2 shrink-0">
                 {notif.actionTab && (
-                  <span className="text-xs font-bold text-[#03045E] flex items-center gap-1 hover:underline">
+                  <span className="text-xs font-bold text-[#002953] flex items-center gap-1 hover:underline">
                     <span>View</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>

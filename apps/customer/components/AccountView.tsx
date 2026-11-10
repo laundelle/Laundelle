@@ -129,22 +129,22 @@ export const AccountView: React.FC<AccountViewProps> = ({
           TOP BANNER: DEEP MIDNIGHT NAVY CONTAINER
       ========================================================================= */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-        <div className="w-full bg-[#051139] text-white rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-white/10 relative overflow-hidden">
+        <div className="w-full bg-[#002953] text-white rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-white/10 relative overflow-hidden">
           {/* Subtle Ambient Background Light */}
-          <div className="absolute -top-24 -left-24 w-72 h-72 bg-[#1d5bd8]/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-[#00c48c]/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-24 -left-24 w-72 h-72 bg-[#01BEFE]/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-[#01BEFE]/15 rounded-full blur-3xl pointer-events-none" />
 
           {/* Left: Avatar & Details */}
           <div className="flex items-center gap-5 relative z-10">
             {/* Round Avatar / Initials */}
-            <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-[#1b3294] border-2 border-white/20 shadow-md flex items-center justify-center text-xl sm:text-2xl font-black tracking-wider text-white shrink-0 select-none">
+            <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-[#002953] border-2 border-white/20 shadow-md flex items-center justify-center text-xl sm:text-2xl font-black tracking-wider text-white shrink-0 select-none">
               {initials}
             </div>
 
             <div className="space-y-1.5">
               {/* Name & Tier Badge */}
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold tracking-tight text-white">
                   {displayName}
                 </h1>
               </div>
@@ -226,13 +226,13 @@ export const AccountView: React.FC<AccountViewProps> = ({
             onClick={() => onNavigate('orders')}
             className="bg-white p-3.5 rounded-2xl border border-blue-100 shadow-xs hover:border-blue-300 hover:shadow-sm transition-all flex items-center gap-3 text-left cursor-pointer active:scale-98"
           >
-            <div className="w-10 h-10 rounded-xl bg-[#eff6ff] text-[#1d5bd8] flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0 shadow-2xs">
               <Navigation className="w-5 h-5" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-extrabold text-navy truncate">Orders</span>
-                <span className="text-[9px] bg-blue-100 text-[#1d5bd8] font-bold px-1.5 py-0.2 rounded-md shrink-0">Live</span>
+                <span className="text-[9px] bg-blue-100 text-[#01BEFE] font-bold px-1.5 py-0.2 rounded-md shrink-0">Live</span>
               </div>
               <p className="text-[10px] text-gray-400 truncate mt-0.5">Track laundry</p>
             </div>
@@ -268,11 +268,11 @@ export const AccountView: React.FC<AccountViewProps> = ({
                 type="button"
                 onClick={() => setActiveTab('profile')}
                 className={`w-full p-3.5 px-4 rounded-2xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer ${activeTab === 'profile'
-                  ? 'bg-[#eff6ff] text-[#1d5bd8] shadow-2xs font-extrabold'
+                  ? 'bg-[#e6f8ff] text-[#01BEFE] shadow-2xs font-extrabold'
                   : 'text-gray-700 hover:bg-gray-50'
                   }`}
               >
-                <User className={`w-4 h-4 ${activeTab === 'profile' ? 'text-[#1d5bd8]' : 'text-gray-400'}`} />
+                <User className={`w-4 h-4 ${activeTab === 'profile' ? 'text-[#01BEFE]' : 'text-gray-400'}`} />
                 <span>Profile Details</span>
               </button>
 
@@ -281,12 +281,12 @@ export const AccountView: React.FC<AccountViewProps> = ({
                 type="button"
                 onClick={() => setActiveTab('addresses')}
                 className={`w-full p-3.5 px-4 rounded-2xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${activeTab === 'addresses'
-                  ? 'bg-[#eff6ff] text-[#1d5bd8] shadow-2xs font-extrabold'
+                  ? 'bg-[#e6f8ff] text-[#01BEFE] shadow-2xs font-extrabold'
                   : 'text-gray-700 hover:bg-gray-50'
                   }`}
               >
                 <div className="flex items-center gap-3">
-                  <MapPin className={`w-4 h-4 ${activeTab === 'addresses' ? 'text-[#1d5bd8]' : 'text-gray-400'}`} />
+                  <MapPin className={`w-4 h-4 ${activeTab === 'addresses' ? 'text-[#01BEFE]' : 'text-gray-400'}`} />
                   <span>Saved Addresses</span>
                 </div>
                 <span className="w-5 h-5 rounded-full bg-gray-100 text-gray-600 text-[10px] font-extrabold flex items-center justify-center">
@@ -301,11 +301,11 @@ export const AccountView: React.FC<AccountViewProps> = ({
                 type="button"
                 onClick={() => setActiveTab('privacy')}
                 className={`w-full p-3.5 px-4 rounded-2xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer ${activeTab === 'privacy'
-                  ? 'bg-[#eff6ff] text-[#1d5bd8] shadow-2xs font-extrabold'
+                  ? 'bg-[#e6f8ff] text-[#01BEFE] shadow-2xs font-extrabold'
                   : 'text-gray-700 hover:bg-gray-50'
                   }`}
               >
-                <ShieldCheck className={`w-4 h-4 ${activeTab === 'privacy' ? 'text-[#1d5bd8]' : 'text-gray-400'}`} />
+                <ShieldCheck className={`w-4 h-4 ${activeTab === 'privacy' ? 'text-[#01BEFE]' : 'text-gray-400'}`} />
                 <span>Privacy & Data Rights</span>
               </button>
 
@@ -334,7 +334,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
 
             {/* 100% Secure Card */}
             <div className="bg-[#f0f6ff] rounded-3xl p-5 border border-blue-100 space-y-2 shadow-2xs">
-              <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#1d5bd8] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#01BEFE] flex items-center justify-center">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
@@ -346,7 +346,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
               <button
                 type="button"
                 onClick={() => alert('All personal data, addresses, and payment tokens are protected with AES-256 encryption compliant with UK GDPR.')}
-                className="text-[11px] font-bold text-[#1d5bd8] hover:underline flex items-center gap-1 pt-1 cursor-pointer"
+                className="text-[11px] font-bold text-[#01BEFE] hover:underline flex items-center gap-1 pt-1 cursor-pointer"
               >
                 <span>Learn more</span>
                 <ArrowRight className="w-3 h-3" />
@@ -363,17 +363,6 @@ export const AccountView: React.FC<AccountViewProps> = ({
             ===================================================================== */}
             {activeTab === 'profile' && (
               <div className="space-y-6 animate-in fade-in-50 duration-200">
-                {/* Welcome Greeting Row */}
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-extrabold text-navy tracking-tight">
-                      Welcome back, {displayName}! 👋
-                    </h2>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                      Manage your account information and preferences.
-                    </p>
-                  </div>
-                </div>
 
                 {/* 2-Column Cards Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
@@ -381,7 +370,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                   <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-gray-100 space-y-4">
                     <div className="flex items-center justify-between border-b border-gray-100 pb-3.5">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-[#eff6ff] text-[#1d5bd8] flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-xl bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0">
                           <User className="w-4 h-4" />
                         </div>
                         <h3 className="text-sm font-extrabold text-navy">Personal Information</h3>
@@ -397,7 +386,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                           setEditPhone(p.num);
                           setEditProfileOpen(true);
                         }}
-                        className="text-xs font-bold text-[#1d5bd8] bg-[#eff6ff] hover:bg-[#dbeafe] px-3 py-1.5 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
+                        className="text-xs font-bold text-[#01BEFE] bg-[#e6f8ff] hover:bg-[#dbeafe] px-3 py-1.5 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                         <span>Edit</span>
@@ -409,7 +398,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                       {/* Full Name */}
                       <div className="bg-[#f8fafc] border border-gray-100 rounded-2xl p-3.5 px-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-lg bg-[#eff6ff] text-[#1d5bd8] flex items-center justify-center shrink-0">
+                          <div className="w-7 h-7 rounded-lg bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0">
                             <User className="w-3.5 h-3.5" />
                           </div>
                           <span className="text-gray-500 font-medium">Full Name</span>
@@ -420,7 +409,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                       {/* Email Address */}
                       <div className="bg-[#f8fafc] border border-gray-100 rounded-2xl p-3.5 px-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-lg bg-[#eff6ff] text-[#1d5bd8] flex items-center justify-center shrink-0">
+                          <div className="w-7 h-7 rounded-lg bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0">
                             <Mail className="w-3.5 h-3.5" />
                           </div>
                           <span className="text-gray-500 font-medium">Email Address</span>
@@ -431,7 +420,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                       {/* Mobile Number */}
                       <div className="bg-[#f8fafc] border border-gray-100 rounded-2xl p-3.5 px-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-lg bg-[#eff6ff] text-[#1d5bd8] flex items-center justify-center shrink-0">
+                          <div className="w-7 h-7 rounded-lg bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0">
                             <Phone className="w-3.5 h-3.5" />
                           </div>
                           <div>
@@ -455,7 +444,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                           setEditPhone(p.num);
                           setEditProfileOpen(true);
                         }}
-                        className="w-full py-3 rounded-2xl border-2 border-[#1d5bd8] text-[#1d5bd8] hover:bg-[#eff6ff] font-bold text-xs transition-colors cursor-pointer active:scale-98"
+                        className="w-full py-3 rounded-2xl border-2 border-[#01BEFE] text-[#01BEFE] hover:bg-[#e6f8ff] font-bold text-xs transition-colors cursor-pointer active:scale-98"
                       >
                         Update Profile
                       </button>
@@ -478,7 +467,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                         className="p-3.5 px-4 rounded-2xl border border-gray-100 hover:border-blue-200 hover:bg-gray-50/80 transition-all flex items-center justify-between cursor-pointer group"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-[#eff6ff] text-[#1d5bd8] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <div className="w-9 h-9 rounded-xl bg-[#e6f8ff] text-[#01BEFE] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                             <FileText className="w-4 h-4" />
                           </div>
                           <div>
@@ -580,7 +569,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                 {/* BOTTOM SECURITY BANNER */}
                 <div className="bg-[#eaf3ff] border border-[#d2e4ff] rounded-3xl p-5 px-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-2xl bg-[#1d5bd8] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <div className="w-10 h-10 rounded-2xl bg-[#01BEFE] text-white flex items-center justify-center shrink-0 shadow-xs">
                       <Lock className="w-5 h-5" />
                     </div>
                     <div>
@@ -600,7 +589,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                         'Security & Privacy: Laundelle uses SSL 256-bit data encryption, tokenized payments, and strict access controls to ensure your data stays 100% private.'
                       )
                     }
-                    className="px-5 py-2.5 rounded-xl border border-[#1d5bd8] text-[#1d5bd8] bg-white hover:bg-blue-50 text-xs font-bold transition-colors cursor-pointer shrink-0 shadow-2xs"
+                    className="px-5 py-2.5 rounded-xl border border-[#01BEFE] text-[#01BEFE] bg-white hover:bg-blue-50 text-xs font-bold transition-colors cursor-pointer shrink-0 shadow-2xs"
                   >
                     Learn More
                   </button>
@@ -626,7 +615,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                       setAddressToEdit(null);
                       setAddressModalOpen(true);
                     }}
-                    className="bg-[#082b78] hover:bg-[#072465] text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer transition-all"
+                    className="bg-[#002953] hover:bg-[#002953] text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer transition-all"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Add New Address</span>
@@ -644,12 +633,12 @@ export const AccountView: React.FC<AccountViewProps> = ({
                         <div>
                           <div className="flex items-center justify-between flex-wrap gap-2">
                             <span className="font-extrabold text-xs text-navy flex items-center gap-1.5">
-                              <MapPin className="w-4 h-4 text-[#1d5bd8]" />
+                              <MapPin className="w-4 h-4 text-[#01BEFE]" />
                               {addr.label || 'Home'}
                             </span>
                             <div className="flex items-center gap-1.5">
                               {addr.isDefault && (
-                                <span className="text-[10px] bg-[#eff6ff] text-[#1d5bd8] font-bold px-2.5 py-0.5 rounded-md">
+                                <span className="text-[10px] bg-[#e6f8ff] text-[#01BEFE] font-bold px-2.5 py-0.5 rounded-md">
                                   Default Pickup
                                 </span>
                               )}
@@ -679,7 +668,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleSetDefaultAddress(addr.id)}
-                                className="text-[#1d5bd8] hover:underline font-bold cursor-pointer"
+                                className="text-[#01BEFE] hover:underline font-bold cursor-pointer"
                               >
                                 Set as Default
                               </button>
@@ -760,7 +749,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                           alert('Data export generated successfully.');
                         }
                       }}
-                      className="px-5 py-2.5 bg-[#082b78] hover:bg-[#072465] text-white rounded-xl font-bold text-xs cursor-pointer shadow-xs transition-colors shrink-0"
+                      className="px-5 py-2.5 bg-[#002953] hover:bg-[#002953] text-white rounded-xl font-bold text-xs cursor-pointer shadow-xs transition-colors shrink-0"
                     >
                       Download Data Bundle (JSON)
                     </button>
@@ -845,7 +834,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-navy focus:outline-none focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8]"
+                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-navy focus:outline-none focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE]"
                   required
                 />
               </div>
@@ -856,7 +845,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                   type="email"
                   value={editEmail}
                   onChange={(e) => setEditEmail(e.target.value)}
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-navy focus:outline-none focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8]"
+                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-navy focus:outline-none focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE]"
                   required
                 />
               </div>
@@ -869,7 +858,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                   <select
                     value={phoneCountryCode}
                     onChange={(e) => setPhoneCountryCode(e.target.value)}
-                    className="w-24 px-2 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#03045E] focus:outline-none focus:border-[#1d5bd8] cursor-pointer shrink-0"
+                    className="w-24 px-2 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#002953] focus:outline-none focus:border-[#01BEFE] cursor-pointer shrink-0"
                   >
                     <option value="+44">UK (+44)</option>
                     <option value="+1">US (+1)</option>
@@ -885,7 +874,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                     value={editPhone}
                     onChange={(e) => setEditPhone(e.target.value)}
                     placeholder="7700 900000"
-                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-navy focus:outline-none focus:border-[#1d5bd8] focus:ring-1 focus:ring-[#1d5bd8]"
+                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-navy focus:outline-none focus:border-[#01BEFE] focus:ring-1 focus:ring-[#01BEFE]"
                     required
                   />
                 </div>
@@ -901,7 +890,7 @@ export const AccountView: React.FC<AccountViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#082b78] hover:bg-[#072465] text-white font-bold cursor-pointer shadow-sm"
+                  className="px-6 py-2.5 rounded-xl bg-[#002953] hover:bg-[#002953] text-white font-bold cursor-pointer shadow-sm"
                 >
                   Save Changes
                 </button>

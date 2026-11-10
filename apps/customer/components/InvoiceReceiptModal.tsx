@@ -32,9 +32,9 @@ export const InvoiceReceiptModal: React.FC<InvoiceReceiptModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in">
       <div className="bg-white rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl transition-all border border-gray-100 flex flex-col max-h-[85vh] sm:max-h-[90vh] my-auto">
         {/* Header */}
-        <div className="bg-[#03045E] text-white p-5 sm:p-6 relative flex items-center justify-between shrink-0">
+        <div className="bg-[#002953] text-white p-5 sm:p-6 relative flex items-center justify-between shrink-0">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-[#48CAE4] uppercase tracking-wider mb-0.5">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#01BEFE] uppercase tracking-wider mb-0.5">
               <FileText className="w-4 h-4" />
               <span>Official Tax Invoice</span>
             </div>
@@ -55,7 +55,7 @@ export const InvoiceReceiptModal: React.FC<InvoiceReceiptModalProps> = ({
           <div className="flex justify-between items-start border-b border-gray-100 pb-4">
             <div>
               <strong className="text-sm font-heading font-black block tracking-wider uppercase">
-                <span className="text-[#03045E]">LAUN</span><span className="text-[#00B4D8]">DELLE</span> Ltd.
+                <span className="text-[#002953]">LAUN</span><span className="text-[#01BEFE]">DELLE</span> Ltd.
               </strong>
               <p className="text-[11px] text-gray-500">14 Buckingham Gate, London SW1E 6LB</p>
               <p className="text-[11px] text-gray-500">VAT Registration: GB 982 4410 88</p>
@@ -63,7 +63,7 @@ export const InvoiceReceiptModal: React.FC<InvoiceReceiptModalProps> = ({
             <div className="text-right">
               <span className="text-[10px] uppercase font-bold text-gray-400 block">Invoice Date</span>
               <p className="font-bold text-gray-900">{new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-              <span className="inline-block mt-1 bg-[#CAF0F8] text-[#03045E] text-[10px] font-bold px-2 py-0.5 rounded">
+              <span className="inline-block mt-1 bg-[#01BEFE]/15 text-[#002953] text-[10px] font-bold px-2 py-0.5 rounded">
                 PAID IN FULL
               </span>
             </div>
@@ -126,11 +126,11 @@ export const InvoiceReceiptModal: React.FC<InvoiceReceiptModalProps> = ({
 
                 <tr>
                   <td className="p-3 text-gray-600" colSpan={3}>Doorstep Collection & Delivery Courier</td>
-                  <td className="p-3 text-right font-bold text-[#0077B6]">FREE</td>
+                  <td className="p-3 text-right font-bold text-[#01BEFE]">FREE</td>
                 </tr>
 
                 {order.discount > 0 && (
-                  <tr className="text-[#0077B6] font-bold">
+                  <tr className="text-[#01BEFE] font-bold">
                     <td className="p-3" colSpan={3}>Discount ({order.promoCodeApplied || 'Voucher'})</td>
                     <td className="p-3 text-right">-£{order.discount.toFixed(2)}</td>
                   </tr>
@@ -151,7 +151,7 @@ export const InvoiceReceiptModal: React.FC<InvoiceReceiptModalProps> = ({
             </div>
             <div className="flex justify-between text-base font-extrabold text-gray-900 pt-2 border-t border-gray-100">
               <span>Total Paid:</span>
-              <span className="text-[#03045E]">£{Number(order.total ?? (order as any).total_price ?? (order as any).amount ?? 0).toFixed(2)}</span>
+              <span className="text-[#002953]">£{Number(order.total ?? (order as any).total_price ?? (order as any).amount ?? 0).toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -169,11 +169,11 @@ export const InvoiceReceiptModal: React.FC<InvoiceReceiptModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handleDownload}
-              className="px-5 py-2.5 bg-[#03045E] hover:bg-[#023E8A] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+              className="px-5 py-2.5 bg-[#002953] hover:bg-[#002953] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
             >
               {downloadSuccess ? (
                 <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#48CAE4]" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#01BEFE]" />
                   <span>Invoice Downloaded!</span>
                 </>
               ) : (

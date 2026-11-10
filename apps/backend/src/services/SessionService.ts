@@ -64,7 +64,7 @@ export class SessionService {
             userId: params.userId,
             publicId: params.publicId || params.userId,
             auth0UserId: params.auth0UserId,
-            email: params.email.toLowerCase().trim(),
+            email: params.email ? params.email.toLowerCase().trim() : '',
             role: params.role || 'customer',
             plantId: params.plantId,
             portal: params.portal || 'customer',
@@ -147,20 +147,73 @@ export class SessionService {
 
     /**
      * Revokes all active sessions for a user (e.g., password change, account suspension, or universal logout).
+     * Gathers all user alias identifiers (staffId, customerId, publicId, auth0UserId) to ensure exhaustive revocation.
      */
     static async revokeAllUserSessions(userId: string): Promise<void> {
         if (!userId) return;
         try {
             const db = await getDb();
+            const cleanId = String(userId).trim();
+            const possibleIdentifiers = new Set<string>([cleanId]);
+
+            // Query user document to gather all aliased identifiers (staffId, customerId, publicId, email, auth0UserId)
+            const userDoc = await db.collection('users').findOne({
+                $or: [
+                    { _id: cleanId as any },
+                    { id: cleanId },
+                    { publicId: cleanId },
+                    { staffId: cleanId },
+                    { customerId: cleanId },
+                    { auth0UserId: cleanId },
+                    { auth0_sub: cleanId },
+                    { email: cleanId.toLowerCase() }
+                ]
+            });
+
+            if (userDoc) {
+                if (userDoc._id) possibleIdentifiers.add(String(userDoc._id));
+                if (userDoc.publicId) possibleIdentifiers.add(String(userDoc.publicId));
+                if (userDoc.staffId) possibleIdentifiers.add(String(userDoc.staffId));
+                if (userDoc.customerId) possibleIdentifiers.add(String(userDoc.customerId));
+                if (userDoc.auth0UserId) possibleIdentifiers.add(String(userDoc.auth0UserId));
+                if (userDoc.auth0_sub) possibleIdentifiers.add(String(userDoc.auth0_sub));
+                if (userDoc.email) possibleIdentifiers.add(String(userDoc.email));
+            }
+
+            const idList = Array.from(possibleIdentifiers);
             await db.collection('sessions').updateMany(
                 {
-                    $or: [{ userId }, { publicId: userId }, { auth0UserId: userId }],
+                    $or: [
+                        { userId: { $in: idList } },
+                        { publicId: { $in: idList } },
+                        { auth0UserId: { $in: idList } },
+                        { email: { $in: idList } }
+                    ],
                     revokedAt: null
                 },
                 { $set: { revokedAt: new Date() } }
             );
+
+            // Record in revoked_tokens collection so distributed instances and workers invalidate active tokens
+            const now = new Date();
+            const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            for (const id of idList) {
+                await db.collection('revoked_tokens').updateOne(
+                    { token: `user_revoked_${id}` },
+                    {
+                        $set: {
+                            token: `user_revoked_${id}`,
+                            userId: id,
+                            revokedAt: now.toISOString(),
+                            expiresAt
+                        }
+                    },
+                    { upsert: true }
+                ).catch(() => {});
+            }
         } catch (err) {
             console.error('[SessionService] Error revoking user sessions:', err);
+            throw err;
         }
     }
 
@@ -186,32 +239,24 @@ export class SessionService {
             } catch {}
         }
 
-        // Secondary defense: Check Sec-Fetch-Site and Origin
+        // Secondary defense: strictly require token for admin & ops portals
+        if (session.portal === 'admin' || session.portal === 'operations') {
+            return false;
+        }
+
+        // For customer portal, allow only exact same-origin browser requests (sec-fetch-site: same-origin)
+        // Never allow arbitrary cross-subdomain origin bypasses without a valid CSRF token.
         const secFetchSite = req.headers.get('sec-fetch-site');
-        const origin = req.headers.get('origin') || req.headers.get('referer');
+        const origin = req.headers.get('origin');
         const host = req.headers.get('host');
         const forwardedHost = req.headers.get('x-forwarded-host');
 
-        if (secFetchSite === 'same-origin') {
-            return true;
-        }
-
-        if (origin) {
+        if (secFetchSite === 'same-origin' && origin) {
             try {
-                if (isOriginAllowed(origin)) {
-                    return true;
-                }
                 const originUrl = new URL(origin);
-                const originHost = originUrl.host;
-                if (originHost === host || (forwardedHost && originHost === forwardedHost)) {
+                const currentHost = forwardedHost || host;
+                if (currentHost && originUrl.host === currentHost) {
                     return true;
-                }
-                const isProd = process.env.NODE_ENV === 'production';
-                const devPorts = ['3000', '3001', '3002', '4000'];
-                if (!isProd && (originUrl.hostname === 'localhost' || originUrl.hostname === '127.0.0.1')) {
-                    if (devPorts.includes(originUrl.port) || originUrl.port === '') {
-                        return true;
-                    }
                 }
             } catch {
                 return false;
@@ -246,12 +291,15 @@ export class SessionService {
             cookieName = cookieName.replace('__Host-', '');
         }
 
+        // L-4: Use SameSite: strict for admin and operations sessions to prevent cross-site navigation leaks
+        const sameSite: 'lax' | 'strict' = (portal === 'admin' || portal === 'operations') ? 'strict' : 'lax';
+
         return {
             name: cookieName,
             options: {
                 httpOnly: true,
                 secure: isProd,
-                sameSite: 'lax',
+                sameSite,
                 path: '/',
                 maxAge: DEFAULT_ABSOLUTE_TIMEOUT_HOURS * 60 * 60,
             }

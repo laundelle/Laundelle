@@ -138,7 +138,7 @@ export const OrderPlacedAnimationModal: React.FC<OrderPlacedAnimationModalProps>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
             <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 space-y-1">
               <div className="flex items-center gap-1.5 text-slate-500 font-semibold text-[11px]">
-                <Calendar className="w-3.5 h-3.5 text-[#082b78]" />
+                <Calendar className="w-3.5 h-3.5 text-[#002953]" />
                 <span>Pickup Window</span>
               </div>
               <p className="font-extrabold text-slate-900">{order.pickupDate || 'Today'}</p>
@@ -147,7 +147,7 @@ export const OrderPlacedAnimationModal: React.FC<OrderPlacedAnimationModalProps>
 
             <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 space-y-1">
               <div className="flex items-center gap-1.5 text-slate-500 font-semibold text-[11px]">
-                <MapPin className="w-3.5 h-3.5 text-[#082b78]" />
+                <MapPin className="w-3.5 h-3.5 text-[#002953]" />
                 <span>Collection Address</span>
               </div>
               <p className="font-extrabold text-slate-900 truncate" title={order.address}>
@@ -166,7 +166,7 @@ export const OrderPlacedAnimationModal: React.FC<OrderPlacedAnimationModalProps>
               onTrackOrder(order.id);
               onClose();
             }}
-            className="w-full py-3.5 px-5 bg-[#082b78] hover:bg-[#06205c] active:scale-[0.99] text-white rounded-2xl text-sm font-extrabold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 px-5 bg-[#002953] hover:bg-[#002953] active:scale-[0.99] text-white rounded-2xl text-sm font-extrabold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>Track Live Journey & Timeline</span>
             <ArrowRight className="w-4 h-4" />

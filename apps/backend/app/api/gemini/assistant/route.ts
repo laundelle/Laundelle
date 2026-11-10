@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
-import { withErrorHandler, BadRequestError } from '@/lib/api';
+import { withErrorHandler, BadRequestError, ForbiddenError, getClientIp, getAuthenticatedUserAsync } from '@/lib/api';
+import { isOriginAllowed } from '@/lib/cors';
+import { RateLimitService } from '@/services/RateLimitService';
 
 let aiClient: GoogleGenAI | null = null;
 function getGeminiClient(): GoogleGenAI {
@@ -18,42 +20,44 @@ function getGeminiClient(): GoogleGenAI {
     return aiClient;
 }
 
-// In-memory IP-based rate limiting (10 requests per minute per IP)
-const RATE_LIMIT_WINDOW_MS = 60 * 1000;
-const MAX_REQUESTS_PER_WINDOW = 10;
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(ip: string): boolean {
-    const now = Date.now();
-    const record = rateLimitMap.get(ip);
-
-    if (!record || now > record.resetAt) {
-        rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-        return true;
-    }
-
-    if (record.count >= MAX_REQUESTS_PER_WINDOW) {
-        return false;
-    }
-
-    record.count++;
-    return true;
-}
-
 const MAX_PROMPT_LENGTH = 2000;
 
 async function assistantHandler(req: NextRequest) {
-    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                     req.headers.get('x-real-ip') ||
-                     'unknown';
+    const origin = req.headers.get('origin');
+    if (origin && !isOriginAllowed(origin)) {
+        throw new ForbiddenError('Unauthorized cross-origin request to AI assistant.');
+    }
 
-    if (!checkRateLimit(clientIp)) {
+    const clientIp = getClientIp(req);
+    const authUser = await getAuthenticatedUserAsync(req).catch(() => null);
+
+    // Apply authenticated vs guest tiered rate limits to prevent quota drain
+    const rateLimitKey = authUser
+        ? `gemini_user:${authUser.id || authUser.sub}`
+        : `gemini_guest_ip:${clientIp}`;
+    const maxRequests = authUser ? 15 : 5;
+
+    const rateCheck = await RateLimitService.checkLimit({
+        key: rateLimitKey,
+        maxRequests,
+        windowSeconds: 60
+    });
+
+    if (!rateCheck.allowed) {
         return NextResponse.json(
             {
                 success: false,
-                error: 'Too many requests. AI assistant rate limit exceeded. Please wait a minute before trying again.'
+                error: `Too many requests. AI assistant rate limit exceeded. Please wait ${rateCheck.resetInSeconds} seconds before trying again.`
             },
-            { status: 429 }
+            {
+                status: 429,
+                headers: {
+                    'Retry-After': String(rateCheck.resetInSeconds),
+                    'X-RateLimit-Limit': String(rateCheck.limit),
+                    'X-RateLimit-Remaining': '0',
+                    'X-RateLimit-Reset': String(Math.floor(rateCheck.resetAt.getTime() / 1000))
+                }
+            }
         );
     }
 

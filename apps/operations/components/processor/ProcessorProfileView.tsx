@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Award,
   Building2,
+  LogOut,
 } from 'lucide-react';
 
 interface ProcessorProfileViewProps {
@@ -11,7 +12,7 @@ interface ProcessorProfileViewProps {
   userName?: string;
 }
 
-export const ProcessorProfileView: React.FC<ProcessorProfileViewProps> = ({ onExitAdmin: _onExitAdmin, userName }) => {
+export const ProcessorProfileView: React.FC<ProcessorProfileViewProps> = ({ onExitAdmin, userName }) => {
   const [stationStatus, setStationStatus] = useState<'available' | 'busy' | 'break'>('available');
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState([
@@ -20,6 +21,20 @@ export const ProcessorProfileView: React.FC<ProcessorProfileViewProps> = ({ onEx
     { label: 'QC Verification Rate', value: '100%' },
     { label: 'Avg Turnaround', value: '35m' },
   ]);
+
+  const handleLogout = () => {
+    if (onExitAdmin) {
+      onExitAdmin();
+    } else {
+      try {
+        localStorage.removeItem('l2u_auth_session');
+        window.dispatchEvent(new Event('l2u_auth_change'));
+        window.location.href = '/processor';
+      } catch (e) {
+        console.error('Logout error:', e);
+      }
+    }
+  };
 
   useEffect(() => {
     const loadProfileAndStats = async () => {
@@ -153,6 +168,29 @@ export const ProcessorProfileView: React.FC<ProcessorProfileViewProps> = ({ onEx
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs">
               <span className="text-slate-500">Plant Location</span>
               <span className="font-semibold text-slate-900">{displayPlant}</span>
+            </div>
+          </div>
+
+          {/* Session & Logout Card */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-2xs space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                  Session &amp; Security
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Sign out of this processor workstation
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs border border-rose-200 transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
             </div>
           </div>
         </div>

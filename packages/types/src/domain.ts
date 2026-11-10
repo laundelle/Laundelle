@@ -187,6 +187,7 @@ export interface CodCollectionRecord {
   reconciliationStatus: CodReconciliationStatus;
   reconciledBy?: string;
   reconciledAt?: string;
+  idempotencyKey?: string;
   createdAt: string;
 }
 
@@ -1164,9 +1165,9 @@ export interface RegisteredDevice {
 export interface OfflineOperation {
   operationId: string;
   clientTimestamp: string;
-  deviceId: string;
-  userId: string;
-  role: string;
+  deviceId?: string;
+  userId?: string;
+  role?: string;
   action: 'COLLECT_ORDER' | 'DELIVER_ORDER' | 'PROCESS_STAGE' | 'VERIFY_PIN' | 'LOG_EXCEPTION' | 'QC_INSPECT';
   entityId: string;
   payload: Record<string, any>;
@@ -1234,7 +1235,8 @@ export interface UnifiedAlert {
     | 'MACHINE_FAULT'
     | 'OFFLINE_CONFLICT'
     | 'CAPACITY_CRITICAL'
-    | 'SLA_BREACH';
+    | 'SLA_BREACH'
+    | 'NOTIFICATION_DEAD_LETTER';
   severity: 'INFO' | 'WARNING' | 'CRITICAL';
   title: string;
   message: string;
